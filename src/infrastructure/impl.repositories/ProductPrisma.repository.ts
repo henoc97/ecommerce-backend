@@ -1,0 +1,58 @@
+import prisma from '../../../prisma/client/prisma.service';
+import { ProductEntity } from '../../domain/entities/Product.entity';
+import { ProductVariantEntity } from '../../domain/entities/ProductVariant.entity';
+import { CategoryEntity } from '../../domain/entities/Category.entity';
+import { IProductRepository } from '../../domain/repositories/Product.repository';
+
+export class ProductPrismaRepository implements IProductRepository {
+    async createProduct(data: ProductEntity): Promise<ProductEntity> {
+        try {
+            return await prisma.product.create({ data }) as ProductEntity;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async updateProduct(id: number, data: Partial<ProductEntity>): Promise<ProductEntity> {
+        try {
+            return await prisma.product.update({ where: { id }, data }) as ProductEntity;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async deleteProduct(id: number): Promise<void> {
+        try {
+            await prisma.product.delete({ where: { id } });
+        } catch (error) {
+            throw error;
+        }
+    }
+    async findById(id: number): Promise<ProductEntity> {
+        try {
+            return await prisma.product.findUnique({ where: { id } }) as ProductEntity;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async listProducts(filter?: Partial<ProductEntity>): Promise<ProductEntity[]> {
+        try {
+            return await prisma.product.findMany({ where: filter }) as ProductEntity[];
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getProductVariants(productId: number): Promise<ProductVariantEntity[]> {
+        try {
+            return await prisma.productVariant.findMany({ where: { productId } }) as ProductVariantEntity[];
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getProductCategory(productId: number): Promise<CategoryEntity> {
+        try {
+            const product = await prisma.product.findUnique({ where: { id: productId }, include: { category: true } });
+            return product?.category as CategoryEntity;
+        } catch (error) {
+            throw error;
+        }
+    }
+} 

@@ -1,0 +1,54 @@
+import { Injectable, Inject } from '@nestjs/common';
+import { CartPrismaRepository } from '../../infrastructure/impl.repositories/CartPrisma.repository';
+import { CartEntity } from '../../domain/entities/Cart.entity';
+import { CartItemEntity } from '../../domain/entities/CartItem.entity';
+
+@Injectable()
+export class CartService {
+    constructor(
+        @Inject(CartPrismaRepository) private readonly repository: CartPrismaRepository,
+    ) { }
+
+    async createCart(userId: number, shopId: number) {
+        try {
+            return await this.repository.createCart(userId, shopId);
+        } catch (error) {
+            throw error;
+        }
+    }
+    async findByUserIdAndShopId(userId: number, shopId: number) {
+        try {
+            return await this.repository.findByUserIdAndShopId(userId, shopId);
+        } catch (error) {
+            throw error;
+        }
+    }
+    async listCartsByUser(userId: number) {
+        try {
+            return await this.repository.listCartsByUser(userId);
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getCartItems(cartId: number) {
+        try {
+            return await this.repository.getCartItems(cartId);
+        } catch (error) {
+            throw error;
+        }
+    }
+    async updateCartTotals(cartId: number) {
+        try {
+            return await this.repository.updateCartTotals(cartId);
+        } catch (error) {
+            throw error;
+        }
+    }
+    async deleteCart(cartId: number) {
+        try {
+            return await this.repository.deleteCart(cartId);
+        } catch (error) {
+            throw error;
+        }
+    }
+} 
