@@ -50,4 +50,11 @@ export class PromotionService {
             throw error;
         }
     }
+    async detectAbusivePromotions() {
+        try {
+            return await this.repository.detectAbusivePromotions();
+        } catch (error) {
+            throw error;
+        }
+    }
 } 
