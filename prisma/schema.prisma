@@ -180,7 +180,7 @@ model Product {
   category           Category         @relation(fields: [categoryId], references: [id])
   shopId             Int
   shop               Shop             @relation(fields: [shopId], references: [id])
-  productVariants     ProductVariant[]
+  productVariants    ProductVariant[]
 }
 
 // Product Variant Model: For product options like size, color
@@ -372,7 +372,7 @@ model Refund {
   id        Int          @id @default(autoincrement())
   orderId   Int?
   order     Order?
-  reason    String // refunf reason
+  reason    String? // refund reason
   amount    Float
   status    RefundStatus // e.g., PENDING, APPROVED, REJECTED
   createdAt DateTime     @default(now())
@@ -404,7 +404,7 @@ model AuditLog {
   userId    Int
   user      User           @relation(fields: [userId], references: [id])
   action    AuditLogAction // e.g., CREATED, UPDATED, DELETED
-  entity    String // Entité concernée, par exemple "Product", "Order"
+  entity    String         // Entity concerned, e.g., "Product", "Order"
   entityId  Int
   changes   Json
   updatedAt DateTime       @updatedAt
