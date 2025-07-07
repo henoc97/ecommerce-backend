@@ -1,0 +1,412 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enum for user roles
+enum UserRole {
+  CLIENT
+  ADMIN
+  SELLER
+}
+
+// Enum for order statuses
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  DELIVERED
+  CANCELLED
+  REFUNDED
+  RETURNED
+}
+
+enum Currency {
+  USD
+  EUR
+  XOF
+  XAF
+  CAD
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+enum PaymentStatus {
+  SUCCESS
+  FAILED
+  PENDING
+}
+
+enum NotificationType {
+  PROMOTION
+  ORDER_UPDATE
+  INFO
+  WARNING
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  HIGH
+  RESOLVED
+  CLOSED
+}
+
+enum RefundStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum UserActivityAction {
+  VIEW_PRODUCT
+  PURCHASE
+  ADD_TO_CART
+  REMOVE_FROM_CART
+  SEARCH
+}
+
+enum AuditLogAction {
+  CREATED
+  UPDATED
+  DELETED
+}
+
+// User Model: Represents users with roles like client, admin, or seller
+model User {
+  id              Int            @id @default(autoincrement())
+  email           String         @unique
+  password        String? // Optional car auth Google n'a pas de password
+  name            String
+  phone           String?
+  isEmailVerified Boolean        @default(false)
+  authProvider    String         @default("LOCAL") // "LOCAL" ou "GOOGLE"
+  googleId        String?        @unique
+  lastLogin       DateTime?
+  role            UserRole       @default(CLIENT)
+  updatedAt       DateTime       @updatedAt
+  createdAt       DateTime       @default(now())
+  // relations 
+  address         Address?
+  orders          Order[]
+  vendor          Vendor?
+  carts           Cart[]
+  reviews         Review[]
+  notifications   Notification[]
+  tickets         Ticket[]
+  userActivitis   UserActivity[]
+  auditLogs       AuditLog[]
+
+  @@index([name, email]) // Index for faster email lookups
+}
+
+// Address Model: Stores addresses for users
+model Address {
+  id         Int    @id @default(autoincrement())
+  userId     Int    @unique
+  user       User   @relation(fields: [userId], references: [id])
+  street     String
+  city       String
+  state      String
+  postalCode String
+  country    String
+}
+
+// Vendor Model: Represents a seller/vendor
+model Vendor {
+  id     Int    @id @default(autoincrement())
+  user   User   @relation(fields: [userId], references: [id])
+  userId Int    @unique
+  shops   Shop[] // One vendor can have multiple shops
+}
+
+model ShopSubscription {
+  id             Int          @id @default(autoincrement())
+  shopId         Int
+  shop           Shop         @relation(fields: [shopId], references: [id])
+  subscriptionId Int
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id])
+  startDate      DateTime     @default(now())
+  endDate        DateTime?
+  // set to true when the subscription is active : endDate > now()
+  isActive       Boolean      @default(true)
+
+}
+
+// Shop Model: Represents a generated e-commerce site for each vendor
+model Shop {
+  id                      Int                      @id @default(autoincrement())
+  name                    String
+  url                     String?                   @unique
+  description             String?
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  // relations
+  vendorId                Int
+  vendor                  Vendor                   @relation(fields: [vendorId], references: [id])
+  subsiteId               Int?                     @unique
+  subsite                 Subsite?                 @relation("ShopSubsite", fields: [subsiteId], references: [id])
+  shopSubscriptions       ShopSubscription[]
+  carts                   Cart[]
+  products                Product[]
+  orders                  Order[]
+  categories              Category[]
+  newsletterSubscriptions NewsletterSubscription[]
+}
+
+// Product Model: Represents products in the catalog
+model Product {
+  id                 Int              @id @default(autoincrement())
+  name               String
+  description        String?
+  productVariantKeys String[] // Array of keys for product variants, e.g., ["size", "color"]
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  categoryId         Int
+  category           Category         @relation(fields: [categoryId], references: [id])
+  shopId             Int
+  shop               Shop             @relation(fields: [shopId], references: [id])
+  productVariants     ProductVariant[]
+}
+
+// Product Variant Model: For product options like size, color
+model ProductVariant {
+  id           Int           @id @default(autoincrement())
+  productId    Int
+  product      Product       @relation(fields: [productId], references: [id])
+  // Json
+  attributes   Json // JSON field to store variant attributes like size, color, etc.
+  // Example: { "size": "M", "color": "Red" }
+  stock        Int           @default(0) // Stock for this variant
+  price        Float // Price for this variant, can be different from the base product price
+  currency     Currency
+  productImage ProductImage[] // Images specific to this variant
+  promotions   Promotion[] // Promotions applicable to this variant
+  cartItem     CartItem[]
+  orderItem    OrderItem[]
+  reviews      Review[]
+}
+
+// Product Image Model
+model ProductImage {
+  id               Int            @id @default(autoincrement())
+  productVariantId Int            @unique
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
+  url              String
+}
+
+// Category Model: For organizing products
+model Category {
+  id       Int        @id @default(autoincrement())
+  name     String
+  parent   Category?  @relation("CategoryChildren", fields: [parentId], references: [id])
+  parentId Int?
+  children Category[] @relation("CategoryChildren")
+  products Product[]
+  shop     Shop?      @relation(fields: [shopId], references: [id])
+  shopId   Int?
+}
+
+model Cart {
+  id            Int        @id @default(autoincrement())
+  userId        Int
+  shopId        Int
+  user          User       @relation(fields: [userId], references: [id])
+  totalPrice    Int        @default(0)
+  totalQuantity Int        @default(0)
+  items         CartItem[]
+  shop          Shop       @relation(fields: [shopId], references: [id])
+}
+
+// CartItem Model: Items in the cart
+model CartItem {
+  id        Int     @id @default(autoincrement())
+  quantity  Int     @default(1)
+  cartId    Int
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  productVariantId Int
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
+}
+
+// Order Model: Represents orders placed by users
+model Order {
+  id             Int         @id @default(autoincrement())
+  totalAmount    Float
+  paymentId      Int?        @unique
+  refundId       Int?        @unique
+  trackingNumber String?
+  status         OrderStatus
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  userId         Int
+  user           User        @relation(fields: [userId], references: [id])
+  shopId         Int
+  shop           Shop        @relation(fields: [shopId], references: [id])
+  items          OrderItem[]
+  payment        Payment?   @relation(fields: [paymentId], references: [id])           
+  refund         Refund?     @relation(fields: [refundId], references: [id])
+}
+
+// OrderItem Model: Items in an order
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  order     Order    @relation(fields: [orderId], references: [id])
+  productVariantId Int
+  productVatiant   ProductVariant  @relation(fields: [productVariantId], references: [id])
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Payment Model: Stores payment details
+model Payment {
+  id         Int           @id @default(autoincrement())
+  status     PaymentStatus // e.g., SUCCESS, FAILED, PENDING
+  method     String // e.g., Stripe, PayPal, Bank Transfer
+  amount     Float
+  providerId String?
+  metadata   Json?
+  currency   Currency
+  createdAt  DateTime      @default(now())
+  orderId    Int?
+  order      Order?         
+}
+
+// Review Model: Product reviews and ratings
+model Review {
+  id        Int      @id @default(autoincrement())
+  rating    Int      @default(1) // e.g., 1 to 5 stars
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  productVariantId Int
+  productVariant   ProductVariant  @relation(fields: [productVariantId], references: [id])
+
+  @@unique([userId, productVariantId]) // Ensure a user can only review a product variant once
+  @@index([productVariantId]) // Index for faster lookups by product variant
+}
+
+// Newsletter Model: For email marketing subscriptions
+model NewsletterSubscription {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  subscribedAt DateTime @default(now())
+  isActive     Boolean  @default(true) // Indicates if the subscription is active
+  shop         Shop     @relation(fields: [shopId], references: [id])
+  shopId       Int // Foreign key to reference the Shop
+}
+
+// Notification Model: For push notifications and email updates
+model Notification {
+  id      Int              @id @default(autoincrement())
+  userId  Int
+  user    User             @relation(fields: [userId], references: [id])
+  type    NotificationType // e.g., PROMOTION, ORDER_UPDATE
+  content String
+  isRead  Boolean
+  sentAt  DateTime         @default(now())
+}
+
+// Ticket Model: For support requests
+model Ticket {
+  id          Int          @id @default(autoincrement())
+  userId      Int
+  status      TicketStatus // e.g., OPEN, IN_PROGRESS, RESOLVED
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  user        User         @relation(fields: [userId], references: [id])
+  subject     String
+  description String
+  response    String?
+}
+
+// Promotion Model: Represents Promotion plans for products
+model Promotion {
+  id               Int            @id @default(autoincrement())
+  name             String
+  discountValue    Float
+  discountType     DiscountType // e.g., PERCENTAGE, FIXED_AMOUNT
+  startDate        DateTime
+  endDate          DateTime
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
+  productVariantId Int
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@index([productVariantId])
+}
+
+// Subscription Model: Represents subscription plans for vendors
+model Subscription {
+  id                Int                @id @default(autoincrement())
+  name              String
+  description       String?
+  price             Float
+  currency          Currency
+  duration          Int // Duration in days or months
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  // Relations
+  shopSubscriptions ShopSubscription[] // Relation with ShopSubscription
+}
+
+model Refund {
+  id        Int          @id @default(autoincrement())
+  orderId   Int?
+  order     Order?
+  reason    String // refunf reason
+  amount    Float
+  status    RefundStatus // e.g., PENDING, APPROVED, REJECTED
+  createdAt DateTime     @default(now())
+}
+
+model Subsite {
+  id        Int      @id @default(autoincrement())
+  title     String
+  config    Json
+  createdAt DateTime @default(now())
+  shopId    Int
+  shop      Shop?    @relation("ShopSubsite")
+}
+
+model UserActivity {
+  id        Int                @id @default(autoincrement())
+  action    UserActivityAction // e.g., VIEWED_PRODUCT, ADDED_TO_CART
+  keyword   String?
+  userId    Int
+  user      User               @relation(fields: [userId], references: [id])
+  productId Int?
+  orderId   Int?
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+}
+
+model AuditLog {
+  id        Int            @id @default(autoincrement())
+  userId    Int
+  user      User           @relation(fields: [userId], references: [id])
+  action    AuditLogAction // e.g., CREATED, UPDATED, DELETED
+  entity    String // Entité concernée, par exemple "Product", "Order"
+  entityId  Int
+  changes   Json
+  updatedAt DateTime       @updatedAt
+  createdAt DateTime       @default(now())
+}
