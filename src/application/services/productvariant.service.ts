@@ -1,8 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ProductVariantPrismaRepository } from '../../infrastructure/impl.repositories/ProductVariantPrisma.repository';
 import { ProductVariantEntity } from '../../domain/entities/ProductVariant.entity';
-import { ProductImageEntity } from '../../domain/entities/ProductImage.entity';
-import { PromotionEntity } from '../../domain/entities/Promotion.entity';
 
 @Injectable()
 export class ProductVariantService {

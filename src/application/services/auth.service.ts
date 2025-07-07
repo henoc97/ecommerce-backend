@@ -1,33 +1,27 @@
 import jwt from 'jsonwebtoken';
-import userService from './user.service';
 import { UserEntity } from '../../domain/entities/User.entity';
 import { hashPassword } from '../helper/hash-compare-pwd';
+import { UserService } from './user.service';
+import { Inject, Injectable } from '@nestjs/common';
 
-class AuthService {
-    private static instance: AuthService;
-
-    private constructor() { }
-
-    public static getInstance(): AuthService {
-        if (!AuthService.instance) {
-            AuthService.instance = new AuthService();
-        }
-        return AuthService.instance;
-    }
+@Injectable()
+export class AuthService {
+    private constructor(
+        @Inject(UserService) private readonly userService: UserService,
+    ) { }
 
     public async sign(user: UserEntity) {
         user.password = await hashPassword(user.password!);
-        const userCreated = await userService.create(user);
+        const userCreated = await this.userService.createUser(user);
         console.log("user", JSON.stringify(userCreated));
         return userCreated;
     }
 
-
     public async login(email: string, password: string) {
-        const user = await userService.findByEmail(email);
+        const user = await this.userService.findByEmail(email);
         console.log("user", JSON.stringify(user));
-        console.log('userService.validateUserPassword(user, password)', await userService.validateUserPassword(user, password));
-        if (!user || !(await userService.validateUserPassword(user, password))) {
+        console.log('this.userService.validateUserPassword(user, password)', await this.userService.validateUserPassword(user, password));
+        if (!user || !(await this.userService.validateUserPassword(user, password))) {
             throw new Error('Invalid credentials');
         }
         return user;
@@ -50,7 +44,6 @@ class AuthService {
         return tokens;
     }
 
-
     /**
      * 
      * @param userId 
@@ -67,4 +60,3 @@ class AuthService {
     }
 }
 
-export default AuthService.getInstance(); 

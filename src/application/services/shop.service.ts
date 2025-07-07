@@ -1,13 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ShopPrismaRepository } from '../../infrastructure/impl.repositories/ShopPrisma.repository';
 import { ShopEntity } from '../../domain/entities/Shop.entity';
-import { ProductEntity } from '../../domain/entities/Product.entity';
 import { SubsiteEntity } from '../../domain/entities/Subsite.entity';
-import { ShopSubscriptionEntity } from '../../domain/entities/ShopSubscription.entity';
-import { OrderEntity } from '../../domain/entities/Order.entity';
-import { PaymentEntity } from '../../domain/entities/Payment.entity';
-import { RefundEntity } from '../../domain/entities/Refund.entity';
-import { ReviewEntity } from '../../domain/entities/Review.entity';
 
 @Injectable()
 export class ShopService {

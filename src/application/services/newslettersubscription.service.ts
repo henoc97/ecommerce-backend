@@ -8,9 +8,9 @@ export class NewsletterSubscriptionService {
         @Inject(NewsletterSubscriptionPrismaRepository) private readonly repository: NewsletterSubscriptionPrismaRepository,
     ) { }
 
-    async subscribe(data: NewsletterSubscriptionEntity) {
+    async subscribe(userId: number, shopId: number): Promise<NewsletterSubscriptionEntity> {
         try {
-            return await this.repository.subscribe(data);
+            return await this.repository.subscribe(userId, shopId);
         } catch (error) {
             throw error;
         }
