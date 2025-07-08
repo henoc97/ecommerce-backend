@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import prisma from '../../../prisma/client/prisma.service';
 import { UserActivityEntity } from '../../domain/entities/UserActivity.entity';
 import { IUserActivityRepository } from '../../domain/repositories/UserActivity.repository';
@@ -5,22 +6,22 @@ import { IUserActivityRepository } from '../../domain/repositories/UserActivity.
 export class UserActivityPrismaRepository implements IUserActivityRepository {
     async logActivity(data: UserActivityEntity): Promise<UserActivityEntity> {
         try {
-            return await prisma.userActivity.create({ data }) as UserActivityEntity;
+            return await prisma.userActivity.create({ data: data as Prisma.UserActivityCreateInput }) as UserActivityEntity;
         } catch (error) {
             throw error;
         }
     }
     async listActivities(filter?: Partial<UserActivityEntity>): Promise<UserActivityEntity[]> {
         try {
-            return await prisma.userActivity.findMany({ where: filter }) as UserActivityEntity[];
+            return await prisma.userActivity.findMany({ where: filter as Prisma.UserActivityWhereInput }) as UserActivityEntity[];
         } catch (error) {
             throw error;
         }
     }
     async getShopActivities(shopId: number): Promise<UserActivityEntity[]> {
         try {
-            // Suppose que l'activité est liée à un produit, qui est lié à un shop
-            return await prisma.userActivity.findMany({ where: { product: { shopId } } }) as UserActivityEntity[];
+            // TODO: Implémenter la logique pour récupérer les activités liées à un shop
+            throw new Error('Method not implemented');
         } catch (error) {
             throw error;
         }

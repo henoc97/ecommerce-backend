@@ -1,25 +1,28 @@
+import { Prisma } from '@prisma/client';
 import prisma from '../../../prisma/client/prisma.service';
 import { NewsletterSubscriptionEntity } from '../../domain/entities/NewsletterSubscription.entity';
 import { INewsletterSubscriptionRepository } from '../../domain/repositories/NewsletterSubscription.repository';
 
 export class NewsletterSubscriptionPrismaRepository implements INewsletterSubscriptionRepository {
-    async subscribe(userId: number, shopId: number): Promise<NewsletterSubscriptionEntity> {
+    async subscribe(email: string, shopId: number): Promise<NewsletterSubscriptionEntity> {
         try {
-            return await prisma.newsletterSubscription.create({ data: { userId, shopId } }) as NewsletterSubscriptionEntity;
+            return await prisma.newsletterSubscription.create({ data: { email, shopId } }) as NewsletterSubscriptionEntity;
         } catch (error) {
             throw error;
         }
     }
-    async unsubscribe(userId: number, shopId: number): Promise<void> {
+    async unsubscribe(email: string, shopId: number): Promise<void> {
         try {
-            await prisma.newsletterSubscription.delete({ where: { userId_shopId: { userId, shopId } } });
+            await prisma.newsletterSubscription.delete({
+                where: { email_shopId: { email, shopId } }
+            });
         } catch (error) {
             throw error;
         }
     }
-    async checkSubscriptionStatus(userId: number, shopId: number): Promise<boolean> {
+    async checkSubscriptionStatus(email: string, shopId: number): Promise<boolean> {
         try {
-            const sub = await prisma.newsletterSubscription.findUnique({ where: { userId_shopId: { userId, shopId } } });
+            const sub = await prisma.newsletterSubscription.findUnique({ where: { email_shopId: { email, shopId } } });
             return !!sub;
         } catch (error) {
             throw error;

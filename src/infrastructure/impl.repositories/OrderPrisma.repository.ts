@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import prisma from '../../../prisma/client/prisma.service';
 import { OrderEntity } from '../../domain/entities/Order.entity';
 import { OrderItemEntity } from '../../domain/entities/OrderItem.entity';
@@ -9,14 +10,14 @@ import { IOrderRepository } from '../../domain/repositories/Order.repository';
 export class OrderPrismaRepository implements IOrderRepository {
     async createOrder(data: OrderEntity): Promise<OrderEntity> {
         try {
-            return await prisma.order.create({ data }) as OrderEntity;
+            return await prisma.order.create({ data: data as Prisma.OrderCreateInput }) as OrderEntity;
         } catch (error) {
             throw error;
         }
     }
     async updateOrder(id: number, data: Partial<OrderEntity>): Promise<OrderEntity> {
         try {
-            return await prisma.order.update({ where: { id }, data }) as OrderEntity;
+            return await prisma.order.update({ where: { id }, data: data as Prisma.OrderUpdateInput }) as OrderEntity;
         } catch (error) {
             throw error;
         }
@@ -37,7 +38,7 @@ export class OrderPrismaRepository implements IOrderRepository {
     }
     async listOrders(filter?: Partial<OrderEntity>): Promise<OrderEntity[]> {
         try {
-            return await prisma.order.findMany({ where: filter }) as OrderEntity[];
+            return await prisma.order.findMany({ where: filter as Prisma.OrderWhereInput }) as OrderEntity[];
         } catch (error) {
             throw error;
         }

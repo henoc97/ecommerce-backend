@@ -3,18 +3,19 @@ import { ProductEntity } from '../../domain/entities/Product.entity';
 import { ProductVariantEntity } from '../../domain/entities/ProductVariant.entity';
 import { CategoryEntity } from '../../domain/entities/Category.entity';
 import { IProductRepository } from '../../domain/repositories/Product.repository';
+import { Prisma } from '@prisma/client';
 
 export class ProductPrismaRepository implements IProductRepository {
     async createProduct(data: ProductEntity): Promise<ProductEntity> {
         try {
-            return await prisma.product.create({ data }) as ProductEntity;
+            return await prisma.product.create({ data: data as Prisma.ProductCreateInput }) as ProductEntity;
         } catch (error) {
             throw error;
         }
     }
     async updateProduct(id: number, data: Partial<ProductEntity>): Promise<ProductEntity> {
         try {
-            return await prisma.product.update({ where: { id }, data }) as ProductEntity;
+            return await prisma.product.update({ where: { id }, data: data as Prisma.ProductUpdateInput }) as ProductEntity;
         } catch (error) {
             throw error;
         }
@@ -35,7 +36,7 @@ export class ProductPrismaRepository implements IProductRepository {
     }
     async listProducts(filter?: Partial<ProductEntity>): Promise<ProductEntity[]> {
         try {
-            return await prisma.product.findMany({ where: filter }) as ProductEntity[];
+            return await prisma.product.findMany({ where: filter as Prisma.ProductWhereInput }) as ProductEntity[];
         } catch (error) {
             throw error;
         }

@@ -8,23 +8,23 @@ export class NewsletterSubscriptionService {
         @Inject(NewsletterSubscriptionPrismaRepository) private readonly repository: NewsletterSubscriptionPrismaRepository,
     ) { }
 
-    async subscribe(userId: number, shopId: number): Promise<NewsletterSubscriptionEntity> {
+    async subscribe(email: string, shopId: number): Promise<NewsletterSubscriptionEntity> {
         try {
-            return await this.repository.subscribe(userId, shopId);
+            return await this.repository.subscribe(email, shopId);
         } catch (error) {
             throw error;
         }
     }
-    async unsubscribe(userId: number, shopId: number) {
+    async unsubscribe(email: string, shopId: number) {
         try {
-            return await this.repository.unsubscribe(userId, shopId);
+            return await this.repository.unsubscribe(email, shopId);
         } catch (error) {
             throw error;
         }
     }
-    async checkSubscriptionStatus(userId: number, shopId: number) {
+    async checkSubscriptionStatus(email: string, shopId: number) {
         try {
-            return await this.repository.checkSubscriptionStatus(userId, shopId);
+            return await this.repository.checkSubscriptionStatus(email, shopId);
         } catch (error) {
             throw error;
         }

@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import prisma from '../../../prisma/client/prisma.service';
 import { OrderItemEntity } from '../../domain/entities/OrderItem.entity';
 import { IOrderItemRepository } from '../../domain/repositories/OrderItem.repository';
@@ -5,14 +6,15 @@ import { IOrderItemRepository } from '../../domain/repositories/OrderItem.reposi
 export class OrderItemPrismaRepository implements IOrderItemRepository {
     async addOrderItem(orderId: number, data: OrderItemEntity): Promise<OrderItemEntity> {
         try {
-            return await prisma.orderItem.create({ data: { ...data, orderId } }) as OrderItemEntity;
+            const { productVariantId, quantity, price } = data;
+            return await prisma.orderItem.create({ data: { orderId, productVariantId, quantity, price } }) as OrderItemEntity;
         } catch (error) {
             throw error;
         }
     }
     async updateOrderItem(id: number, data: Partial<OrderItemEntity>): Promise<OrderItemEntity> {
         try {
-            return await prisma.orderItem.update({ where: { id }, data }) as OrderItemEntity;
+            return await prisma.orderItem.update({ where: { id }, data: data as Prisma.OrderItemUpdateInput }) as OrderItemEntity;
         } catch (error) {
             throw error;
         }

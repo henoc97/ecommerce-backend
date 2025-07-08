@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import prisma from '../../../prisma/client/prisma.service';
 import { RefundEntity } from '../../domain/entities/Refund.entity';
 import { IRefundRepository } from '../../domain/repositories/Refund.repository';
@@ -5,14 +6,14 @@ import { IRefundRepository } from '../../domain/repositories/Refund.repository';
 export class RefundPrismaRepository implements IRefundRepository {
     async createRefund(data: RefundEntity): Promise<RefundEntity> {
         try {
-            return await prisma.refund.create({ data }) as RefundEntity;
+            return await prisma.refund.create({ data: data as Prisma.RefundCreateInput }) as RefundEntity;
         } catch (error) {
             throw error;
         }
     }
     async updateRefund(id: number, data: Partial<RefundEntity>): Promise<RefundEntity> {
         try {
-            return await prisma.refund.update({ where: { id }, data }) as RefundEntity;
+            return await prisma.refund.update({ where: { id }, data: data as Prisma.RefundUpdateInput }) as RefundEntity;
         } catch (error) {
             throw error;
         }
@@ -33,7 +34,7 @@ export class RefundPrismaRepository implements IRefundRepository {
     }
     async listRefunds(filter?: Partial<RefundEntity>): Promise<RefundEntity[]> {
         try {
-            return await prisma.refund.findMany({ where: filter }) as RefundEntity[];
+            return await prisma.refund.findMany({ where: filter as Prisma.RefundWhereInput }) as RefundEntity[];
         } catch (error) {
             throw error;
         }

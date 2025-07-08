@@ -2,18 +2,19 @@ import { DiscountType } from 'src/domain/enums/DiscountType.enum';
 import prisma from '../../../prisma/client/prisma.service';
 import { PromotionEntity } from '../../domain/entities/Promotion.entity';
 import { IPromotionRepository } from '../../domain/repositories/Promotion.repository';
+import { Prisma } from '@prisma/client';
 
 export class PromotionPrismaRepository implements IPromotionRepository {
     async addPromotion(data: PromotionEntity): Promise<PromotionEntity> {
         try {
-            return await prisma.promotion.create({ data }) as PromotionEntity;
+            return await prisma.promotion.create({ data: data as Prisma.PromotionCreateInput }) as PromotionEntity;
         } catch (error) {
             throw error;
         }
     }
     async updatePromotion(id: number, data: Partial<PromotionEntity>): Promise<PromotionEntity> {
         try {
-            return await prisma.promotion.update({ where: { id }, data }) as PromotionEntity;
+            return await prisma.promotion.update({ where: { id }, data: data as Prisma.PromotionUpdateInput }) as PromotionEntity;
         } catch (error) {
             throw error;
         }
@@ -34,7 +35,7 @@ export class PromotionPrismaRepository implements IPromotionRepository {
     }
     async listPromotions(filter?: Partial<PromotionEntity>): Promise<PromotionEntity[]> {
         try {
-            return await prisma.promotion.findMany({ where: filter }) as PromotionEntity[];
+            return await prisma.promotion.findMany({ where: filter as Prisma.PromotionWhereInput }) as PromotionEntity[];
         } catch (error) {
             throw error;
         }
