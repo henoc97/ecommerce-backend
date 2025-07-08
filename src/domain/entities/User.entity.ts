@@ -12,7 +12,7 @@ export class UserEntity {
     id: number;
     email: string;
     password?: string;
-    name: string;
+    name: string = "";
     phone?: string;
     isEmailVerified: boolean;
     authProvider: string;

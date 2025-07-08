@@ -1,13 +1,13 @@
-import jwt from 'jsonwebtoken';
 import { UserEntity } from '../../domain/entities/User.entity';
 import { hashPassword } from '../helper/hash-compare-pwd';
 import { UserService } from './user.service';
 import { Inject, Injectable } from '@nestjs/common';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class AuthService {
-    private constructor(
-        @Inject(UserService) private readonly userService: UserService,
+    constructor(
+        @Inject(UserService) private readonly userService: UserService
     ) { }
 
     public async sign(user: UserEntity) {
@@ -38,8 +38,8 @@ export class AuthService {
         if (!jwtSecret) {
             throw new Error('JWT_SECRET environment variable is not defined');
         }
-        const accessToken = jwt.sign({ id: userId, email: email }, jwtSecret, { expiresIn: '1h' });
-        const refreshToken = jwt.sign({ id: userId, email: email }, jwtSecret, { expiresIn: '7d' });
+        const accessToken = jwt.sign({ id: userId, email }, jwtSecret, { expiresIn: '1h' });
+        const refreshToken = jwt.sign({ id: userId, email }, jwtSecret, { expiresIn: '7d' });
         const tokens = { accessToken, refreshToken };
         return tokens;
     }

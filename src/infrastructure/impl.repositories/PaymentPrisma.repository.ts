@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import prisma from '../../../prisma/client/prisma.service';
 import { PaymentEntity } from '../../domain/entities/Payment.entity';
 import { IPaymentRepository } from '../../domain/repositories/Payment.repository';
@@ -5,14 +6,14 @@ import { IPaymentRepository } from '../../domain/repositories/Payment.repository
 export class PaymentPrismaRepository implements IPaymentRepository {
     async createPayment(data: PaymentEntity): Promise<PaymentEntity> {
         try {
-            return await prisma.payment.create({ data }) as PaymentEntity;
+            return await prisma.payment.create({ data: data as Prisma.PaymentCreateInput }) as PaymentEntity;
         } catch (error) {
             throw error;
         }
     }
     async updatePayment(id: number, data: Partial<PaymentEntity>): Promise<PaymentEntity> {
         try {
-            return await prisma.payment.update({ where: { id }, data }) as PaymentEntity;
+            return await prisma.payment.update({ where: { id }, data: data as Prisma.PaymentUpdateInput }) as PaymentEntity;
         } catch (error) {
             throw error;
         }
@@ -33,7 +34,7 @@ export class PaymentPrismaRepository implements IPaymentRepository {
     }
     async listPayments(filter?: Partial<PaymentEntity>): Promise<PaymentEntity[]> {
         try {
-            return await prisma.payment.findMany({ where: filter }) as PaymentEntity[];
+            return await prisma.payment.findMany({ where: filter as Prisma.PaymentWhereInput }) as PaymentEntity[];
         } catch (error) {
             throw error;
         }

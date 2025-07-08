@@ -1,11 +1,12 @@
 import prisma from '../../../prisma/client/prisma.service';
 import { UserEntity } from '../../domain/entities/User.entity';
 import { IUserRepository } from '../../domain/repositories/User.repository';
+import { Prisma, UserRole as PrismaUserRole } from '@prisma/client';
 
 export class UserPrismaRepository implements IUserRepository {
     async createUser(data: UserEntity): Promise<UserEntity> {
         try {
-            const user = await prisma.user.create({ data });
+            const user = await prisma.user.create({ data: data as Prisma.UserCreateInput });
             return user as UserEntity;
         } catch (error) {
             throw error;
@@ -27,7 +28,9 @@ export class UserPrismaRepository implements IUserRepository {
     }
     async updateUser(id: number, data: Partial<UserEntity>): Promise<UserEntity> {
         try {
-            return await prisma.user.update({ where: { id }, data }) as UserEntity;
+            const updateData = { ...data };
+            if (updateData.role) updateData.role = updateData.role as PrismaUserRole;
+            return await prisma.user.update({ where: { id }, data: updateData as Prisma.UserUpdateInput }) as UserEntity;
         } catch (error) {
             throw error;
         }
@@ -41,7 +44,7 @@ export class UserPrismaRepository implements IUserRepository {
     }
     async listUsers(filter?: Partial<UserEntity>): Promise<UserEntity[]> {
         try {
-            return await prisma.user.findMany({ where: filter }) as UserEntity[];
+            return await prisma.user.findMany({ where: filter as Prisma.UserWhereInput }) as UserEntity[];
         } catch (error) {
             throw error;
         }
@@ -69,7 +72,7 @@ export class UserPrismaRepository implements IUserRepository {
     }
     async setRole(id: number, role: string): Promise<void> {
         try {
-            await prisma.user.update({ where: { id }, data: { role } });
+            await prisma.user.update({ where: { id }, data: { role: role as PrismaUserRole } });
         } catch (error) {
             throw error;
         }

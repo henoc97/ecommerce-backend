@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import prisma from '../../../prisma/client/prisma.service';
 import { NotificationEntity } from '../../domain/entities/Notification.entity';
 import { INotificationRepository } from '../../domain/repositories/Notification.repository';
@@ -5,7 +6,7 @@ import { INotificationRepository } from '../../domain/repositories/Notification.
 export class NotificationPrismaRepository implements INotificationRepository {
     async createNotification(data: NotificationEntity): Promise<NotificationEntity> {
         try {
-            return await prisma.notification.create({ data }) as NotificationEntity;
+            return await prisma.notification.create({ data: data as Prisma.NotificationCreateInput }) as NotificationEntity;
         } catch (error) {
             throw error;
         }

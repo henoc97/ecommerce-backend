@@ -307,11 +307,12 @@ model Review {
 // Newsletter Model: For email marketing subscriptions
 model NewsletterSubscription {
   id           Int      @id @default(autoincrement())
-  email        String   @unique
+  email        String   
   subscribedAt DateTime @default(now())
   isActive     Boolean  @default(true) // Indicates if the subscription is active
   shop         Shop     @relation(fields: [shopId], references: [id])
   shopId       Int // Foreign key to reference the Shop
+  @@unique([email, shopId]) // Ensure unique email per shop
 }
 
 // Notification Model: For push notifications and email updates

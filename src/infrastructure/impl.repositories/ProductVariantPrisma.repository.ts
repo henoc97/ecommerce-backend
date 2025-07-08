@@ -3,18 +3,20 @@ import { ProductVariantEntity } from '../../domain/entities/ProductVariant.entit
 import { ProductImageEntity } from '../../domain/entities/ProductImage.entity';
 import { PromotionEntity } from '../../domain/entities/Promotion.entity';
 import { IProductVariantRepository } from '../../domain/repositories/ProductVariant.repository';
+import { Prisma } from '@prisma/client';
 
 export class ProductVariantPrismaRepository implements IProductVariantRepository {
     async createVariant(productId: number, data: ProductVariantEntity): Promise<ProductVariantEntity> {
         try {
-            return await prisma.productVariant.create({ data: { ...data, productId } }) as ProductVariantEntity;
+            const { attributes, stock, price, currency } = data;
+            return await prisma.productVariant.create({ data: { productId, attributes, stock, price, currency } }) as ProductVariantEntity;
         } catch (error) {
             throw error;
         }
     }
     async updateVariant(id: number, data: Partial<ProductVariantEntity>): Promise<ProductVariantEntity> {
         try {
-            return await prisma.productVariant.update({ where: { id }, data }) as ProductVariantEntity;
+            return await prisma.productVariant.update({ where: { id }, data: data as Prisma.ProductVariantUpdateInput }) as ProductVariantEntity;
         } catch (error) {
             throw error;
         }

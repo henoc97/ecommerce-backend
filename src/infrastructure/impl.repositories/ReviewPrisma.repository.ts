@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import prisma from '../../../prisma/client/prisma.service';
 import { ReviewEntity } from '../../domain/entities/Review.entity';
 import { IReviewRepository } from '../../domain/repositories/Review.repository';
@@ -5,14 +6,14 @@ import { IReviewRepository } from '../../domain/repositories/Review.repository';
 export class ReviewPrismaRepository implements IReviewRepository {
     async createReview(data: ReviewEntity): Promise<ReviewEntity> {
         try {
-            return await prisma.review.create({ data }) as ReviewEntity;
+            return await prisma.review.create({ data: data as Prisma.ReviewCreateInput }) as ReviewEntity;
         } catch (error) {
             throw error;
         }
     }
     async updateReview(id: number, data: Partial<ReviewEntity>): Promise<ReviewEntity> {
         try {
-            return await prisma.review.update({ where: { id }, data }) as ReviewEntity;
+            return await prisma.review.update({ where: { id }, data: data as Prisma.ReviewUpdateInput }) as ReviewEntity;
         } catch (error) {
             throw error;
         }
@@ -33,7 +34,7 @@ export class ReviewPrismaRepository implements IReviewRepository {
     }
     async listReviews(filter?: Partial<ReviewEntity>): Promise<ReviewEntity[]> {
         try {
-            return await prisma.review.findMany({ where: filter }) as ReviewEntity[];
+            return await prisma.review.findMany({ where: filter as Prisma.ReviewWhereInput }) as ReviewEntity[];
         } catch (error) {
             throw error;
         }

@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import prisma from '../../../prisma/client/prisma.service';
 import { TicketEntity } from '../../domain/entities/Ticket.entity';
 import { ITicketRepository } from '../../domain/repositories/Ticket.repository';
@@ -5,14 +6,14 @@ import { ITicketRepository } from '../../domain/repositories/Ticket.repository';
 export class TicketPrismaRepository implements ITicketRepository {
     async createTicket(data: TicketEntity): Promise<TicketEntity> {
         try {
-            return await prisma.ticket.create({ data }) as TicketEntity;
+            return await prisma.ticket.create({ data: data as Prisma.TicketCreateInput }) as TicketEntity;
         } catch (error) {
             throw error;
         }
     }
     async updateTicket(id: number, data: Partial<TicketEntity>): Promise<TicketEntity> {
         try {
-            return await prisma.ticket.update({ where: { id }, data }) as TicketEntity;
+            return await prisma.ticket.update({ where: { id }, data: data as Prisma.TicketUpdateInput }) as TicketEntity;
         } catch (error) {
             throw error;
         }
@@ -33,7 +34,7 @@ export class TicketPrismaRepository implements ITicketRepository {
     }
     async listTickets(filter?: Partial<TicketEntity>): Promise<TicketEntity[]> {
         try {
-            return await prisma.ticket.findMany({ where: filter }) as TicketEntity[];
+            return await prisma.ticket.findMany({ where: filter as Prisma.TicketWhereInput }) as TicketEntity[];
         } catch (error) {
             throw error;
         }

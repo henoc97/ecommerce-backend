@@ -8,18 +8,19 @@ import { PaymentEntity } from '../../domain/entities/Payment.entity';
 import { RefundEntity } from '../../domain/entities/Refund.entity';
 import { ReviewEntity } from '../../domain/entities/Review.entity';
 import { IShopRepository } from '../../domain/repositories/Shop.repository';
+import { Prisma } from '@prisma/client';
 
 export class ShopPrismaRepository implements IShopRepository {
     async createShop(data: ShopEntity): Promise<ShopEntity> {
         try {
-            return await prisma.shop.create({ data }) as ShopEntity;
+            return await prisma.shop.create({ data: data as Prisma.ShopCreateInput }) as ShopEntity;
         } catch (error) {
             throw error;
         }
     }
     async updateShop(id: number, data: Partial<ShopEntity>): Promise<ShopEntity> {
         try {
-            return await prisma.shop.update({ where: { id }, data }) as ShopEntity;
+            return await prisma.shop.update({ where: { id } as Prisma.ShopWhereUniqueInput, data: data as Prisma.ShopUpdateInput }) as ShopEntity;
         } catch (error) {
             throw error;
         }
@@ -33,37 +34,37 @@ export class ShopPrismaRepository implements IShopRepository {
     }
     async findById(id: number): Promise<ShopEntity> {
         try {
-            return await prisma.shop.findUnique({ where: { id } }) as ShopEntity;
+            return await prisma.shop.findUnique({ where: { id } as Prisma.ShopWhereUniqueInput }) as ShopEntity;
         } catch (error) {
             throw error;
         }
     }
     async listShops(filter?: Partial<ShopEntity>): Promise<ShopEntity[]> {
         try {
-            return await prisma.shop.findMany({ where: filter }) as ShopEntity[];
+            return await prisma.shop.findMany({ where: filter as Prisma.ShopWhereInput }) as ShopEntity[];
         } catch (error) {
             throw error;
         }
     }
     async getShopProducts(shopId: number): Promise<ProductEntity[]> {
         try {
-            return await prisma.product.findMany({ where: { shopId } }) as ProductEntity[];
+            return await prisma.product.findMany({ where: { shopId } as Prisma.ProductWhereInput }) as ProductEntity[];
         } catch (error) {
             throw error;
         }
     }
     async getShopSubsite(shopId: number): Promise<SubsiteEntity> {
         try {
-            return await prisma.subsite.findFirst({ where: { shopId } }) as SubsiteEntity;
+            return await prisma.subsite.findFirst({ where: { shopId } as Prisma.SubsiteWhereInput }) as SubsiteEntity;
         } catch (error) {
             throw error;
         }
     }
     async updateShopSubsite(shopId: number, config: Partial<SubsiteEntity>): Promise<SubsiteEntity> {
         try {
-            const subsite = await prisma.subsite.findFirst({ where: { shopId } });
+            const subsite = await prisma.subsite.findFirst({ where: { shopId } as Prisma.SubsiteWhereInput });
             if (!subsite) throw new Error('Subsite not found');
-            return await prisma.subsite.update({ where: { id: subsite.id }, data: config }) as SubsiteEntity;
+            return await prisma.subsite.update({ where: { id: subsite.id } as Prisma.SubsiteWhereUniqueInput, data: config as Prisma.SubsiteUpdateInput }) as SubsiteEntity;
         } catch (error) {
             throw error;
         }

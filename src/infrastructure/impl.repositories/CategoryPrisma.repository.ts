@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import prisma from '../../../prisma/client/prisma.service';
 import { CategoryEntity } from '../../domain/entities/Category.entity';
 import { ICategoryRepository } from '../../domain/repositories/Category.repository';
@@ -5,14 +6,14 @@ import { ICategoryRepository } from '../../domain/repositories/Category.reposito
 export class CategoryPrismaRepository implements ICategoryRepository {
     async createCategory(data: CategoryEntity): Promise<CategoryEntity> {
         try {
-            return await prisma.category.create({ data }) as CategoryEntity;
+            return await prisma.category.create({ data: data as Prisma.CategoryCreateInput }) as CategoryEntity;
         } catch (error) {
             throw error;
         }
     }
     async updateCategory(id: number, data: Partial<CategoryEntity>): Promise<CategoryEntity> {
         try {
-            return await prisma.category.update({ where: { id }, data }) as CategoryEntity;
+            return await prisma.category.update({ where: { id }, data: data as Prisma.CategoryCreateInput }) as CategoryEntity;
         } catch (error) {
             throw error;
         }
