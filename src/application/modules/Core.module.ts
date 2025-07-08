@@ -25,6 +25,11 @@ import { CartItemPrismaRepository } from 'src/infrastructure/impl.repositories/C
 import { ReviewService } from '../services/review.service';
 import { ReviewPrismaRepository } from 'src/infrastructure/impl.repositories/ReviewPrisma.repository';
 import { ListActiveShopsWithStatsUseCase } from '../use-cases/shop.use-case/ListActiveShopsWithStats.use-case';
+import { OrderService } from '../services/order.service';
+import { OrderPrismaRepository } from 'src/infrastructure/impl.repositories/OrderPrisma.repository';
+import { CreateOrderFromCartUseCase } from '../use-cases/order.use-case/CreateOrderFromCart.use-case';
+import { OrderItemService } from '../services/orderitem.service';
+import { OrderItemPrismaRepository } from 'src/infrastructure/impl.repositories/OrderItemPrisma.repository';
 
 @Module({
     providers: [
@@ -40,10 +45,13 @@ import { ListActiveShopsWithStatsUseCase } from '../use-cases/shop.use-case/List
         CartItemService,
         ProductVariantService,
         ReviewService,
+        OrderService,
+        OrderItemService,
         // ... autres services
         AddProductToCartUseCase,
         UpdateCartItemQuantityUseCase,
         ListActiveShopsWithStatsUseCase,
+        CreateOrderFromCartUseCase,
         // ... autres use-cases
         UserPrismaRepository,
         AddressPrismaRepository,
@@ -54,7 +62,9 @@ import { ListActiveShopsWithStatsUseCase } from '../use-cases/shop.use-case/List
         CartPrismaRepository,
         CartItemPrismaRepository,
         ProductVariantPrismaRepository,
-        ReviewPrismaRepository
+        ReviewPrismaRepository,
+        OrderPrismaRepository,
+        OrderItemPrismaRepository
         // ... autres repositories
     ],
     exports: [
@@ -70,10 +80,13 @@ import { ListActiveShopsWithStatsUseCase } from '../use-cases/shop.use-case/List
         CartItemService,
         ProductVariantService,
         ReviewService,
+        OrderService,
+        OrderItemService,
         // ... autres services
         AddProductToCartUseCase,
         UpdateCartItemQuantityUseCase,
         ListActiveShopsWithStatsUseCase,
+        CreateOrderFromCartUseCase,
         // ... autres use-cases
         UserPrismaRepository,
         AddressPrismaRepository,
@@ -84,7 +97,9 @@ import { ListActiveShopsWithStatsUseCase } from '../use-cases/shop.use-case/List
         CartPrismaRepository,
         ProductVariantPrismaRepository,
         CartItemPrismaRepository,
-        ReviewPrismaRepository
+        ReviewPrismaRepository,
+        OrderPrismaRepository,
+        OrderItemPrismaRepository
         // ... autres repositories
     ],
 })
