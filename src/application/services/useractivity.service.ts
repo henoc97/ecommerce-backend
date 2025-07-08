@@ -10,6 +10,7 @@ export class UserActivityService {
 
     async logActivity(data: UserActivityEntity) {
         try {
+
             return await this.repository.logActivity(data);
         } catch (error) {
             throw error;

@@ -5,5 +5,6 @@ export interface ICartItemRepository {
     updateItemQuantity(id: number, quantity: number): Promise<CartItemEntity>;
     deleteItem(id: number): Promise<void>;
     findById(id: number): Promise<CartItemEntity>;
+    findByCartIdAndProductId(cartId: number, productId: number): Promise<CartItemEntity | null>;
     listItemsByCart(cartId: number): Promise<CartItemEntity[]>;
 } 

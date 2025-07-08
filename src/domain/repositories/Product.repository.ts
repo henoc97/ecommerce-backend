@@ -7,6 +7,7 @@ export interface IProductRepository {
     updateProduct(id: number, data: Partial<ProductEntity>): Promise<ProductEntity>;
     deleteProduct(id: number): Promise<void>;
     findById(id: number): Promise<ProductEntity>;
+    getProductWithVariantsImages(id: number): Promise<ProductEntity>;
     listProducts(filter?: Partial<ProductEntity>): Promise<ProductEntity[]>;
     getProductVariants(productId: number): Promise<ProductVariantEntity[]>;
     getProductCategory(productId: number): Promise<CategoryEntity>;

@@ -31,6 +31,13 @@ export class CartItemPrismaRepository implements ICartItemRepository {
             throw error;
         }
     }
+    async findByCartIdAndProductId(cartId: number, productId: number): Promise<CartItemEntity | null> {
+        try {
+            return await prisma.cartItem.findFirst({ where: { AND: { cartId, productVariantId: productId } } }) as CartItemEntity;
+        } catch (error) {
+            throw error;
+        }
+    }
     async listItemsByCart(cartId: number): Promise<CartItemEntity[]> {
         try {
             return await prisma.cartItem.findMany({ where: { cartId } }) as CartItemEntity[];

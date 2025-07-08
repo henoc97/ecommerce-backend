@@ -4,6 +4,7 @@ import { CartItemEntity } from '../../domain/entities/CartItem.entity';
 import { ICartRepository } from '../../domain/repositories/Cart.repository';
 
 export class CartPrismaRepository implements ICartRepository {
+
     async createCart(userId: number, shopId: number): Promise<CartEntity> {
         try {
             return await prisma.cart.create({ data: { userId, shopId } }) as CartEntity;
@@ -14,6 +15,13 @@ export class CartPrismaRepository implements ICartRepository {
     async findByUserIdAndShopId(userId: number, shopId: number): Promise<CartEntity> {
         try {
             return await prisma.cart.findFirst({ where: { userId, shopId } }) as CartEntity;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getCartDetails(id: number): Promise<CartEntity> {
+        try {
+            return await prisma.cart.findUnique({ where: { id } }) as CartEntity;
         } catch (error) {
             throw error;
         }

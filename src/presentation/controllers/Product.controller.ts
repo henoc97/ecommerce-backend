@@ -26,17 +26,17 @@ export class ProductController {
         }
     }
 
-    @ApiOperation({ summary: 'Détails d\'un produit (avec variantes et promotions)' })
+    @ApiOperation({ summary: 'Détails d\'un produit (avec variantes, images, promotions, catégorie)' })
     @ApiParam({ name: 'id', description: 'ID du produit' })
-    @ApiResponse({ status: 200, description: 'Détails du produit' })
+    @ApiResponse({ status: 200, description: 'Fiche produit complète' })
     @ApiResponse({ status: 404, description: 'Produit introuvable' })
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     @Get('/:id')
     async getProductDetails(@Param('id') id: string, @Res() res: Response) {
         try {
-            const product = await this.productService.findById(Number(id));
+            const product = await this.productService.getProductWithVariantsImages(Number(id));
             if (!product) {
-                return res.status(HttpStatus.NOT_FOUND).json({ message: 'Produit introuvable' });
+                return res.status(HttpStatus.NOT_FOUND).json({ message: 'Produit introuvable ou supprimé' });
             }
             return res.status(HttpStatus.OK).json(product);
         } catch (error) {

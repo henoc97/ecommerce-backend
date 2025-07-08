@@ -21,6 +21,13 @@ export class CartService {
             throw error;
         }
     }
+    async getCartDetails(id: number) {
+        try {
+            return await this.repository.getCartDetails(id);
+        } catch (error) {
+            throw error;
+        }
+    }
     async listCartsByUser(userId: number) {
         try {
             return await this.repository.listCartsByUser(userId);

@@ -1,8 +1,9 @@
-import { Controller, Get, Param, Query, Res, HttpStatus, Inject } from '@nestjs/common';
+import { Controller, Get, Param, Query, Res, HttpStatus, Inject, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { ShopService } from 'src/application/services/shop.service';
 import { CategoryService } from 'src/application/services/category.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('marketplace')
 @Controller('shops')
@@ -12,6 +13,7 @@ export class ShopController {
         @Inject(CategoryService) private readonly categoryService: CategoryService
     ) { }
 
+    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Lister les boutiques actives' })
     @ApiResponse({ status: 200, description: 'Liste des boutiques actives' })
     @ApiResponse({ status: 500, description: 'Impossible de charger les boutiques' })
@@ -25,6 +27,7 @@ export class ShopController {
         }
     }
 
+    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Lister les produits d\'une boutique' })
     @ApiParam({ name: 'id', description: 'ID de la boutique' })
     @ApiResponse({ status: 200, description: 'Liste des produits de la boutique' })
@@ -39,6 +42,7 @@ export class ShopController {
         }
     }
 
+    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Lister les produits d\'une boutique filtrés par catégorie' })
     @ApiParam({ name: 'id', description: 'ID de la boutique' })
     @ApiQuery({ name: 'category', required: true, description: 'nom de la catégorie' })
