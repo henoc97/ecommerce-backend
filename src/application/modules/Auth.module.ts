@@ -4,10 +4,12 @@ import { AuthController } from '../../presentation/controllers/Auth.controller';
 import { UserService } from '../services/user.service';
 import { UserPrismaRepository } from '../../infrastructure/impl.repositories/UserPrisma.repository';
 import { PassportConfig } from '../config/passport.config';
+import { AddressPrismaRepository } from 'src/infrastructure/impl.repositories/AddressPrisma.repository';
+import { AddressService } from '../services/address.service';
 
 @Module({
     controllers: [AuthController],
-    providers: [AuthService, UserService, UserPrismaRepository, PassportConfig],
+    providers: [AuthService, AddressService, UserService, UserPrismaRepository, AddressPrismaRepository, PassportConfig],
     exports: [AuthService],
 })
 export class AuthModule { } 
