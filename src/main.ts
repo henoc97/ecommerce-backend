@@ -6,6 +6,8 @@ import { AuthModule } from './application/modules/Auth.module';
 async function bootstrap() {
   const app = await NestFactory.create(AuthModule);
 
+  app.setGlobalPrefix('api');
+
   // Swagger config
   const config = new DocumentBuilder()
     .setTitle('API E-commerce')
@@ -15,6 +17,7 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api-docs', app, document);
+
 
   await app.listen(5000);
 }

@@ -1,7 +1,7 @@
 import { Strategy as JwtStrategy, ExtractJwt, VerifyCallback } from 'passport-jwt';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import passport from 'passport';
-import dotenv from 'dotenv';
+import * as passport from 'passport';
+import * as dotenv from 'dotenv';
 import { AuthProvider } from 'src/domain/enums/AuthProvider';
 import { Inject, Injectable } from '@nestjs/common';
 import { UserService } from '../services/user.service';
@@ -17,8 +17,7 @@ interface JwtPayload {
 @Injectable()
 export class PassportConfig {
     constructor(
-        @Inject(UserService) private readonly userService: UserService,
-        public _passport = passport
+        @Inject(UserService) private readonly userService: UserService
     ) {
         // Ensure that the JWT secret is defined
         const jwtSecret = process.env.JWT_SECRET;
@@ -35,7 +34,7 @@ export class PassportConfig {
         // Update VerifyCallback to accept User
         type CustomVerifyCallback = (error: any, user?: UserEntity | false, info?: any) => void;
 
-        this._passport.use(new JwtStrategy(jwtOptions, async (jwtPayload: JwtPayload, done: CustomVerifyCallback) => {
+        passport.use(new JwtStrategy(jwtOptions, async (jwtPayload: JwtPayload, done: CustomVerifyCallback) => {
             try {
                 const user = await userService.findById(Number(jwtPayload.id));
                 if (user) {
@@ -57,10 +56,11 @@ export class PassportConfig {
         }
 
         // Configuration de la stratégie Google
-        this._passport.use(new GoogleStrategy({
+        passport.use(new GoogleStrategy({
             clientID: googleClientId,
             clientSecret: googleClientSecret,
             callbackURL: 'http://localhost:5000/api/auth/google/callback',
+            scope: ['profile', 'email'],
         }, async (accessToken, refreshToken, profile, done) => {
             try {
                 // console.log('Google Profile:', profile);
@@ -77,6 +77,7 @@ export class PassportConfig {
                 let user: Partial<UserEntity> = {
                     googleId: profile.id,
                     name: profile.displayName,
+                    isEmailVerified: true,
                     authProvider: AuthProvider.GOOGLE,
                     email: profile.emails && profile.emails.length > 0 ? profile.emails[0].value : '',
                 };
@@ -87,11 +88,11 @@ export class PassportConfig {
             }
         }));
 
-        this._passport.serializeUser((user, done) => {
+        passport.serializeUser((user, done) => {
             done(null, (user as any)._id); // Utilisez l'ID de l'utilisateur pour la sérialisation
         });
 
-        this._passport.deserializeUser(async (id, done) => {
+        passport.deserializeUser(async (id, done) => {
             try {
                 const user = await userService.findById(Number(id)); // Utilisez votre modèle utilisateur ici
                 done(null, user);

@@ -1,5 +1,5 @@
 import { UserEntity } from '../../domain/entities/User.entity';
-import { hashPassword } from '../helper/hash-compare-pwd';
+import { hashPassword, comparePassword } from '../helper/hash-compare-pwd';
 import { UserService } from './user.service';
 import { Inject, Injectable } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
@@ -57,6 +57,10 @@ export class AuthService {
         }
         const accessToken = jwt.sign({ id: userId, email: email }, jwtSecret, { expiresIn: '1h' });
         return accessToken;
+    }
+
+    async comparePassword(password: string, passwordHashed: string): Promise<boolean> {
+        return comparePassword(password, passwordHashed);
     }
 }
 
