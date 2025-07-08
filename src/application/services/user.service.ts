@@ -1,6 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { UserPrismaRepository } from '../../infrastructure/impl.repositories/UserPrisma.repository';
 import { UserEntity } from '../../domain/entities/User.entity';
+import { comparePassword } from '../helper/hash-compare-pwd';
 
 @Injectable()
 export class UserService {
@@ -77,5 +78,8 @@ export class UserService {
         } catch (error) {
             throw error;
         }
+    }
+    async validateUserPassword(user: any, password: string): Promise<boolean> {
+        return user?.password ? await comparePassword(password, user.password) : false;
     }
 } 

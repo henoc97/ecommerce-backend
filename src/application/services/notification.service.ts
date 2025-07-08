@@ -15,26 +15,6 @@ export class NotificationService {
             throw error;
         }
     }
-    async updateNotification(id: number, data: Partial<NotificationEntity>) {
-        try {
-            return await this.repository.updateNotification(id, data);
-        } catch (error) {
-            throw error;
-        }
-    }
-    async deleteNotification(id: number) {
-        try {
-            return await this.repository.deleteNotification(id);
-        } catch (error) {
-        }
-    }
-    async findById(id: number) {
-        try {
-            return await this.repository.findById(id);
-        } catch (error) {
-            throw error;
-        }
-    }
     async markAsRead(id: number) {
         try {
             return await this.repository.markAsRead(id);

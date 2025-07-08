@@ -1,6 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { CartItemPrismaRepository } from '../../infrastructure/impl.repositories/CartItemPrisma.repository';
-import { CartItemEntity } from '../../domain/entities/CartItem.entity';
 
 @Injectable()
 export class CartItemService {
