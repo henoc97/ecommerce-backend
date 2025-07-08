@@ -5,12 +5,14 @@ import { ShopService } from 'src/application/services/shop.service';
 import { CategoryService } from 'src/application/services/category.service';
 import { AuthGuard } from '@nestjs/passport';
 import { ListActiveShopsWithStatsUseCase } from 'src/application/use-cases/shop.use-case/ListActiveShopsWithStats.use-case';
+import { ProductService } from 'src/application/services/product.service';
 
 @ApiTags('marketplace')
 @Controller('shops')
 export class ShopController {
     constructor(
         @Inject(ShopService) private readonly shopService: ShopService,
+        @Inject(ProductService) private readonly productService: ProductService,
         @Inject(CategoryService) private readonly categoryService: CategoryService,
         @Inject(ListActiveShopsWithStatsUseCase) private readonly listActiveShopsWithStatsUseCase: ListActiveShopsWithStatsUseCase
 
@@ -38,7 +40,7 @@ export class ShopController {
     @Get('/:id/products')
     async listShopProducts(@Param('id') id: string, @Res() res: Response) {
         try {
-            const products = await this.shopService.getShopProducts(Number(id));
+            const products = await this.productService.listProducts({ shopId: Number(id) });
             return res.status(HttpStatus.OK).json(products);
         } catch (error) {
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur serveur' });

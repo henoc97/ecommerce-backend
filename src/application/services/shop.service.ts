@@ -51,13 +51,6 @@ export class ShopService {
             throw error;
         }
     }
-    async getShopProducts(shopId: number) {
-        try {
-            return await this.repository.getShopProducts(shopId);
-        } catch (error) {
-            throw error;
-        }
-    }
     async getShopSubsite(shopId: number) {
         try {
             return await this.repository.getShopSubsite(shopId);
