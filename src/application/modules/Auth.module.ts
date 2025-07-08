@@ -9,7 +9,7 @@ import { AddressService } from '../services/address.service';
 
 @Module({
     controllers: [AuthController],
-    providers: [AuthService, AddressService, UserService, UserPrismaRepository, AddressPrismaRepository, PassportConfig],
+    providers: [AuthService, UserService, AddressService, UserPrismaRepository, AddressPrismaRepository, PassportConfig],
     exports: [AuthService],
 })
 export class AuthModule { } 

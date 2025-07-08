@@ -6,7 +6,7 @@ import { CategoryService } from 'src/application/services/category.service';
 
 @ApiTags('marketplace')
 @Controller('products')
-export class ShopProductController {
+export class ProductController {
     constructor(
         @Inject(ProductService) private readonly productService: ProductService,
         @Inject(CategoryService) private readonly categoryService: CategoryService

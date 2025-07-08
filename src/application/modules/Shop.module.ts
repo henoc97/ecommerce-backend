@@ -7,10 +7,12 @@ import { AddressPrismaRepository } from 'src/infrastructure/impl.repositories/Ad
 import { ShopController } from 'src/presentation/controllers/Shop.controller';
 import { ShopService } from '../services/shop.service';
 import { CategoryService } from '../services/category.service';
+import { ShopPrismaRepository } from 'src/infrastructure/impl.repositories/ShopPrisma.repository';
+import { CategoryPrismaRepository } from 'src/infrastructure/impl.repositories/CategoryPrisma.repository';
 
 @Module({
     controllers: [ShopController],
-    providers: [ShopService, CategoryService, PassportConfig],
+    providers: [ShopService, CategoryService, ShopPrismaRepository, CategoryPrismaRepository,],
     exports: [ShopService],
 })
 export class ShopModule { } 
