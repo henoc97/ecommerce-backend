@@ -1,5 +1,7 @@
+import { AddressEntity } from 'src/domain/entities/Address.entity';
 import { UserEntity } from '../../domain/entities/User.entity';
 import { hashPassword, comparePassword } from '../helper/hash-compare-pwd';
+import { AddressService } from './address.service';
 import { UserService } from './user.service';
 import { Inject, Injectable } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
@@ -7,12 +9,23 @@ import * as jwt from 'jsonwebtoken';
 @Injectable()
 export class AuthService {
     constructor(
-        @Inject(UserService) private readonly userService: UserService
+        @Inject(UserService) private readonly userService: UserService,
+        @Inject(AddressService) private readonly addressService: AddressService
     ) { }
 
     public async sign(user: UserEntity) {
         user.password = await hashPassword(user.password!);
         const userCreated = await this.userService.createUser(user);
+        const address = {
+            userId: userCreated.id,
+            street: '',
+            city: '',
+            state: '',
+            postalCode: '',
+            country: ''
+        } as AddressEntity;
+        // Create address for the user
+        await this.addressService.createAddress(address)
         console.log("user", JSON.stringify(userCreated));
         return userCreated;
     }

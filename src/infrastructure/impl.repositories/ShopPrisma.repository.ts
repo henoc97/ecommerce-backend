@@ -39,9 +39,25 @@ export class ShopPrismaRepository implements IShopRepository {
             throw error;
         }
     }
-    async listShops(filter?: Partial<ShopEntity>): Promise<ShopEntity[]> {
+    async listAllShops(filter?: Partial<ShopEntity>): Promise<ShopEntity[]> {
         try {
             return await prisma.shop.findMany({ where: filter as Prisma.ShopWhereInput }) as ShopEntity[];
+        } catch (error) {
+            throw error;
+        }
+    }
+    async listActiveShopsWithProducts(): Promise<ShopEntity[]> {
+        try {
+            return await prisma.shop.findMany({
+                where: {
+                    shopSubscriptions: {
+                        some: { isActive: true }
+                    }
+                },
+                include: {
+                    products: true,
+                }
+            }) as ShopEntity[];
         } catch (error) {
             throw error;
         }

@@ -75,6 +75,7 @@ export class AuthController {
                 maxAge: 60 * 60 * 1000, // 1 heure
             });
 
+            console.log('tokens', tokens);
             return res.status(HttpStatus.CREATED).json({
                 message: 'Compte créé, veuillez vérifier votre email',
                 userId: created.id
@@ -127,6 +128,8 @@ export class AuthController {
             });
 
             // 5. Retourner la réponse
+            console.log('tokens', tokens);
+
             return res.status(HttpStatus.CREATED).json({
                 message: "Connexion au compte utilisateur",
                 userId: user.id
@@ -168,6 +171,7 @@ export class AuthController {
             maxAge: 60 * 60 * 1000,
         });
         // Redirige vers le frontend (à adapter selon ton besoin)
+        console.log('tokens', tokens);
         return res.redirect('/');
     }
 
@@ -192,6 +196,8 @@ export class AuthController {
                 sameSite: "strict",
                 maxAge: 60 * 60 * 1000, // 1 heure
             });
+
+            console.log('tokens', accessToken);
 
             res.status(200).json({ message: "success" });
         });

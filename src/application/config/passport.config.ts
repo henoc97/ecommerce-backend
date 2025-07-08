@@ -6,6 +6,8 @@ import { AuthProvider } from 'src/domain/enums/AuthProvider';
 import { Inject, Injectable } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { UserEntity } from 'src/domain/entities/User.entity';
+import { AddressEntity } from 'src/domain/entities/Address.entity';
+import { AddressService } from '../services/address.service';
 
 dotenv.config();
 
@@ -17,7 +19,8 @@ interface JwtPayload {
 @Injectable()
 export class PassportConfig {
     constructor(
-        @Inject(UserService) private readonly userService: UserService
+        @Inject(UserService) private readonly userService: UserService,
+        @Inject(AddressService) private readonly addressService: AddressService
     ) {
         // Ensure that the JWT secret is defined
         const jwtSecret = process.env.JWT_SECRET;
@@ -27,7 +30,12 @@ export class PassportConfig {
 
         // Configuration de la stratégie JWT
         const jwtOptions = {
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            jwtFromRequest: ExtractJwt.fromExtractors([
+                // 1. Depuis le cookie 'accessToken'
+                (req) => req?.cookies?.accessToken || null,
+                // 2. (optionnel) Depuis l'en-tête Authorization classique
+                ExtractJwt.fromAuthHeaderAsBearerToken(),
+            ]),
             secretOrKey: jwtSecret, // Now guaranteed to be a string
         };
 
@@ -82,6 +90,16 @@ export class PassportConfig {
                     email: profile.emails && profile.emails.length > 0 ? profile.emails[0].value : '',
                 };
                 const userCreated = await userService.createUser(user as UserEntity);
+                const address = {
+                    userId: userCreated.id,
+                    street: '',
+                    city: '',
+                    state: '',
+                    postalCode: '',
+                    country: ''
+                } as AddressEntity;
+                // Create address for the user
+                await this.addressService.createAddress(address)
                 return done(null, userCreated);
             } catch (error) {
                 return done(error, false);

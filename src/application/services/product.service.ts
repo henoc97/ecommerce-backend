@@ -38,6 +38,13 @@ export class ProductService {
             throw error;
         }
     }
+    async getProductWithVariantsImages(id: number) {
+        try {
+            return await this.repository.getProductWithVariantsImages(id);
+        } catch (error) {
+            throw error;
+        }
+    }
     async listProducts(filter?: Partial<ProductEntity>) {
         try {
             return await this.repository.listProducts(filter);

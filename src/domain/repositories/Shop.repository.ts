@@ -12,7 +12,8 @@ export interface IShopRepository {
     updateShop(id: number, data: Partial<ShopEntity>): Promise<ShopEntity>;
     deleteShop(id: number): Promise<void>;
     findById(id: number): Promise<ShopEntity>;
-    listShops(filter?: Partial<ShopEntity>): Promise<ShopEntity[]>;
+    listAllShops(filter?: Partial<ShopEntity>): Promise<ShopEntity[]>;
+    listActiveShopsWithProducts(): Promise<ShopEntity[]>;
     getShopProducts(shopId: number): Promise<ProductEntity[]>;
     getShopSubsite(shopId: number): Promise<SubsiteEntity>;
     updateShopSubsite(shopId: number, config: Partial<SubsiteEntity>): Promise<SubsiteEntity>;

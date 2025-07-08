@@ -23,6 +23,9 @@ export class CartItemService {
     }
     async deleteItem(id: number) {
         try {
+            const cartItem = await this.findById(id);
+            if (!cartItem) return 'not_found';
+
             return await this.repository.deleteItem(id);
         } catch (error) {
             throw error;
@@ -38,6 +41,13 @@ export class CartItemService {
     async listItemsByCart(cartId: number) {
         try {
             return await this.repository.listItemsByCart(cartId);
+        } catch (error) {
+            throw error;
+        }
+    }
+    async findByCartIdAndProductId(cartId: number, productId: number) {
+        try {
+            return await this.repository.findByCartIdAndProductId(cartId, productId);
         } catch (error) {
             throw error;
         }

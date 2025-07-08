@@ -194,10 +194,10 @@ model ProductVariant {
   stock        Int           @default(0) // Stock for this variant
   price        Float // Price for this variant, can be different from the base product price
   currency     Currency
-  productImage ProductImage[] // Images specific to this variant
+  productImages ProductImage[] // Images specific to this variant
   promotions   Promotion[] // Promotions applicable to this variant
-  cartItem     CartItem[]
-  orderItem    OrderItem[]
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
   reviews      Review[]
 }
 

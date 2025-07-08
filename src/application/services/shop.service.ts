@@ -39,7 +39,14 @@ export class ShopService {
     }
     async listShops(filter?: Partial<ShopEntity>) {
         try {
-            return await this.repository.listShops(filter);
+            return await this.repository.listAllShops(filter);
+        } catch (error) {
+            throw error;
+        }
+    }
+    async listActiveShopsWithProducts() {
+        try {
+            return await this.repository.listActiveShopsWithProducts();
         } catch (error) {
             throw error;
         }

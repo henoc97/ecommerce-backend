@@ -1,10 +1,12 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AuthModule } from './application/modules/Auth.module';
+import * as cookieParser from 'cookie-parser';
+import { AppModule } from './application/modules/app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AuthModule);
+  const app = await NestFactory.create(AppModule);
+  app.use(cookieParser());
 
   app.setGlobalPrefix('api');
 

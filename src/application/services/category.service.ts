@@ -43,4 +43,18 @@ export class CategoryService {
             throw error;
         }
     }
+    async listProductsByCategory(category: string) {
+        try {
+            return await this.repository.listProductsByCategory(category);
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getShopProductsByCategory(shopId: number, category: string) {
+        try {
+            return await this.repository.getShopProductsByCategory(shopId, category);
+        } catch (error) {
+            throw error;
+        }
+    }
 } 

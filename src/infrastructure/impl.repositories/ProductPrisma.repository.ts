@@ -34,6 +34,24 @@ export class ProductPrismaRepository implements IProductRepository {
             throw error;
         }
     }
+    async getProductWithVariantsImages(id: number): Promise<ProductEntity> {
+        try {
+            return await prisma.product.findUnique({
+                where: { id },
+                include: {
+                    category: true,
+                    productVariants: {
+                        include: {
+                            productImages: true,
+                            promotions: true
+                        }
+                    }
+                }
+            }) as ProductEntity;
+        } catch (error) {
+            throw error;
+        }
+    }
     async listProducts(filter?: Partial<ProductEntity>): Promise<ProductEntity[]> {
         try {
             return await prisma.product.findMany({ where: filter as Prisma.ProductWhereInput }) as ProductEntity[];
