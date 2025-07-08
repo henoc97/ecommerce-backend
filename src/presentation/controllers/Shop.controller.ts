@@ -4,23 +4,26 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/
 import { ShopService } from 'src/application/services/shop.service';
 import { CategoryService } from 'src/application/services/category.service';
 import { AuthGuard } from '@nestjs/passport';
+import { ListActiveShopsWithStatsUseCase } from 'src/application/use-cases/shop.use-case/ListActiveShopsWithStats.use-case';
 
 @ApiTags('marketplace')
 @Controller('shops')
 export class ShopController {
     constructor(
         @Inject(ShopService) private readonly shopService: ShopService,
-        @Inject(CategoryService) private readonly categoryService: CategoryService
+        @Inject(CategoryService) private readonly categoryService: CategoryService,
+        @Inject(ListActiveShopsWithStatsUseCase) private readonly listActiveShopsWithStatsUseCase: ListActiveShopsWithStatsUseCase
+
     ) { }
 
     @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Lister les boutiques actives' })
     @ApiResponse({ status: 200, description: 'Liste des boutiques actives' })
     @ApiResponse({ status: 500, description: 'Impossible de charger les boutiques' })
-    @Get('/active-shops')
+    @Get('/actives')
     async listShops(@Res() res: Response) {
         try {
-            const shops = await this.shopService.listActiveShopsWithProducts();
+            const shops = await this.listActiveShopsWithStatsUseCase.execute();
             return res.status(HttpStatus.OK).json(shops);
         } catch (error) {
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Impossible de charger les boutiques' });

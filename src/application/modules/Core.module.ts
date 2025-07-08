@@ -22,6 +22,9 @@ import { ProductVariantService } from '../services/productvariant.service';
 import { ProductVariantPrismaRepository } from 'src/infrastructure/impl.repositories/ProductVariantPrisma.repository';
 import { CartItemService } from '../services/cartitem.service';
 import { CartItemPrismaRepository } from 'src/infrastructure/impl.repositories/CartItemPrisma.repository';
+import { ReviewService } from '../services/review.service';
+import { ReviewPrismaRepository } from 'src/infrastructure/impl.repositories/ReviewPrisma.repository';
+import { ListActiveShopsWithStatsUseCase } from '../use-cases/shop.use-case/ListActiveShopsWithStats.use-case';
 
 @Module({
     providers: [
@@ -36,9 +39,11 @@ import { CartItemPrismaRepository } from 'src/infrastructure/impl.repositories/C
         CartService,
         CartItemService,
         ProductVariantService,
+        ReviewService,
         // ... autres services
         AddProductToCartUseCase,
         UpdateCartItemQuantityUseCase,
+        ListActiveShopsWithStatsUseCase,
         // ... autres use-cases
         UserPrismaRepository,
         AddressPrismaRepository,
@@ -48,7 +53,8 @@ import { CartItemPrismaRepository } from 'src/infrastructure/impl.repositories/C
         UserActivityPrismaRepository,
         CartPrismaRepository,
         CartItemPrismaRepository,
-        ProductVariantPrismaRepository
+        ProductVariantPrismaRepository,
+        ReviewPrismaRepository
         // ... autres repositories
     ],
     exports: [
@@ -63,9 +69,11 @@ import { CartItemPrismaRepository } from 'src/infrastructure/impl.repositories/C
         CartService,
         CartItemService,
         ProductVariantService,
+        ReviewService,
         // ... autres services
         AddProductToCartUseCase,
         UpdateCartItemQuantityUseCase,
+        ListActiveShopsWithStatsUseCase,
         // ... autres use-cases
         UserPrismaRepository,
         AddressPrismaRepository,
@@ -75,7 +83,8 @@ import { CartItemPrismaRepository } from 'src/infrastructure/impl.repositories/C
         UserActivityPrismaRepository,
         CartPrismaRepository,
         ProductVariantPrismaRepository,
-        CartItemPrismaRepository
+        CartItemPrismaRepository,
+        ReviewPrismaRepository
         // ... autres repositories
     ],
 })

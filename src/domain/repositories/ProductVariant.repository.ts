@@ -1,6 +1,7 @@
 import { ProductImageEntity } from "../entities/ProductImage.entity";
 import { ProductVariantEntity } from "../entities/ProductVariant.entity";
 import { PromotionEntity } from "../entities/Promotion.entity";
+import { ReviewEntity } from "../entities/Review.entity";
 
 export interface IProductVariantRepository {
     createVariant(productId: number, data: ProductVariantEntity): Promise<ProductVariantEntity>;
