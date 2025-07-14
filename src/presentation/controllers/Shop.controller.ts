@@ -24,10 +24,13 @@ export class ShopController {
     @ApiResponse({ status: 500, description: 'Impossible de charger les boutiques' })
     @Get('/actives')
     async listShops(@Res() res: Response) {
+        console.log('[ShopController] listShops');
         try {
             const shops = await this.listActiveShopsWithStatsUseCase.execute();
+            console.log('[ShopController] listShops SUCCESS', shops);
             return res.status(HttpStatus.OK).json(shops);
         } catch (error) {
+            console.error('[ShopController] listShops ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Impossible de charger les boutiques' });
         }
     }
@@ -39,10 +42,13 @@ export class ShopController {
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     @Get('/:id/products')
     async listShopProducts(@Param('id') id: string, @Res() res: Response) {
+        console.log('[ShopController] listShopProducts', { id });
         try {
             const products = await this.productService.listProducts({ shopId: Number(id) });
+            console.log('[ShopController] listShopProducts SUCCESS', products);
             return res.status(HttpStatus.OK).json(products);
         } catch (error) {
+            console.error('[ShopController] listShopProducts ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur serveur' });
         }
     }
@@ -55,10 +61,13 @@ export class ShopController {
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     @Get('/:id/products/by-category')
     async listShopProductsByCategorie(@Param('id') id: string, @Query('category') category: string, @Res() res: Response) {
+        console.log('[ShopController] listShopProductsByCategorie', { id, category });
         try {
             const products = await this.categoryService.getShopProductsByCategory(Number(id), category);
+            console.log('[ShopController] listShopProductsByCategorie SUCCESS', products);
             return res.status(HttpStatus.OK).json(products);
         } catch (error) {
+            console.error('[ShopController] listShopProductsByCategorie ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur serveur' });
         }
     }

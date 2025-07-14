@@ -6,12 +6,7 @@ import { PaymentStatus } from '../../../domain/enums/PaymentStatus.enum';
 import { RefundStatus } from '../../../domain/enums/RefundStatus.enum';
 import { OrderStatus } from '../../../domain/enums/OrderStatus.enum';
 import { PaymentGatewayFactory } from 'src/application/factories/paymentGateway.factory';
-
-export interface RefundDto {
-    paymentId: number;
-    amount?: number; // Si non spécifié, rembourse le montant total
-    reason?: string;
-}
+import { RefundDto } from 'src/presentation/dtos/Refund.dto';
 
 export interface RefundResult {
     success: boolean;
@@ -33,7 +28,7 @@ export class ProcessRefundUseCase {
 
     async execute(userId: number, dto: RefundDto): Promise<RefundResult> {
         // 1. Vérifier que le paiement existe et appartient à l'utilisateur
-        const payment = await this.paymentService.findById(dto.paymentId);
+        const payment = await this.orderService.getOrderPayment(dto.orderId);
         if (!payment) {
             return {
                 success: false,
@@ -72,7 +67,7 @@ export class ProcessRefundUseCase {
         }
 
         // 4. Appeler la gateway de remboursement
-        let refundResult;
+        let refundResult: RefundResult;
         try {
             const gatewayService = this.paymentGatewayFactory.getService(payment.method);
             refundResult = await gatewayService.refundPayment(payment.providerId, refundAmount);

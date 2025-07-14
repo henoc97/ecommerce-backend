@@ -18,10 +18,13 @@ export class ProductController {
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     @Get('/by-category')
     async listProductsByCategory(@Query('category') category: string, @Res() res: Response) {
+        console.log('[ProductController] listProductsByCategory', { category });
         try {
             const products = await this.categoryService.listProductsByCategory(category);
+            console.log('[ProductController] listProductsByCategory SUCCESS', products);
             return res.status(HttpStatus.OK).json(products);
         } catch (error) {
+            console.error('[ProductController] listProductsByCategory ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur serveur' });
         }
     }
@@ -33,13 +36,16 @@ export class ProductController {
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     @Get('/:id')
     async getProductDetails(@Param('id') id: string, @Res() res: Response) {
+        console.log('[ProductController] getProductDetails', { id });
         try {
             const product = await this.productService.getProductWithVariantsImages(Number(id));
             if (!product) {
                 return res.status(HttpStatus.NOT_FOUND).json({ message: 'Produit introuvable ou supprimé' });
             }
+            console.log('[ProductController] getProductDetails SUCCESS', product);
             return res.status(HttpStatus.OK).json(product);
         } catch (error) {
+            console.error('[ProductController] getProductDetails ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur serveur' });
         }
     }

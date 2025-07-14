@@ -19,6 +19,7 @@ export class UserActivityController {
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     @Post()
     async logActivity(@Body() body: UserActivityDto, @Req() req: any, @Res() res: Response) {
+        console.log('[UserActivityController] logActivity', { user: req.user, body });
         try {
             if (!body.action) {
                 return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Action requise' });
@@ -26,8 +27,10 @@ export class UserActivityController {
             const user = req.user as any;
             (body as any).userId = user.id;
             await this.userActivityService.logActivity(body as UserActivityEntity);
+            console.log('[UserActivityController] logActivity SUCCESS', body);
             return res.status(HttpStatus.CREATED).json({ message: 'Activité enregistrée' });
         } catch (error) {
+            console.error('[UserActivityController] logActivity ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur serveur' });
         }
     }

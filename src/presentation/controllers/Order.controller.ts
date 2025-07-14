@@ -23,14 +23,17 @@ export class OrderController {
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     @Post()
     async createOrder(@Body() body: CreateOrderDto, @Req() req: any, @Res() res: Response) {
+        console.log('[OrderController] createOrder', { userId: req.user?.id, body });
         try {
             const userId = req.user.id;
             const result = await this.createOrderFromCartUseCase.execute(userId, body.shopId, body.paymentId);
             if (result.error) {
                 return res.status(HttpStatus.BAD_REQUEST).json({ message: result.error, details: result.details });
             }
+            console.log('[OrderController] createOrder SUCCESS', result);
             return res.status(HttpStatus.CREATED).json({ orderId: result.orderId });
         } catch (error) {
+            console.error('[OrderController] createOrder ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur serveur' });
         }
     }
@@ -42,10 +45,13 @@ export class OrderController {
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     @Get()
     async listOrders(@Query('userId') userId: string, @Res() res: Response) {
+        console.log('[OrderController] listOrders', { userId });
         try {
             const orders = await this.orderService.listOrders({ userId: Number(userId) });
+            console.log('[OrderController] listOrders SUCCESS', orders);
             return res.status(HttpStatus.OK).json(orders);
         } catch (error) {
+            console.error('[OrderController] listOrders ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur serveur' });
         }
     }
@@ -59,6 +65,7 @@ export class OrderController {
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     @Get(':id')
     async getOrder(@Param('id') id: string, @Req() req: any, @Res() res: Response) {
+        console.log('[OrderController] getOrder', { userId: req.user?.id, id });
         try {
             const userId = req.user.id;
             const order = await this.orderService.findById(Number(id));
@@ -68,8 +75,10 @@ export class OrderController {
             if (order.userId !== userId) {
                 return res.status(HttpStatus.FORBIDDEN).json({ message: 'Commande non autorisée' });
             }
+            console.log('[OrderController] getOrder SUCCESS', order);
             return res.status(HttpStatus.OK).json(order);
         } catch (error) {
+            console.error('[OrderController] getOrder ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur serveur' });
         }
     }

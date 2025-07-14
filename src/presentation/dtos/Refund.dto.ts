@@ -1,17 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsString, IsNotEmpty, IsNumber, Min } from 'class-validator';
+import { IsInt, IsString, IsNotEmpty, IsNumber, Min, IsOptional } from 'class-validator';
 import { OrderEntity } from 'src/domain/entities/Order.entity';
 import { RefundStatus } from 'src/domain/enums/RefundStatus.enum';
 
-export class CreateRefundDto {
+export class RefundDto {
     @ApiProperty({ example: 123 })
     @IsInt()
     orderId: number;
 
     @ApiProperty({ example: 'Produit défectueux' })
     @IsString()
-    @IsNotEmpty()
-    reason: string;
+    @IsOptional()
+    reason?: string;
 
     @ApiProperty({ example: 49.99 })
     @IsNumber()

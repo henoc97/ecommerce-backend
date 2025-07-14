@@ -96,6 +96,7 @@ export class PaymentController {
         @Req() req: any,
         @Body() dto: CreatePaymentDto
     ): Promise<PaymentResponseDto> {
+        console.log('[PaymentController] processPayment', { userId: req.user?.id, dto });
         try {
             const userId = req.user.id;
 
@@ -112,11 +113,14 @@ export class PaymentController {
                 );
             }
 
-            return {
+            const response = {
                 success: true,
                 payment: result.payment
             };
+            console.log('[PaymentController] processPayment SUCCESS', response);
+            return response;
         } catch (e) {
+            console.error('[PaymentController] processPayment ERROR', e);
             if (e instanceof HttpException) throw e;
             throw new HttpException('Erreur interne', HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -168,6 +172,7 @@ export class PaymentController {
         @Req() req: any,
         @Param('orderId') orderId: string
     ) {
+        console.log('[PaymentController] getPaymentByOrderId', { userId: req.user?.id, orderId });
         try {
             const payment = await this.paymentService.getOrderPayment(Number(orderId));
 
@@ -175,8 +180,10 @@ export class PaymentController {
                 throw new NotFoundException('Aucun paiement trouvé pour cette commande');
             }
 
+            console.log('[PaymentController] getPaymentByOrderId SUCCESS', payment);
             return payment;
         } catch (e) {
+            console.error('[PaymentController] getPaymentByOrderId ERROR', e);
             if (e instanceof HttpException) throw e;
             throw new HttpException('Erreur interne', HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -209,9 +216,13 @@ export class PaymentController {
     })
     async getUserPayments(@Req() req: any) {
         const userId = req.user.id;
+        console.log('[PaymentController] getUserPayments', { userId });
         try {
-            return await this.paymentService.getUserPayments(userId);
+            const payments = await this.paymentService.getUserPayments(userId);
+            console.log('[PaymentController] getUserPayments SUCCESS', payments);
+            return payments;
         } catch (e) {
+            console.error('[PaymentController] getUserPayments ERROR', e);
             if (e instanceof HttpException) throw e;
             throw new HttpException('Erreur interne', HttpStatus.INTERNAL_SERVER_ERROR);
         }

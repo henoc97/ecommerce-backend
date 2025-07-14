@@ -25,6 +25,7 @@ export class AuthController {
     @ApiBody({ type: SignUpDto })
     @Post('sign')
     async sign(@Body() signUpDto: SignUpDto, @Res() res: Response) {
+        console.log('[AuthController] sign', { email: signUpDto.email });
         try {
             // Vérifier si l'utilisateur existe déjà
             const existing = await this.authService['userService'].findByEmail(signUpDto.email);
@@ -56,15 +57,17 @@ export class AuthController {
             });
 
             console.log('tokens', tokens);
-            return res.status(HttpStatus.CREATED).json({
+            const response = {
                 message: 'Compte créé, veuillez vérifier votre email',
                 userId: created.id
-            });
+            };
+            console.log('[AuthController] sign SUCCESS', response);
+            return res.status(HttpStatus.CREATED).json(response);
         } catch (error: any) {
             if (error instanceof HttpException) {
                 return res.status(error.getStatus()).json({ message: error.message });
             }
-            console.error('Erreur lors de la création du compte utilisateur:', error);
+            console.error('[AuthController] sign ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Une erreur est survenue. Veuillez réessayer.' });
         }
     }
@@ -77,6 +80,7 @@ export class AuthController {
     @ApiBody({ type: LoginDto })
     @Post('login')
     async login(@Body() loginDto: LoginDto, @Res() res: Response) {
+        console.log('[AuthController] login', { email: loginDto.email });
         try {
             // 1. Chercher l'utilisateur par email
             const user = await this.authService['userService'].findByEmail(loginDto.email);
@@ -109,16 +113,17 @@ export class AuthController {
 
             // 5. Retourner la réponse
             console.log('tokens', tokens);
-
-            return res.status(HttpStatus.CREATED).json({
+            const response = {
                 message: "Connexion au compte utilisateur",
                 userId: user.id
-            });
+            };
+            console.log('[AuthController] login SUCCESS', response);
+            return res.status(HttpStatus.CREATED).json(response);
         } catch (error: any) {
             if (error instanceof HttpException) {
                 return res.status(error.getStatus()).json({ message: error.message });
             }
-            console.error('Erreur lors de la connexion utilisateur:', error);
+            console.error('[AuthController] login ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Une erreur est survenue. Veuillez réessayer.' });
         }
     }
@@ -136,57 +141,77 @@ export class AuthController {
     @Get('google/callback')
     @UseGuards(AuthGuard('google'))
     async googleCallback(@Req() req: Request, @Res() res: Response) {
-        const user = req.user;
-        const tokens = this.authService.generateToken(user['id'].toString(), user['email']);
-        res.cookie("refreshToken", tokens.refreshToken, {
-            httpOnly: true,
-            secure: false, // Passe à true en production
-            sameSite: "strict",
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        });
-        res.cookie("accessToken", tokens.accessToken, {
-            httpOnly: true,
-            secure: false,
-            sameSite: "strict",
-            maxAge: 60 * 60 * 1000,
-        });
-        // Redirige vers le frontend (à adapter selon ton besoin)
-        console.log('tokens', tokens);
-        return res.redirect('/');
+        console.log('[AuthController] googleCallback', { user: req.user });
+        try {
+            const user = req.user;
+            const tokens = this.authService.generateToken(user['id'].toString(), user['email']);
+            res.cookie("refreshToken", tokens.refreshToken, {
+                httpOnly: true,
+                secure: false, // Passe à true en production
+                sameSite: "strict",
+                maxAge: 7 * 24 * 60 * 60 * 1000,
+            });
+            res.cookie("accessToken", tokens.accessToken, {
+                httpOnly: true,
+                secure: false,
+                sameSite: "strict",
+                maxAge: 60 * 60 * 1000,
+            });
+            // Redirige vers le frontend (à adapter selon ton besoin)
+            console.log('tokens', tokens);
+            console.log('[AuthController] googleCallback SUCCESS', { user });
+            return res.redirect('/');
+        } catch (error) {
+            console.error('[AuthController] googleCallback ERROR', error);
+            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur lors de la connexion Google' });
+        }
     }
 
     @Post('refresh')
     async refreshToken(@Req() req: Request, @Res() res: Response) {
-        const refreshToken = req.cookies?.refreshToken;
-        if (!refreshToken) return res.sendStatus(401);
+        console.log('[AuthController] refreshToken', { cookies: req.cookies });
+        try {
+            const refreshToken = req.cookies?.refreshToken;
+            if (!refreshToken) return res.sendStatus(401);
 
-        const jwtSecret = process.env.JWT_SECRET;
-        if (!jwtSecret) {
-            throw new Error('JWT_SECRET environment variable is not defined');
-        }
+            const jwtSecret = process.env.JWT_SECRET;
+            if (!jwtSecret) {
+                throw new Error('JWT_SECRET environment variable is not defined');
+            }
 
-        jwt.verify(refreshToken, jwtSecret, (err: any, user: any) => {
-            if (err) return res.sendStatus(403);
+            jwt.verify(refreshToken, jwtSecret, (err: any, user: any) => {
+                if (err) return res.sendStatus(403);
 
-            const accessToken = this.authService.generateAccessToken(user.id, user.email);
+                const accessToken = this.authService.generateAccessToken(user.id, user.email);
 
-            res.cookie("accessToken", accessToken, {
-                httpOnly: true,
-                secure: false, // Passez à true en production
-                sameSite: "strict",
-                maxAge: 60 * 60 * 1000, // 1 heure
+                res.cookie("accessToken", accessToken, {
+                    httpOnly: true,
+                    secure: false, // Passez à true en production
+                    sameSite: "strict",
+                    maxAge: 60 * 60 * 1000, // 1 heure
+                });
+
+                console.log('tokens', accessToken);
+                console.log('[AuthController] refreshToken SUCCESS', { user });
+                res.status(200).json({ message: "success" });
             });
-
-            console.log('tokens', accessToken);
-
-            res.status(200).json({ message: "success" });
-        });
+        } catch (error) {
+            console.error('[AuthController] refreshToken ERROR', error);
+            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur lors du refresh token' });
+        }
     }
 
     @Post('logout')
     async logout(@Req() req: Request, @Res() res: Response) {
-        res.clearCookie("refreshToken");
-        res.clearCookie("accessToken");
-        res.status(200).json({ message: "Déconnexion réussie" });
+        console.log('[AuthController] logout', { user: req.user });
+        try {
+            res.clearCookie("refreshToken");
+            res.clearCookie("accessToken");
+            console.log('[AuthController] logout SUCCESS');
+            res.status(200).json({ message: "Déconnexion réussie" });
+        } catch (error) {
+            console.error('[AuthController] logout ERROR', error);
+            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur lors de la déconnexion' });
+        }
     }
 }

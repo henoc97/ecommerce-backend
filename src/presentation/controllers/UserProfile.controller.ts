@@ -21,6 +21,7 @@ export class UserProfileController {
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     @Get('me')
     async getProfile(@Req() req: Request, @Res() res: Response) {
+        console.log('[UserProfileController] getProfile', { user: req.user });
         try {
             const user = req.user as any;
             if (!user) return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'Veuillez vous connecter' });
@@ -29,7 +30,7 @@ export class UserProfileController {
             const address = await this.addressService.findByUserId(user.id);
             if (!address) return res.status(HttpStatus.NOT_FOUND).json({ message: 'Adresse non trouvée' });
 
-            return res.status(HttpStatus.OK).json({
+            const response = {
                 email: userData.email,
                 name: userData.name,
                 phone: userData.phone,
@@ -38,8 +39,11 @@ export class UserProfileController {
                 country: address.country,
                 state: address.state,
                 postalcode: address.postalCode
-            });
+            };
+            console.log('[UserProfileController] getProfile SUCCESS', response);
+            return res.status(HttpStatus.OK).json(response);
         } catch (error) {
+            console.error('[UserProfileController] getProfile ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Une erreur est survenue, réessayez plus tard' });
         }
     }
@@ -54,6 +58,7 @@ export class UserProfileController {
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     @Put('me/update')
     async updateProfile(@Req() req: Request, @Body() body: UserProfileUpdateDto, @Res() res: Response) {
+        console.log('[UserProfileController] updateProfile', { user: req.user, body });
         try {
             const user = req.user as any;
             if (!user) return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'Veuillez vous connecter' });
@@ -101,8 +106,10 @@ export class UserProfileController {
                 return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Une erreur est survenue, réessayez plus tard' });
             }
 
+            console.log('[UserProfileController] updateProfile SUCCESS', { userUpdated, addressUpdated });
             return res.status(HttpStatus.OK).json({ message: 'Données personnelles mises à jour avec succès' });
         } catch (error) {
+            console.error('[UserProfileController] updateProfile ERROR', error);
             if (error instanceof HttpException) {
                 return res.status(error.getStatus()).json({ message: error.message });
             }
