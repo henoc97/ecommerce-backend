@@ -1,7 +1,7 @@
-import winston from "winston";
-import DailyRotateFile from "winston-daily-rotate-file";
-import path from "path";
-import fs from "fs";
+import * as winston from "winston";
+import * as DailyRotateFile from "winston-daily-rotate-file";
+import * as path from "path";
+import * as fs from "fs";
 
 // Directory for storing log files
 const logDirectory: string = path.resolve(__dirname, 'logs');
@@ -20,7 +20,7 @@ if (!fs.existsSync(logDirectory)) {
  * Transport for winston to handle log file rotation daily.
  * @type {DailyRotateFile}
  */
-const transport: DailyRotateFile = new DailyRotateFile({
+const transport = new DailyRotateFile({
   filename: path.join(logDirectory, 'application-%DATE%.log'),
   datePattern: 'YYYY-MM-DD', // Date pattern for the log files
   zippedArchive: true, // Compresses old log files to save space

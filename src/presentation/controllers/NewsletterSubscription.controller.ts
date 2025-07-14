@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Body, Query, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Query, HttpException, HttpStatus, Inject } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery } from '@nestjs/swagger';
 import { NewsletterSubscriptionService } from '../../application/services/newslettersubscription.service';
 import { SubscribeNewsletterDto, NewsletterSubscriptionStatusDto } from '../dtos/NewsletterSubscription.dto';
@@ -6,7 +6,8 @@ import { SubscribeNewsletterDto, NewsletterSubscriptionStatusDto } from '../dtos
 @ApiTags('newsletter-subscription')
 @Controller('newsletter-subscription')
 export class NewsletterSubscriptionController {
-    constructor(private readonly newsletterService: NewsletterSubscriptionService) { }
+    constructor(
+        @Inject(NewsletterSubscriptionService) private readonly newsletterService: NewsletterSubscriptionService) { }
 
     @Get('status')
     @ApiOperation({ summary: 'Vérifier le statut d’abonnement à la newsletter d’une boutique' })

@@ -6,4 +6,4 @@ import { OrderController } from 'src/presentation/controllers/Order.controller';
     imports: [CoreModule],
     controllers: [OrderController],
 })
-export class OrdertModule { } 
+export class OrderModule { } 
