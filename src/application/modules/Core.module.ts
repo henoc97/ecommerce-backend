@@ -25,6 +25,17 @@ import { CartItemPrismaRepository } from 'src/infrastructure/impl.repositories/C
 import { ReviewService } from '../services/review.service';
 import { ReviewPrismaRepository } from 'src/infrastructure/impl.repositories/ReviewPrisma.repository';
 import { ListActiveShopsWithStatsUseCase } from '../use-cases/shop.use-case/ListActiveShopsWithStats.use-case';
+import { OrderService } from '../services/order.service';
+import { OrderPrismaRepository } from 'src/infrastructure/impl.repositories/OrderPrisma.repository';
+import { CreateOrderFromCartUseCase } from '../use-cases/order.use-case/CreateOrderFromCart.use-case';
+import { OrderItemService } from '../services/orderitem.service';
+import { OrderItemPrismaRepository } from 'src/infrastructure/impl.repositories/OrderItemPrisma.repository';
+import { PaymentService } from '../services/payment.service';
+import { ProcessPaymentUseCase } from '../use-cases/payment.use-case/ProcessPayment.use-case';
+import { PaymentPrismaRepository } from 'src/infrastructure/impl.repositories/PaymentPrisma.repository';
+import { StripePaymentGatewayService } from 'src/infrastructure/external-services/stripePaymentGateway.service';
+import { PayPalPaymentGatewayService } from 'src/infrastructure/external-services/payPalPaymentGateway.service';
+import { PaymentGatewayFactory } from '../factories/paymentGateway.factory';
 
 @Module({
     providers: [
@@ -40,10 +51,18 @@ import { ListActiveShopsWithStatsUseCase } from '../use-cases/shop.use-case/List
         CartItemService,
         ProductVariantService,
         ReviewService,
+        OrderService,
+        OrderItemService,
+        PaymentService,
+        StripePaymentGatewayService,
+        PayPalPaymentGatewayService,
+        PaymentGatewayFactory,
         // ... autres services
         AddProductToCartUseCase,
         UpdateCartItemQuantityUseCase,
         ListActiveShopsWithStatsUseCase,
+        CreateOrderFromCartUseCase,
+        ProcessPaymentUseCase,
         // ... autres use-cases
         UserPrismaRepository,
         AddressPrismaRepository,
@@ -54,7 +73,10 @@ import { ListActiveShopsWithStatsUseCase } from '../use-cases/shop.use-case/List
         CartPrismaRepository,
         CartItemPrismaRepository,
         ProductVariantPrismaRepository,
-        ReviewPrismaRepository
+        ReviewPrismaRepository,
+        OrderPrismaRepository,
+        OrderItemPrismaRepository,
+        PaymentPrismaRepository,
         // ... autres repositories
     ],
     exports: [
@@ -70,10 +92,18 @@ import { ListActiveShopsWithStatsUseCase } from '../use-cases/shop.use-case/List
         CartItemService,
         ProductVariantService,
         ReviewService,
+        OrderService,
+        OrderItemService,
+        PaymentService,
+        StripePaymentGatewayService,
+        PayPalPaymentGatewayService,
+        PaymentGatewayFactory,
         // ... autres services
         AddProductToCartUseCase,
         UpdateCartItemQuantityUseCase,
         ListActiveShopsWithStatsUseCase,
+        CreateOrderFromCartUseCase,
+        ProcessPaymentUseCase,
         // ... autres use-cases
         UserPrismaRepository,
         AddressPrismaRepository,
@@ -84,7 +114,10 @@ import { ListActiveShopsWithStatsUseCase } from '../use-cases/shop.use-case/List
         CartPrismaRepository,
         ProductVariantPrismaRepository,
         CartItemPrismaRepository,
-        ReviewPrismaRepository
+        ReviewPrismaRepository,
+        OrderPrismaRepository,
+        OrderItemPrismaRepository,
+        PaymentPrismaRepository,
         // ... autres repositories
     ],
 })

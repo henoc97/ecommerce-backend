@@ -31,14 +31,28 @@ export class OrderPrismaRepository implements IOrderRepository {
     }
     async findById(id: number): Promise<OrderEntity> {
         try {
-            return await prisma.order.findUnique({ where: { id } }) as OrderEntity;
+            return await prisma.order.findUnique({
+                where: { id }, include: {
+                    items: true,
+                    payment: true,
+                    shop: true,
+                    refund: true
+                }
+            }) as OrderEntity;
         } catch (error) {
             throw error;
         }
     }
     async listOrders(filter?: Partial<OrderEntity>): Promise<OrderEntity[]> {
         try {
-            return await prisma.order.findMany({ where: filter as Prisma.OrderWhereInput }) as OrderEntity[];
+            return await prisma.order.findMany({
+                where: filter as Prisma.OrderWhereInput, include: {
+                    items: true,
+                    payment: true,
+                    shop: true,
+                    refund: true
+                }
+            }) as OrderEntity[];
         } catch (error) {
             throw error;
         }

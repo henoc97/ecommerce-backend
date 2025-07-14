@@ -14,7 +14,6 @@ export interface IShopRepository {
     findById(id: number): Promise<ShopEntity>;
     listAllShops(filter?: Partial<ShopEntity>): Promise<ShopEntity[]>;
     listActiveShopsWithProducts(): Promise<ShopEntity[]>;
-    getShopProducts(shopId: number): Promise<ProductEntity[]>;
     getShopSubsite(shopId: number): Promise<SubsiteEntity>;
     updateShopSubsite(shopId: number, config: Partial<SubsiteEntity>): Promise<SubsiteEntity>;
     subscribeToPlan(shopId: number, subscriptionId: number): Promise<ShopSubscriptionEntity>;

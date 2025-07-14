@@ -6,4 +6,4 @@ import { CartController } from 'src/presentation/controllers/Cart.controller';
     imports: [CoreModule],
     controllers: [CartController],
 })
-export class ProductModule { } 
+export class CartModule { } 

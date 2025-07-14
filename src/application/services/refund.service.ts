@@ -36,9 +36,30 @@ export class RefundService {
             throw error;
         }
     }
+    async getUserRefunds(userId: number) {
+        try {
+            return await this.repository.getUserRefunds(userId);
+        } catch (error) {
+            throw error;
+        }
+    }
     async listRefunds(filter?: Partial<RefundEntity>) {
         try {
             return await this.repository.listRefunds(filter);
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getOrderRefund(orderId: number) {
+        try {
+            return await this.repository.getOrderRefund(orderId);
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getShopRefunds(shopId: number) {
+        try {
+            return await this.repository.getShopRefunds(shopId);
         } catch (error) {
             throw error;
         }

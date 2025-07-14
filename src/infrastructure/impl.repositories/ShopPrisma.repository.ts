@@ -62,13 +62,6 @@ export class ShopPrismaRepository implements IShopRepository {
             throw error;
         }
     }
-    async getShopProducts(shopId: number): Promise<ProductEntity[]> {
-        try {
-            return await prisma.product.findMany({ where: { shopId } as Prisma.ProductWhereInput }) as ProductEntity[];
-        } catch (error) {
-            throw error;
-        }
-    }
     async getShopSubsite(shopId: number): Promise<SubsiteEntity> {
         try {
             return await prisma.subsite.findFirst({ where: { shopId } as Prisma.SubsiteWhereInput }) as SubsiteEntity;

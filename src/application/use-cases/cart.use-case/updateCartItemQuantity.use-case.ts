@@ -1,4 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
+import { CartService } from 'src/application/services/cart.service';
 import { CartItemService } from 'src/application/services/cartitem.service';
 import { ProductVariantService } from 'src/application/services/productvariant.service';
 
@@ -6,11 +7,12 @@ import { ProductVariantService } from 'src/application/services/productvariant.s
 export class UpdateCartItemQuantityUseCase {
     constructor(
         @Inject(ProductVariantService) private readonly productVariantService: ProductVariantService,
+        @Inject(CartItemService) private readonly cartService: CartService,
         @Inject(CartItemService) private readonly cartItemService: CartItemService,
     ) { }
 
     async execute(id: number, quantity: number) {
-        const cartItem = await this.cartItemService.findById(id);
+        var cartItem = await this.cartItemService.findById(id);
         if (!cartItem) return 'not_found';
 
         const productVariant = await this.productVariantService.findById(cartItem.productVariantId);
@@ -21,6 +23,8 @@ export class UpdateCartItemQuantityUseCase {
 
         // Mettre à jour les totaux du panier
         const result = await this.cartItemService.updateItemQuantity(id, quantity);
+        cartItem = await this.cartItemService.findById(id);
+        await this.cartService.updateCartTotals(cartItem.cartId);
         return result;
     }
 } 

@@ -39,6 +39,21 @@ export class RefundPrismaRepository implements IRefundRepository {
             throw error;
         }
     }
+
+    async getUserRefunds(userId: number) {
+        try {
+            return await prisma.refund.findMany({
+                include: {
+                    order: {
+                        where: { userId: userId },
+                    },
+                }
+            }) as RefundEntity[];
+        } catch (error) {
+            throw error;
+        }
+    }
+
     async getOrderRefund(orderId: number): Promise<RefundEntity> {
         try {
             return await prisma.refund.findFirst({ where: { orderId } }) as RefundEntity;

@@ -4,6 +4,7 @@ import { PaymentEntity } from '../../domain/entities/Payment.entity';
 import { IPaymentRepository } from '../../domain/repositories/Payment.repository';
 
 export class PaymentPrismaRepository implements IPaymentRepository {
+
     async createPayment(data: PaymentEntity): Promise<PaymentEntity> {
         try {
             return await prisma.payment.create({ data: data as Prisma.PaymentCreateInput }) as PaymentEntity;
@@ -39,6 +40,21 @@ export class PaymentPrismaRepository implements IPaymentRepository {
             throw error;
         }
     }
+
+    async getUserPayments(userId: number): Promise<PaymentEntity[]> {
+        try {
+            return await prisma.payment.findMany({
+                include: {
+                    order: {
+                        where: { userId: userId },
+                    },
+                }
+            }) as PaymentEntity[];
+        } catch (error) {
+            throw error;
+        }
+    }
+
     async getOrderPayment(orderId: number): Promise<PaymentEntity> {
         try {
             return await prisma.payment.findFirst({ where: { orderId } }) as PaymentEntity;
