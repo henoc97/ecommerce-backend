@@ -4,8 +4,8 @@ import { PaymentService } from '../../services/payment.service';
 import { OrderStatus } from '../../../domain/enums/OrderStatus.enum';
 import { PaymentStatus } from '../../../domain/enums/PaymentStatus.enum';
 import { PaymentEntity } from '../../../domain/entities/Payment.entity';
-import { PaymentGatewayFactory, PaymentGatewayRequest } from '../../services/payment-gateway.service';
-
+import { PaymentGatewayFactory } from '../../factories/paymentGateway.factory';
+import { PaymentGatewayRequest, PaymentGatewayResponse } from 'src/domain/entities/PaymentGateway.entity';
 export interface PaymentDto {
     orderId: number;
     method: string;
@@ -74,7 +74,7 @@ export class ProcessPaymentUseCase {
         };
 
         // 3. Appeler la gateway de paiement appropriée
-        let paymentResult;
+        let paymentResult: PaymentGatewayResponse;
         try {
             const gatewayService = this.paymentGatewayFactory.getService(dto.method);
             paymentResult = await gatewayService.processPayment(gatewayRequest);

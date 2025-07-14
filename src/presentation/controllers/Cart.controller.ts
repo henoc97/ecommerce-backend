@@ -6,18 +6,7 @@ import { CartItemService } from 'src/application/services/cartitem.service';
 import { AuthGuard } from '@nestjs/passport';
 import { AddProductToCartUseCase } from 'src/application/use-cases/cart.use-case/addProductToCart.use-case';
 import { UpdateCartItemQuantityUseCase } from 'src/application/use-cases/cart.use-case/updateCartItemQuantity.use-case';
-
-class AddCartItemDto {
-    @ApiProperty({ example: 1 })
-    productId: number;
-    @ApiProperty({ example: 2 })
-    quantity: number;
-}
-
-class UpdateCartItemDto {
-    @ApiProperty({ example: 3 })
-    newQuantity: number;
-}
+import { AddCartItemDto, UpdateCartItemDto } from '../dtos/CartItem.dot';
 
 @ApiTags('cart')
 @Controller('cart')

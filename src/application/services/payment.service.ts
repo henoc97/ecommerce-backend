@@ -43,6 +43,13 @@ export class PaymentService {
             throw error;
         }
     }
+    async getUserPayments(userId: number) {
+        try {
+            return await this.repository.getUserPayments(userId);
+        } catch (error) {
+            throw error;
+        }
+    }
     async getOrderPayment(orderId: number) {
         try {
             return await this.repository.getOrderPayment(orderId);

@@ -8,27 +8,7 @@ import { UserRole } from 'src/domain/enums/UserRole.enum';
 import { ApiProperty, ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { PassportConfig } from 'src/application/config/passport.config';
-
-export class SignUpDto {
-    @ApiProperty({ example: 'user@email.com' })
-    email: string;
-
-    @ApiProperty({ example: 'motdepassefort' })
-    password: string;
-}
-
-export class LoginDto {
-    @ApiProperty({ example: 'user@email.com' })
-    email: string;
-
-    @ApiProperty({ example: 'motdepassefort' })
-    password: string;
-}
-
-export class GoogleAuthDto {
-    @ApiProperty({ example: 'id_token_google' })
-    idToken: string;
-}
+import { LoginDto, SignUpDto } from '../dtos/Auth.dto';
 
 @ApiTags('auth')
 @Controller('auth')

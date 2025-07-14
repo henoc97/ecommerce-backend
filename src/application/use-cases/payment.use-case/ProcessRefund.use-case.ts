@@ -5,7 +5,7 @@ import { OrderService } from '../../services/order.service';
 import { PaymentStatus } from '../../../domain/enums/PaymentStatus.enum';
 import { RefundStatus } from '../../../domain/enums/RefundStatus.enum';
 import { OrderStatus } from '../../../domain/enums/OrderStatus.enum';
-import { PaymentGatewayFactory } from '../../services/payment-gateway.service';
+import { PaymentGatewayFactory } from 'src/application/factories/paymentGateway.factory';
 
 export interface RefundDto {
     paymentId: number;

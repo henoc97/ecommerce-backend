@@ -4,13 +4,8 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody, ApiPro
 import { OrderService } from 'src/application/services/order.service';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateOrderFromCartUseCase } from 'src/application/use-cases/order.use-case/CreateOrderFromCart.use-case';
+import { CreateOrderDto } from '../dtos/Order.dto';
 
-class CreateOrderDto {
-    @ApiProperty({ example: 1 })
-    shopId: number;
-    @ApiProperty({ example: 1, required: false })
-    paymentId?: number;
-}
 
 @ApiTags('orders')
 @Controller('orders')

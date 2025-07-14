@@ -4,17 +4,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiProperty } from '@nestj
 import { UserActivityService } from 'src/application/services/useractivity.service';
 import { AuthGuard } from '@nestjs/passport';
 import { UserActivityEntity } from 'src/domain/entities/UserActivity.entity';
-
-class UserActivityDto {
-    @ApiProperty({ example: 'SEARCH', description: 'Type d\'action utilisateur' })
-    action: string;
-    @ApiProperty({ example: 'chaussure', required: false })
-    keyword?: string;
-    @ApiProperty({ example: 123, required: false })
-    productId?: number;
-    @ApiProperty({ example: 456, required: false })
-    orderId?: number;
-}
+import { UserActivityDto } from '../dtos/UserActivity.dto';
 
 @ApiTags('user-activity')
 @Controller('user-activity')

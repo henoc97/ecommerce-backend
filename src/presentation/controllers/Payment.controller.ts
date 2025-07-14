@@ -16,33 +16,13 @@ import {
     ApiResponse,
     ApiBody,
     ApiParam,
-    ApiBearerAuth
+    ApiBearerAuth,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
-import { ProcessPaymentUseCase, PaymentDto } from '../../application/use-cases/payment.use-case/ProcessPayment.use-case';
+import { ProcessPaymentUseCase } from '../../application/use-cases/payment.use-case/ProcessPayment.use-case';
 import { PaymentService } from '../../application/services/payment.service';
+import { CreatePaymentDto, PaymentResponseDto } from '../dtos/Payment.dto';
 
-// DTOs pour Swagger
-export class CreatePaymentDto {
-    orderId: number;
-    method: string;
-    amount: number;
-    currency: string;
-    cardData?: any;
-    paypalData?: any;
-}
-
-export class PaymentResponseDto {
-    success: boolean;
-    payment?: {
-        providerId: string;
-        transactionId: string;
-        method: string;
-        processedAt: string;
-    };
-    error?: string;
-    details?: any;
-}
 
 @ApiTags('Payment')
 @ApiBearerAuth()
@@ -116,25 +96,30 @@ export class PaymentController {
         @Req() req: any,
         @Body() dto: CreatePaymentDto
     ): Promise<PaymentResponseDto> {
-        const userId = req.user.id;
+        try {
+            const userId = req.user.id;
 
-        const result = await this.processPaymentUseCase.execute(userId, dto);
+            const result = await this.processPaymentUseCase.execute(userId, dto);
 
-        if (!result.success) {
-            throw new HttpException(
-                {
-                    success: false,
-                    error: result.error,
-                    details: result.details
-                },
-                result.code || HttpStatus.BAD_REQUEST
-            );
+            if (!result.success) {
+                throw new HttpException(
+                    {
+                        success: false,
+                        error: result.error,
+                        details: result.details
+                    },
+                    result.code || HttpStatus.BAD_REQUEST
+                );
+            }
+
+            return {
+                success: true,
+                payment: result.payment
+            };
+        } catch (e) {
+            if (e instanceof HttpException) throw e;
+            throw new HttpException('Erreur interne', HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        return {
-            success: true,
-            payment: result.payment
-        };
     }
 
     @Get(':orderId')
@@ -183,16 +168,18 @@ export class PaymentController {
         @Req() req: any,
         @Param('orderId') orderId: string
     ) {
-        const payment = await this.paymentService.getOrderPayment(Number(orderId));
+        try {
+            const payment = await this.paymentService.getOrderPayment(Number(orderId));
 
-        if (!payment) {
-            throw new NotFoundException('Aucun paiement trouvé pour cette commande');
+            if (!payment) {
+                throw new NotFoundException('Aucun paiement trouvé pour cette commande');
+            }
+
+            return payment;
+        } catch (e) {
+            if (e instanceof HttpException) throw e;
+            throw new HttpException('Erreur interne', HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        // Vérifier que l'utilisateur a accès à cette commande
-        // (optionnel : vérifier que la commande appartient à l'utilisateur)
-
-        return payment;
     }
 
     @Get()
@@ -222,10 +209,11 @@ export class PaymentController {
     })
     async getUserPayments(@Req() req: any) {
         const userId = req.user.id;
-
-        // Note: Cette méthode nécessiterait d'être implémentée dans PaymentService
-        // pour filtrer par utilisateur via les commandes
-        // Pour l'instant, retournons tous les paiements
-        return await this.paymentService.listPayments();
+        try {
+            return await this.paymentService.getUserPayments(userId);
+        } catch (e) {
+            if (e instanceof HttpException) throw e;
+            throw new HttpException('Erreur interne', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 } 

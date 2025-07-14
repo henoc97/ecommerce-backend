@@ -30,6 +30,12 @@ import { OrderPrismaRepository } from 'src/infrastructure/impl.repositories/Orde
 import { CreateOrderFromCartUseCase } from '../use-cases/order.use-case/CreateOrderFromCart.use-case';
 import { OrderItemService } from '../services/orderitem.service';
 import { OrderItemPrismaRepository } from 'src/infrastructure/impl.repositories/OrderItemPrisma.repository';
+import { PaymentService } from '../services/payment.service';
+import { ProcessPaymentUseCase } from '../use-cases/payment.use-case/ProcessPayment.use-case';
+import { PaymentPrismaRepository } from 'src/infrastructure/impl.repositories/PaymentPrisma.repository';
+import { StripePaymentGatewayService } from 'src/infrastructure/external-services/stripePaymentGateway.service';
+import { PayPalPaymentGatewayService } from 'src/infrastructure/external-services/payPalPaymentGateway.service';
+import { PaymentGatewayFactory } from '../factories/paymentGateway.factory';
 
 @Module({
     providers: [
@@ -47,11 +53,16 @@ import { OrderItemPrismaRepository } from 'src/infrastructure/impl.repositories/
         ReviewService,
         OrderService,
         OrderItemService,
+        PaymentService,
+        StripePaymentGatewayService,
+        PayPalPaymentGatewayService,
+        PaymentGatewayFactory,
         // ... autres services
         AddProductToCartUseCase,
         UpdateCartItemQuantityUseCase,
         ListActiveShopsWithStatsUseCase,
         CreateOrderFromCartUseCase,
+        ProcessPaymentUseCase,
         // ... autres use-cases
         UserPrismaRepository,
         AddressPrismaRepository,
@@ -64,7 +75,8 @@ import { OrderItemPrismaRepository } from 'src/infrastructure/impl.repositories/
         ProductVariantPrismaRepository,
         ReviewPrismaRepository,
         OrderPrismaRepository,
-        OrderItemPrismaRepository
+        OrderItemPrismaRepository,
+        PaymentPrismaRepository,
         // ... autres repositories
     ],
     exports: [
@@ -82,11 +94,16 @@ import { OrderItemPrismaRepository } from 'src/infrastructure/impl.repositories/
         ReviewService,
         OrderService,
         OrderItemService,
+        PaymentService,
+        StripePaymentGatewayService,
+        PayPalPaymentGatewayService,
+        PaymentGatewayFactory,
         // ... autres services
         AddProductToCartUseCase,
         UpdateCartItemQuantityUseCase,
         ListActiveShopsWithStatsUseCase,
         CreateOrderFromCartUseCase,
+        ProcessPaymentUseCase,
         // ... autres use-cases
         UserPrismaRepository,
         AddressPrismaRepository,
@@ -99,7 +116,8 @@ import { OrderItemPrismaRepository } from 'src/infrastructure/impl.repositories/
         CartItemPrismaRepository,
         ReviewPrismaRepository,
         OrderPrismaRepository,
-        OrderItemPrismaRepository
+        OrderItemPrismaRepository,
+        PaymentPrismaRepository,
         // ... autres repositories
     ],
 })
