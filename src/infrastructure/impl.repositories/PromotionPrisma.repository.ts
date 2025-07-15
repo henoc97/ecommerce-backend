@@ -69,4 +69,40 @@ export class PromotionPrismaRepository implements IPromotionRepository {
             throw error;
         }
     }
+    async deleteManyByProductVariantIds(variantIds: number[]): Promise<number> {
+        const { count } = await prisma.promotion.deleteMany({ where: { productVariantId: { in: variantIds } } });
+        return count;
+    }
+    async deleteManyByProductVariantId(variantId: number): Promise<number> {
+        const { count } = await prisma.promotion.deleteMany({ where: { productVariantId: variantId } });
+        return count;
+    }
+    async findPromotionWithOwnership(promotionId: number): Promise<any> {
+        return prisma.promotion.findUnique({
+            where: { id: promotionId },
+            include: {
+                productVariant: {
+                    include: {
+                        product: {
+                            include: {
+                                shop: { include: { vendor: true } }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    async findProductWithOwnership(productId: number): Promise<any> {
+        return prisma.product.findUnique({
+            where: { id: productId },
+            include: { shop: { include: { vendor: true } } }
+        });
+    }
+    async findVariantWithOwnership(variantId: number): Promise<any> {
+        return prisma.productVariant.findUnique({
+            where: { id: variantId },
+            include: { product: { include: { shop: { include: { vendor: true } } } } }
+        });
+    }
 } 

@@ -36,4 +36,13 @@ export class NewsletterSubscriptionService {
             throw error;
         }
     }
+    async listActiveSubscribers(shopId: number) {
+        try {
+            // Suppose que le repository a un champ isActive
+            const all = await this.repository.listSubscribers(shopId);
+            return all.filter(sub => sub.isActive);
+        } catch (error) {
+            throw error;
+        }
+    }
 } 

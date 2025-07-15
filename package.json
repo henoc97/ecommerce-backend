@@ -28,6 +28,7 @@
     "@nestjs/swagger": "^7.1.13",
     "@paypal/checkout-server-sdk": "^1.0.3",
     "@prisma/client": "^6.11.1",
+    "axios": "^1.10.0",
     "bcrypt": "^6.0.0",
     "class-validator": "^0.14.2",
     "cookie-parser": "^1.4.7",

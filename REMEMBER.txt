@@ -1,0 +1,1 @@
+- Les notifications système seront pour quand on Fait la promotion d'un produit ou bien y a une mise à jour qui concerne un utilisateur ou un client peut-être un update peut-être une information ou un warning.

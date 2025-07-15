@@ -43,4 +43,20 @@ export class ReviewService {
             throw error;
         }
     }
+
+    async checkUserProductReview(userId: number, productVariantId: number) {
+        try {
+            return await this.repository.checkUserProductReview(userId, productVariantId);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async getShopReviews(shopId: number) {
+        try {
+            return await this.repository.getShopReviews(shopId);
+        } catch (error) {
+            throw error;
+        }
+    }
 } 

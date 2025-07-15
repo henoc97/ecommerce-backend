@@ -82,4 +82,18 @@ export class OrderService {
             throw error;
         }
     }
+    async findByShopId(shopId: number) {
+        try {
+            return await this.listOrders({ shopId });
+        } catch (error) {
+            throw error;
+        }
+    }
+    async findByIdWithDetails(id: number) {
+        try {
+            return await this.findById(id);
+        } catch (error) {
+            throw error;
+        }
+    }
 } 

@@ -1,6 +1,6 @@
 import { Controller, Post, Put, Delete, Get, Param, Query, Body, Res, HttpStatus, UseGuards, Req, Inject } from '@nestjs/common';
 import { Response } from 'express';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody, ApiProperty } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody, ApiProperty, ApiBearerAuth } from '@nestjs/swagger';
 import { CartService } from 'src/application/services/cart.service';
 import { CartItemService } from 'src/application/services/cartitem.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -8,8 +8,9 @@ import { AddProductToCartUseCase } from 'src/application/use-cases/cart.use-case
 import { UpdateCartItemQuantityUseCase } from 'src/application/use-cases/cart.use-case/updateCartItemQuantity.use-case';
 import { AddCartItemDto, UpdateCartItemDto } from '../dtos/CartItem.dot';
 
-@ApiTags('cart')
-@Controller('cart')
+@ApiTags('Paniers')
+@ApiBearerAuth()
+@Controller('carts')
 export class CartController {
     constructor(
         @Inject(CartService) private readonly cartService: CartService,
@@ -27,6 +28,7 @@ export class CartController {
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     @Post('items')
     async addCartItem(@Body() body: AddCartItemDto, @Req() req: any, @Res() res: Response) {
+        console.log('[CartController] addCartItem', { userId: req.user?.id, body });
         try {
             const userId = req.user.id;
             const result = await this.addProductToCartUseCase.execute(userId, body.productId, body.quantity);
@@ -36,8 +38,10 @@ export class CartController {
             if (result === 'stock') {
                 return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Stock insuffisant' });
             }
+            console.log('[CartController] addCartItem SUCCESS', result);
             return res.status(HttpStatus.OK).json({ message: 'Produit ajouté au panier' });
         } catch (error) {
+            console.error('[CartController] addCartItem ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur serveur' });
         }
     }
@@ -52,6 +56,7 @@ export class CartController {
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     @Put('items/:id')
     async updateCartItem(@Param('id') id: string, @Body() body: UpdateCartItemDto, @Req() req: any, @Res() res: Response) {
+        console.log('[CartController] updateCartItem', { userId: req.user?.id, id, body });
         try {
             const userId = req.user.id;
             const result = await this.updateCartItemQuantityUseCase.execute(Number(id), body.newQuantity);
@@ -61,8 +66,10 @@ export class CartController {
             if (result === 'stock') {
                 return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Stock insuffisant' });
             }
+            console.log('[CartController] updateCartItem SUCCESS', result);
             return res.status(HttpStatus.OK).json({ message: 'Quantité mise à jour' });
         } catch (error) {
+            console.error('[CartController] updateCartItem ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur serveur' });
         }
     }
@@ -76,14 +83,17 @@ export class CartController {
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     @Delete('items/:id')
     async deleteCartItem(@Param('id') id: string, @Req() req: any, @Res() res: Response) {
+        console.log('[CartController] deleteCartItem', { userId: req.user?.id, id });
         try {
             const userId = req.user.id;
             const result = await this.cartItemService.deleteItem(Number(id));
             if (result === 'not_found') {
                 return res.status(HttpStatus.NOT_FOUND).json({ message: 'Élément introuvable' });
             }
+            console.log('[CartController] deleteCartItem SUCCESS', result);
             return res.status(HttpStatus.OK).json({ message: 'Article retiré du panier' });
         } catch (error) {
+            console.error('[CartController] deleteCartItem ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur serveur' });
         }
     }
@@ -95,10 +105,13 @@ export class CartController {
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     @Get('carts')
     async listCarts(@Query('userId') userId: string, @Res() res: Response) {
+        console.log('[CartController] listCarts', { userId });
         try {
             const carts = await this.cartService.listCartsByUser(Number(userId));
+            console.log('[CartController] listCarts SUCCESS', carts);
             return res.status(HttpStatus.OK).json(carts);
         } catch (error) {
+            console.error('[CartController] listCarts ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur serveur' });
         }
     }
@@ -110,10 +123,13 @@ export class CartController {
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     @Get('carts/:id')
     async getCart(@Param('id') id: string, @Res() res: Response) {
+        console.log('[CartController] getCart', { id });
         try {
             const cart = await this.cartService.getCartDetails(Number(id));
+            console.log('[CartController] getCart SUCCESS', cart);
             return res.status(HttpStatus.OK).json(cart);
         } catch (error) {
+            console.error('[CartController] getCart ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur serveur' });
         }
     }

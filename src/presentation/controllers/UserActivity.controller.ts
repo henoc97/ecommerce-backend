@@ -1,15 +1,19 @@
-import { Controller, Post, Body, Res, HttpStatus, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Body, Res, HttpStatus, UseGuards, Req, Get, Query, HttpException } from '@nestjs/common';
 import { Response } from 'express';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiProperty } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiProperty, ApiQuery } from '@nestjs/swagger';
 import { UserActivityService } from 'src/application/services/useractivity.service';
 import { AuthGuard } from '@nestjs/passport';
 import { UserActivityEntity } from 'src/domain/entities/UserActivity.entity';
 import { UserActivityDto } from '../dtos/UserActivity.dto';
+import { AuditLogService } from '../../application/services/auditlog.service';
 
-@ApiTags('user-activity')
-@Controller('user-activity')
+@ApiTags('Statistiques & Historique')
+@Controller('user-activities')
 export class UserActivityController {
-    constructor(private readonly userActivityService: UserActivityService) { }
+    constructor(
+        private readonly userActivityService: UserActivityService,
+        private readonly auditLogService: AuditLogService,
+    ) { }
 
     @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Enregistrer une activité utilisateur (SEARCH, VIEW_PRODUCT, ADD_TO_CART, REMOVE_FROM_CART, PURCHASE)' })
@@ -19,6 +23,7 @@ export class UserActivityController {
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     @Post()
     async logActivity(@Body() body: UserActivityDto, @Req() req: any, @Res() res: Response) {
+        console.log('[UserActivityController] logActivity', { user: req.user, body });
         try {
             if (!body.action) {
                 return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Action requise' });
@@ -26,9 +31,38 @@ export class UserActivityController {
             const user = req.user as any;
             (body as any).userId = user.id;
             await this.userActivityService.logActivity(body as UserActivityEntity);
+            console.log('[UserActivityController] logActivity SUCCESS', body);
             return res.status(HttpStatus.CREATED).json({ message: 'Activité enregistrée' });
         } catch (error) {
+            console.error('[UserActivityController] logActivity ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur serveur' });
         }
     }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Get()
+    @ApiOperation({ summary: 'Lister les interactions clients sur une boutique' })
+    @ApiQuery({ name: 'shopId', required: true, description: 'ID de la boutique' })
+    @ApiResponse({ status: 200, description: 'Liste des activités clients' })
+    @ApiResponse({ status: 403, description: 'Accès interdit ou non autorisé' })
+    @ApiResponse({ status: 500, description: 'Erreur serveur' })
+    async getShopUserActivities(@Query('shopId') shopId: number) {
+        console.log('[UserActivityController] getShopUserActivities', { shopId });
+        try {
+            if (!shopId) {
+                console.log('[UserActivityController] getShopUserActivities BAD_REQUEST');
+                throw new HttpException('shopId requis', HttpStatus.BAD_REQUEST);
+            }
+            // On suppose que le service filtre bien par shopId
+            const activities = await this.userActivityService.getShopActivities(shopId);
+            console.log('[UserActivityController] getShopUserActivities SUCCESS', activities);
+            return activities || [];
+        } catch (e) {
+            console.error('[UserActivityController] getShopUserActivities ERROR', e);
+            if (e instanceof HttpException) throw e;
+            throw new HttpException('Erreur serveur', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 } 

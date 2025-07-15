@@ -36,6 +36,31 @@ import { PaymentPrismaRepository } from 'src/infrastructure/impl.repositories/Pa
 import { StripePaymentGatewayService } from 'src/infrastructure/external-services/stripePaymentGateway.service';
 import { PayPalPaymentGatewayService } from 'src/infrastructure/external-services/payPalPaymentGateway.service';
 import { PaymentGatewayFactory } from '../factories/paymentGateway.factory';
+import { NewsletterSubscriptionService } from '../services/newslettersubscription.service';
+import { NewsletterSubscriptionPrismaRepository } from 'src/infrastructure/impl.repositories/NewsletterSubscriptionPrisma.repository';
+import { ProductImageService } from '../services/productimage.service';
+import { VendorService } from '../services/vendor.service';
+import { VendorPrismaRepository } from 'src/infrastructure/impl.repositories/VendorPrisma.repository';
+import { ProductImagePrismaRepository } from 'src/infrastructure/impl.repositories/ProductImagePrisma.repository';
+import { ProcessRefundUseCase } from '../use-cases/payment.use-case/ProcessRefund.use-case';
+import { RefundService } from '../services/refund.service';
+import { RefundPrismaRepository } from 'src/infrastructure/impl.repositories/RefundPrisma.repository';
+import { NotificationService } from '../services/notification.service';
+import { NotificationPrismaRepository } from 'src/infrastructure/impl.repositories/NotificationPrisma.repository';
+import { TicketService } from '../services/ticket.service';
+import { TicketPrismaRepository } from 'src/infrastructure/impl.repositories/TicketPrisma.repository';
+import { PromotionService } from '../services/promotion.service';
+import { PromotionPrismaRepository } from 'src/infrastructure/impl.repositories/PromotionPrisma.repository';
+import { CreatePromotionUseCase } from '../use-cases/promotion.use-case/CreatePromotion.use-case';
+import { EmailService } from '../services/email.service';
+import { AuditLogService } from '../services/auditlog.service';
+import { AuditLogPrismaRepository } from 'src/infrastructure/impl.repositories/AuditLogPrisma.repository';
+import { ShopSubscriptionService } from '../services/shopsubscription.service';
+import { ShopSubscriptionPrismaRepository } from 'src/infrastructure/impl.repositories/ShopSubscriptionPrisma.repository';
+import { SubscriptionService } from '../services/subscription.service';
+import { SubscriptionPrismaRepository } from 'src/infrastructure/impl.repositories/SubscriptionPrisma.repository';
+import { SubsiteService } from '../services/subsite.service';
+import { SubsitePrismaRepository } from 'src/infrastructure/impl.repositories/SubsitePrisma.repository';
 
 @Module({
     providers: [
@@ -56,6 +81,19 @@ import { PaymentGatewayFactory } from '../factories/paymentGateway.factory';
         PaymentService,
         StripePaymentGatewayService,
         PayPalPaymentGatewayService,
+        NewsletterSubscriptionService,
+        ProductImageService,
+        VendorService,
+        RefundService,
+        NotificationService,
+        TicketService,
+        PromotionService,
+        EmailService,
+        AuditLogService,
+        ShopSubscriptionService,
+        SubscriptionService,
+        SubsiteService,
+        // ... autres factories
         PaymentGatewayFactory,
         // ... autres services
         AddProductToCartUseCase,
@@ -63,6 +101,8 @@ import { PaymentGatewayFactory } from '../factories/paymentGateway.factory';
         ListActiveShopsWithStatsUseCase,
         CreateOrderFromCartUseCase,
         ProcessPaymentUseCase,
+        ProcessRefundUseCase,
+        CreatePromotionUseCase,
         // ... autres use-cases
         UserPrismaRepository,
         AddressPrismaRepository,
@@ -77,6 +117,17 @@ import { PaymentGatewayFactory } from '../factories/paymentGateway.factory';
         OrderPrismaRepository,
         OrderItemPrismaRepository,
         PaymentPrismaRepository,
+        NewsletterSubscriptionPrismaRepository,
+        ProductImagePrismaRepository,
+        VendorPrismaRepository,
+        RefundPrismaRepository,
+        NotificationPrismaRepository,
+        TicketPrismaRepository,
+        PromotionPrismaRepository,
+        AuditLogPrismaRepository,
+        ShopSubscriptionPrismaRepository,
+        SubscriptionPrismaRepository,
+        SubsitePrismaRepository,
         // ... autres repositories
     ],
     exports: [
@@ -97,6 +148,19 @@ import { PaymentGatewayFactory } from '../factories/paymentGateway.factory';
         PaymentService,
         StripePaymentGatewayService,
         PayPalPaymentGatewayService,
+        NewsletterSubscriptionService,
+        ProductImageService,
+        VendorService,
+        RefundService,
+        NotificationService,
+        TicketService,
+        PromotionService,
+        EmailService,
+        AuditLogService,
+        ShopSubscriptionService,
+        SubscriptionService,
+        SubsiteService,
+        // ... autres factories
         PaymentGatewayFactory,
         // ... autres services
         AddProductToCartUseCase,
@@ -104,6 +168,8 @@ import { PaymentGatewayFactory } from '../factories/paymentGateway.factory';
         ListActiveShopsWithStatsUseCase,
         CreateOrderFromCartUseCase,
         ProcessPaymentUseCase,
+        ProcessRefundUseCase,
+        CreatePromotionUseCase,
         // ... autres use-cases
         UserPrismaRepository,
         AddressPrismaRepository,
@@ -118,6 +184,17 @@ import { PaymentGatewayFactory } from '../factories/paymentGateway.factory';
         OrderPrismaRepository,
         OrderItemPrismaRepository,
         PaymentPrismaRepository,
+        NewsletterSubscriptionPrismaRepository,
+        ProductImagePrismaRepository,
+        VendorPrismaRepository,
+        RefundPrismaRepository,
+        NotificationPrismaRepository,
+        TicketPrismaRepository,
+        PromotionPrismaRepository,
+        AuditLogPrismaRepository,
+        ShopSubscriptionPrismaRepository,
+        SubscriptionPrismaRepository,
+        SubsitePrismaRepository
         // ... autres repositories
     ],
 })

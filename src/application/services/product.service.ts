@@ -66,4 +66,13 @@ export class ProductService {
             throw error;
         }
     }
+
+    async hasProductRelations(id: number): Promise<boolean> {
+        // Délègue au repository une vérification des relations bloquantes (commandes, reviews, etc.)
+        try {
+            return await this.repository.hasProductRelations(id);
+        } catch (error) {
+            throw error;
+        }
+    }
 } 

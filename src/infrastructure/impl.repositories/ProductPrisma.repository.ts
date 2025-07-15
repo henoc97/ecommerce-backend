@@ -74,4 +74,25 @@ export class ProductPrismaRepository implements IProductRepository {
             throw error;
         }
     }
+    async hasProductRelations(id: number): Promise<boolean> {
+        // Vérifie s'il existe des OrderItem ou Review liés à ce produit (via les variants)
+        const product = await prisma.product.findUnique({
+            where: { id },
+            include: {
+                productVariants: {
+                    include: {
+                        orderItems: true,
+                        reviews: true,
+                    },
+                },
+            },
+        });
+        if (!product) return false;
+        for (const variant of product.productVariants) {
+            if ((variant.orderItems && variant.orderItems.length > 0) || (variant.reviews && variant.reviews.length > 0)) {
+                return true;
+            }
+        }
+        return false;
+    }
 } 
