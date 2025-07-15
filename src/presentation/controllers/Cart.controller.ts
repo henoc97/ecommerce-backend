@@ -1,6 +1,6 @@
 import { Controller, Post, Put, Delete, Get, Param, Query, Body, Res, HttpStatus, UseGuards, Req, Inject } from '@nestjs/common';
 import { Response } from 'express';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody, ApiProperty } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody, ApiProperty, ApiBearerAuth } from '@nestjs/swagger';
 import { CartService } from 'src/application/services/cart.service';
 import { CartItemService } from 'src/application/services/cartitem.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -8,8 +8,9 @@ import { AddProductToCartUseCase } from 'src/application/use-cases/cart.use-case
 import { UpdateCartItemQuantityUseCase } from 'src/application/use-cases/cart.use-case/updateCartItemQuantity.use-case';
 import { AddCartItemDto, UpdateCartItemDto } from '../dtos/CartItem.dot';
 
-@ApiTags('cart')
-@Controller('cart')
+@ApiTags('Paniers')
+@ApiBearerAuth()
+@Controller('carts')
 export class CartController {
     constructor(
         @Inject(CartService) private readonly cartService: CartService,

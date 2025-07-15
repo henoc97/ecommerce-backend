@@ -227,4 +227,121 @@ export class PaymentController {
             throw new HttpException('Erreur interne', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @Get('/:shopId')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiOperation({
+        summary: 'Lister les paiements d\'une boutique',
+        description: 'Retourne tous les paiements associés à une boutique spécifique.'
+    })
+    @ApiParam({
+        name: 'shopId',
+        description: 'ID de la boutique',
+        type: 'number',
+        example: 1
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Liste des paiements de la boutique',
+        schema: {
+            type: 'array',
+            items: {
+                type: 'object',
+                properties: {
+                    id: { type: 'number' },
+                    status: { type: 'string' },
+                    method: { type: 'string' },
+                    amount: { type: 'number' },
+                    currency: { type: 'string' },
+                    createdAt: { type: 'string', format: 'date-time' },
+                    orderId: { type: 'number' }
+                }
+            }
+        }
+    })
+    @ApiResponse({
+        status: 404,
+        description: 'Aucun paiement trouvé pour cette boutique',
+        schema: {
+            type: 'object',
+            properties: {
+                statusCode: { type: 'number', example: 404 },
+                message: { type: 'string', example: 'Aucun paiement trouvé' },
+                error: { type: 'string', example: 'Not Found' }
+            }
+        }
+    })
+    async getShopPayments(@Param('shopId') shopId: string) {
+        console.log('[PaymentController] getShopPayments', { shopId });
+        try {
+            const payments = await this.paymentService.getShopPayments(Number(shopId));
+            if (!payments || payments.length === 0) {
+                throw new NotFoundException('Aucun paiement trouvé pour cette boutique');
+            }
+            console.log('[PaymentController] getShopPayments SUCCESS', payments);
+            return payments;
+        } catch (e) {
+            console.error('[PaymentController] getShopPayments ERROR', e);
+            if (e instanceof HttpException) throw e;
+            throw new HttpException('Erreur interne', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Get('/:id')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiOperation({
+        summary: 'Détails d\'un paiement',
+        description: 'Retourne les détails d\'un paiement à partir de son ID.'
+    })
+    @ApiParam({
+        name: 'id',
+        description: 'ID du paiement',
+        type: 'number',
+        example: 1
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Détails du paiement',
+        schema: {
+            type: 'object',
+            properties: {
+                id: { type: 'number' },
+                status: { type: 'string' },
+                method: { type: 'string' },
+                amount: { type: 'number' },
+                currency: { type: 'string' },
+                createdAt: { type: 'string', format: 'date-time' },
+                orderId: { type: 'number' },
+                providerId: { type: 'string' },
+                metadata: { type: 'object' }
+            }
+        }
+    })
+    @ApiResponse({
+        status: 404,
+        description: 'Aucun paiement trouvé avec cet ID',
+        schema: {
+            type: 'object',
+            properties: {
+                statusCode: { type: 'number', example: 404 },
+                message: { type: 'string', example: 'Aucun paiement trouvé' },
+                error: { type: 'string', example: 'Not Found' }
+            }
+        }
+    })
+    async getPaymentById(@Param('id') id: string) {
+        console.log('[PaymentController] getPaymentById', { id });
+        try {
+            const payment = await this.paymentService.findById(Number(id));
+            if (!payment) {
+                throw new NotFoundException('Aucun paiement trouvé avec cet ID');
+            }
+            console.log('[PaymentController] getPaymentById SUCCESS', payment);
+            return payment;
+        } catch (e) {
+            console.error('[PaymentController] getPaymentById ERROR', e);
+            if (e instanceof HttpException) throw e;
+            throw new HttpException('Erreur interne', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 } 

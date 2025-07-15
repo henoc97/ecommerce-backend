@@ -4,12 +4,13 @@ import { ProductImageService } from '../../application/services/productimage.ser
 import { ProductService } from '../../application/services/product.service';
 import { VendorService } from '../../application/services/vendor.service';
 import { ProductVariantCreateDto, ProductVariantResponseDto, ProductImageCreateDto } from '../dtos/Product.dto';
-import { ApiTags, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { UserRole } from '../../domain/enums/UserRole.enum';
 
-@ApiTags('ProductVariant')
-@Controller()
+@ApiTags('Variantes Produit')
+@ApiBearerAuth()
+@Controller('product-variants')
 export class ProductVariantController {
     private readonly logger = new Logger(ProductVariantController.name);
 
@@ -25,6 +26,7 @@ export class ProductVariantController {
     @ApiParam({ name: 'id', type: Number })
     @ApiBody({ type: ProductVariantCreateDto })
     @ApiResponse({ status: 201, description: 'Variante créée', type: ProductVariantResponseDto })
+    @ApiOperation({ summary: 'Créer une nouvelle variante pour un produit', description: 'Cette route permet de créer une nouvelle variante pour un produit existant. Seuls les vendeurs peuvent accéder.' })
     async createVariant(
         @Param('id') productId: number,
         @Body() dto: ProductVariantCreateDto,
@@ -61,6 +63,7 @@ export class ProductVariantController {
     @ApiParam({ name: 'id', type: Number })
     @ApiBody({ type: ProductImageCreateDto })
     @ApiResponse({ status: 201, description: 'Image ajoutée à la variante' })
+    @ApiOperation({ summary: 'Ajouter une image à une variante', description: 'Cette route permet d\'ajouter une image à une variante existante. Seuls les vendeurs peuvent accéder.' })
     async addImageToVariant(
         @Param('id') variantId: number,
         @Body() dto: ProductImageCreateDto,

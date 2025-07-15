@@ -52,6 +52,15 @@ import { TicketPrismaRepository } from 'src/infrastructure/impl.repositories/Tic
 import { PromotionService } from '../services/promotion.service';
 import { PromotionPrismaRepository } from 'src/infrastructure/impl.repositories/PromotionPrisma.repository';
 import { CreatePromotionUseCase } from '../use-cases/promotion.use-case/CreatePromotion.use-case';
+import { EmailService } from '../services/email.service';
+import { AuditLogService } from '../services/auditlog.service';
+import { AuditLogPrismaRepository } from 'src/infrastructure/impl.repositories/AuditLogPrisma.repository';
+import { ShopSubscriptionService } from '../services/shopsubscription.service';
+import { ShopSubscriptionPrismaRepository } from 'src/infrastructure/impl.repositories/ShopSubscriptionPrisma.repository';
+import { SubscriptionService } from '../services/subscription.service';
+import { SubscriptionPrismaRepository } from 'src/infrastructure/impl.repositories/SubscriptionPrisma.repository';
+import { SubsiteService } from '../services/subsite.service';
+import { SubsitePrismaRepository } from 'src/infrastructure/impl.repositories/SubsitePrisma.repository';
 
 @Module({
     providers: [
@@ -79,6 +88,11 @@ import { CreatePromotionUseCase } from '../use-cases/promotion.use-case/CreatePr
         NotificationService,
         TicketService,
         PromotionService,
+        EmailService,
+        AuditLogService,
+        ShopSubscriptionService,
+        SubscriptionService,
+        SubsiteService,
         // ... autres factories
         PaymentGatewayFactory,
         // ... autres services
@@ -109,7 +123,11 @@ import { CreatePromotionUseCase } from '../use-cases/promotion.use-case/CreatePr
         RefundPrismaRepository,
         NotificationPrismaRepository,
         TicketPrismaRepository,
-        PromotionPrismaRepository
+        PromotionPrismaRepository,
+        AuditLogPrismaRepository,
+        ShopSubscriptionPrismaRepository,
+        SubscriptionPrismaRepository,
+        SubsitePrismaRepository,
         // ... autres repositories
     ],
     exports: [
@@ -137,6 +155,11 @@ import { CreatePromotionUseCase } from '../use-cases/promotion.use-case/CreatePr
         NotificationService,
         TicketService,
         PromotionService,
+        EmailService,
+        AuditLogService,
+        ShopSubscriptionService,
+        SubscriptionService,
+        SubsiteService,
         // ... autres factories
         PaymentGatewayFactory,
         // ... autres services
@@ -167,7 +190,11 @@ import { CreatePromotionUseCase } from '../use-cases/promotion.use-case/CreatePr
         RefundPrismaRepository,
         NotificationPrismaRepository,
         TicketPrismaRepository,
-        PromotionPrismaRepository
+        PromotionPrismaRepository,
+        AuditLogPrismaRepository,
+        ShopSubscriptionPrismaRepository,
+        SubscriptionPrismaRepository,
+        SubsitePrismaRepository
         // ... autres repositories
     ],
 })

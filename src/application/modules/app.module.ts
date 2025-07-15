@@ -17,6 +17,13 @@ import { ProductVariantModule } from './ProductVariant.module';
 import { PromotionModule } from './Promotion.module';
 import { NewsletterSubscriptionModule } from './NewsletterSubscription.module';
 import { CategoryModule } from './Category.module';
+import { NewsletterCampaignModule } from './NewsletterCampaign.module';
+import { AddressnModule } from './Address.module';
+import { AuditLogModule } from './AuditLog.module';
+import { ShopSubscriptionModule } from './ShopSubscription.module';
+import { SubscriptionModule } from './Subscription.module';
+import { UserModule } from './User.module';
+import { SubsiteModule } from './Subsite.module';
 
 @Module({
   imports: [
@@ -38,6 +45,13 @@ import { CategoryModule } from './Category.module';
     PromotionModule,
     NewsletterSubscriptionModule,
     CategoryModule,
+    NewsletterCampaignModule,
+    AddressnModule,
+    AuditLogModule,
+    ShopSubscriptionModule,
+    SubscriptionModule,
+    UserModule,
+    SubsiteModule
   ],
 })
 export class AppModule { }

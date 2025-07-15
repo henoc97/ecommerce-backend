@@ -1,13 +1,14 @@
 import { Controller, Get, Req, UseGuards, HttpException, HttpStatus, Param } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { VendorService } from '../../application/services/vendor.service';
 import { ShopService } from '../../application/services/shop.service';
 import { SellerDashboardDto, SellerShopsListDto, SellerShopListItemDto } from '../dtos/SellerDashboard.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UserRole } from '../../domain/enums/UserRole.enum';
 
-@ApiTags('seller')
-@Controller('me')
+@ApiTags('Vendeurs')
+@ApiBearerAuth()
+@Controller('sellers')
 export class SellerController {
     constructor(
         private readonly vendorService: VendorService,
@@ -16,11 +17,11 @@ export class SellerController {
 
     @UseGuards(AuthGuard('jwt'))
     @Get('dashboard')
-    @ApiOperation({ summary: 'Liste des shops du vendeur (accès sécurisé)' })
-    @ApiResponse({ status: 200, type: SellerShopsListDto })
-    @ApiResponse({ status: 401, description: 'Non authentifié ou non vendeur' })
-    @ApiResponse({ status: 404, description: 'Aucun vendeur trouvé' })
-    @ApiResponse({ status: 500, description: 'Erreur serveur' })
+    @ApiOperation({ summary: 'Liste des shops du vendeur (accès sécurisé)', description: 'Récupère la liste des shops associés à l\'utilisateur vendeur.' })
+    @ApiResponse({ status: 200, description: 'Liste des shops réussie.', type: SellerShopsListDto })
+    @ApiResponse({ status: 401, description: 'Non authentifié ou non vendeur.', type: HttpException })
+    @ApiResponse({ status: 404, description: 'Aucun vendeur trouvé.', type: HttpException })
+    @ApiResponse({ status: 500, description: 'Erreur serveur.', type: HttpException })
     async getShopsList(@Req() req: any) {
         console.log('[SellerController] getShopsList', { user: req.user });
         if (!req.user || req.user.role !== UserRole.SELLER) {
@@ -57,11 +58,12 @@ export class SellerController {
 
     @UseGuards(AuthGuard('jwt'))
     @Get('dashboard/:shopId')
-    @ApiOperation({ summary: 'Dashboard détaillé d’un shop du vendeur (accès sécurisé)' })
-    @ApiResponse({ status: 200, type: SellerDashboardDto })
-    @ApiResponse({ status: 401, description: 'Non authentifié ou non vendeur' })
-    @ApiResponse({ status: 404, description: 'Boutique non trouvée' })
-    @ApiResponse({ status: 500, description: 'Erreur serveur' })
+    @ApiOperation({ summary: 'Dashboard détaillé d’un shop du vendeur (accès sécurisé)', description: 'Récupère le dashboard détaillé d\'une boutique spécifique associée à l\'utilisateur vendeur.' })
+    @ApiParam({ name: 'shopId', description: 'ID de la boutique à récupérer.', type: Number })
+    @ApiResponse({ status: 200, description: 'Dashboard de la boutique réussie.', type: SellerDashboardDto })
+    @ApiResponse({ status: 401, description: 'Non authentifié ou non vendeur.', type: HttpException })
+    @ApiResponse({ status: 404, description: 'Boutique non trouvée.', type: HttpException })
+    @ApiResponse({ status: 500, description: 'Erreur serveur.', type: HttpException })
     async getShopDashboard(@Req() req: any, @Param('shopId') shopId: number) {
         console.log('[SellerController] getShopDashboard', { user: req.user, shopId });
         if (!req.user || req.user.role !== UserRole.SELLER) {

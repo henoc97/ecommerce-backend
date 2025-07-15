@@ -1,13 +1,14 @@
-import { Controller, Post, Body, HttpException, HttpStatus, Logger, UseGuards, Req, Put, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus, Logger, UseGuards, Req, Put, Param, Delete, Get, Query } from '@nestjs/common';
 import { PromotionService } from '../../application/services/promotion.service';
 import { PromotionCreateDto, PromotionResponseDto } from '../dtos/Product.dto';
-import { ApiTags, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiResponse, ApiBody, ApiOperation, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { UserRole } from '../../domain/enums/UserRole.enum';
 import { DeletePromotionDto, UpdatePromotionDto } from '../dtos/Promotion.dto';
 import { CreatePromotionUseCase } from '../../application/use-cases/promotion.use-case/CreatePromotion.use-case';
 
-@ApiTags('Promotion')
+@ApiTags('Promotions')
+@ApiBearerAuth()
 @Controller('/promotions')
 export class PromotionController {
     private readonly logger = new Logger(PromotionController.name);
@@ -19,8 +20,13 @@ export class PromotionController {
 
     @UseGuards(AuthGuard('jwt'))
     @Post()
-    @ApiBody({ type: PromotionCreateDto })
+    @ApiOperation({ summary: 'Créer une promotion', description: 'Crée une promotion sur une variante de produit.' })
+    @ApiBody({ type: PromotionCreateDto, description: 'Payload de création de promotion' })
     @ApiResponse({ status: 201, description: 'Promotion créée', type: PromotionResponseDto })
+    @ApiResponse({ status: 401, description: 'Accès réservé aux vendeurs' })
+    @ApiResponse({ status: 400, description: 'Erreur de validation' })
+    @ApiResponse({ status: 404, description: 'Produit/variante introuvable' })
+    @ApiResponse({ status: 500, description: 'Erreur serveur' })
     async createPromotion(
         @Body() dto: PromotionCreateDto,
         @Req() req: any
@@ -51,7 +57,34 @@ export class PromotionController {
         }
     }
 
+    @Get()
+    @ApiOperation({ summary: 'Lister les promotions', description: 'Retourne la liste des promotions. Si active=true, ne retourne que les promotions actives.' })
+    @ApiQuery({ name: 'active', required: false, type: Boolean, description: 'true pour ne retourner que les promotions actives' })
+    @ApiResponse({ status: 200, description: 'Liste des promotions', type: [PromotionResponseDto] })
+    @ApiResponse({ status: 500, description: 'Erreur serveur' })
+    async listPromotions(@Query('active') active?: string) {
+        this.logger.log(`GET /promotions?active=${active}`);
+        try {
+            let filter: any = {};
+            if (active === 'true') {
+                filter.endDate = { gt: new Date() };
+            }
+            const promotions = await this.promotionService.listPromotions(filter);
+            this.logger.log('Promotions récupérées avec succès');
+            return promotions;
+        } catch (error) {
+            this.logger.error('Erreur lors du chargement des promotions', error.stack);
+            throw new HttpException(error.message || 'Erreur serveur', error.status || HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @Delete()
+    @ApiOperation({ summary: 'Supprimer une promotion', description: 'Supprime une promotion sur un produit ou une variante.' })
+    @ApiBody({ type: DeletePromotionDto, description: 'Payload de suppression' })
+    @ApiResponse({ status: 200, description: 'Promotion supprimée' })
+    @ApiResponse({ status: 404, description: 'Aucune promotion trouvée' })
+    @ApiResponse({ status: 401, description: 'Unauthorized' })
+    @ApiResponse({ status: 500, description: 'Erreur serveur' })
     async deletePromotion(
         @Body() dto: DeletePromotionDto,
         @Req() req: any
@@ -82,6 +115,14 @@ export class PromotionController {
     }
 
     @Put('/promotion/:id')
+    @ApiOperation({ summary: 'Mettre à jour une promotion', description: 'Modifie une promotion existante.' })
+    @ApiParam({ name: 'id', type: Number, description: 'ID de la promotion à modifier' })
+    @ApiBody({ type: UpdatePromotionDto, description: 'Payload de mise à jour' })
+    @ApiResponse({ status: 200, description: 'Promotion mise à jour' })
+    @ApiResponse({ status: 404, description: 'Promotion non trouvée' })
+    @ApiResponse({ status: 403, description: 'Vous ne pouvez pas modifier cette promotion' })
+    @ApiResponse({ status: 401, description: 'Unauthorized' })
+    @ApiResponse({ status: 500, description: 'Erreur serveur' })
     async updatePromotion(
         @Param('id') id: number,
         @Body() dto: UpdatePromotionDto,

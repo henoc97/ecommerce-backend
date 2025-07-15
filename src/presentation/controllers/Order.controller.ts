@@ -1,13 +1,14 @@
 import { Controller, Post, Get, Param, Query, Body, Res, HttpStatus, UseGuards, Req, Inject } from '@nestjs/common';
 import { Response } from 'express';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody, ApiProperty } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { OrderService } from 'src/application/services/order.service';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateOrderFromCartUseCase } from 'src/application/use-cases/order.use-case/CreateOrderFromCart.use-case';
 import { CreateOrderDto } from '../dtos/Order.dto';
 
 
-@ApiTags('orders')
+@ApiTags('Commandes')
+@ApiBearerAuth()
 @Controller('orders')
 export class OrderController {
     constructor(
@@ -16,9 +17,9 @@ export class OrderController {
     ) { }
 
     @UseGuards(AuthGuard('jwt'))
-    @ApiOperation({ summary: 'Créer une commande à partir du panier' })
+    @ApiOperation({ summary: 'Créer une commande à partir du panier', description: 'Cette route permet de créer une nouvelle commande à partir des articles présents dans le panier de l\'utilisateur.' })
     @ApiBody({ type: CreateOrderDto })
-    @ApiResponse({ status: 201, description: 'Commande créée' })
+    @ApiResponse({ status: 201, description: 'Commande créée avec succès', })
     @ApiResponse({ status: 400, description: 'Erreur panier vide, stock, produit supprimé' })
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     @Post()
@@ -39,15 +40,23 @@ export class OrderController {
     }
 
     @UseGuards(AuthGuard('jwt'))
-    @ApiOperation({ summary: 'Lister les commandes d\'un utilisateur' })
-    @ApiQuery({ name: 'userId', required: true, description: 'ID de l\'utilisateur' })
-    @ApiResponse({ status: 200, description: 'Liste des commandes' })
+    @ApiOperation({ summary: 'Lister les commandes par utilisateur ou par boutique', description: 'Cette route permet de lister toutes les commandes d\'un utilisateur ou de toutes les commandes d\'une boutique.' })
+    @ApiQuery({ name: 'userId', required: false, description: 'ID de l\'utilisateur pour filtrer les commandes de cet utilisateur. Si non fourni, la liste sera de toutes les commandes.' })
+    @ApiQuery({ name: 'shopId', required: false, description: 'ID de la boutique pour filtrer les commandes de cette boutique. Si non fourni, la liste sera de toutes les commandes.' })
+    @ApiResponse({ status: 200, description: 'Liste des commandes filtrées' })
+    @ApiResponse({ status: 400, description: 'Aucun paramètre fourni pour la recherche' })
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     @Get()
-    async listOrders(@Query('userId') userId: string, @Res() res: Response) {
-        console.log('[OrderController] listOrders', { userId });
+    async listOrders(@Query('userId') userId: string, @Query('shopId') shopId: string, @Res() res: Response) {
+        console.log('[OrderController] listOrders', { userId, shopId });
         try {
-            const orders = await this.orderService.listOrders({ userId: Number(userId) });
+            if (!userId && !shopId) {
+                return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Veuillez fournir userId ou shopId' });
+            }
+            const filter: any = {};
+            if (userId) filter.userId = Number(userId);
+            if (shopId) filter.shopId = Number(shopId);
+            const orders = await this.orderService.listOrders(filter);
             console.log('[OrderController] listOrders SUCCESS', orders);
             return res.status(HttpStatus.OK).json(orders);
         } catch (error) {
@@ -57,8 +66,8 @@ export class OrderController {
     }
 
     @UseGuards(AuthGuard('jwt'))
-    @ApiOperation({ summary: 'Détails d\'une commande' })
-    @ApiParam({ name: 'id', description: 'ID de la commande' })
+    @ApiOperation({ summary: 'Détails d\'une commande', description: 'Cette route permet de récupérer les détails d\'une commande spécifique.' })
+    @ApiParam({ name: 'id', description: 'ID de la commande à récupérer' })
     @ApiResponse({ status: 200, description: 'Détail de la commande' })
     @ApiResponse({ status: 403, description: 'Commande non autorisée' })
     @ApiResponse({ status: 404, description: 'Commande introuvable' })

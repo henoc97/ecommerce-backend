@@ -1,9 +1,10 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, Query, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { CategoryService } from '../../application/services/category.service';
 import { CategoryCreateDto, CategoryUpdateDto, CategoryResponseDto } from '../dtos/Category.dto';
-import { ApiTags, ApiResponse, ApiQuery, ApiParam, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiResponse, ApiQuery, ApiParam, ApiBody, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 
-@ApiTags('Category')
+@ApiTags('Catégories')
+@ApiBearerAuth()
 @Controller('/categories')
 export class CategoryController {
     private readonly logger = new Logger(CategoryController.name);
@@ -11,8 +12,11 @@ export class CategoryController {
     constructor(private readonly categoryService: CategoryService) { }
 
     @Get()
-    @ApiQuery({ name: 'shopId', required: true, type: Number })
+    @ApiOperation({ summary: 'Lister les catégories d’une boutique', description: 'Retourne la liste des catégories pour une boutique donnée.' })
+    @ApiQuery({ name: 'shopId', required: true, type: Number, description: 'ID de la boutique' })
     @ApiResponse({ status: 200, description: 'Liste des catégories', type: [CategoryResponseDto] })
+    @ApiResponse({ status: 400, description: 'shopId requis' })
+    @ApiResponse({ status: 500, description: 'Erreur serveur' })
     async getCategories(@Query('shopId') shopId: number) {
         this.logger.log(`GET /categories?shopId=${shopId}`);
         try {
@@ -29,9 +33,28 @@ export class CategoryController {
         }
     }
 
+    @Get('/all')
+    @ApiOperation({ summary: 'Lister toutes les catégories', description: 'Retourne la liste globale de toutes les catégories (usage admin).' })
+    @ApiResponse({ status: 200, description: 'Liste globale des catégories', type: [CategoryResponseDto] })
+    @ApiResponse({ status: 500, description: 'Erreur serveur' })
+    async getAllCategories() {
+        this.logger.log('GET /categories/all (global)');
+        try {
+            const categories = await this.categoryService.listCategories();
+            this.logger.log('Catégories globales récupérées avec succès');
+            return categories;
+        } catch (error) {
+            this.logger.error('Erreur lors du chargement des catégories globales', error.stack);
+            throw new HttpException(error.message || 'Erreur serveur', error.status || HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @Post()
-    @ApiBody({ type: CategoryCreateDto })
+    @ApiOperation({ summary: 'Créer une catégorie', description: 'Crée une nouvelle catégorie pour une boutique.' })
+    @ApiBody({ type: CategoryCreateDto, description: 'Payload de création de catégorie' })
     @ApiResponse({ status: 201, description: 'Catégorie créée', type: CategoryResponseDto })
+    @ApiResponse({ status: 409, description: 'Nom déjà utilisé' })
+    @ApiResponse({ status: 500, description: 'Erreur serveur' })
     async createCategory(@Body() dto: CategoryCreateDto) {
         this.logger.log(`POST /category body=${JSON.stringify(dto)}`);
         try {
@@ -51,9 +74,13 @@ export class CategoryController {
     }
 
     @Put('/:id')
-    @ApiParam({ name: 'id', type: Number })
-    @ApiBody({ type: CategoryUpdateDto })
+    @ApiOperation({ summary: 'Mettre à jour une catégorie', description: 'Modifie une catégorie existante.' })
+    @ApiParam({ name: 'id', type: Number, description: 'ID de la catégorie à modifier' })
+    @ApiBody({ type: CategoryUpdateDto, description: 'Payload de mise à jour' })
     @ApiResponse({ status: 200, description: 'Catégorie modifiée', type: CategoryResponseDto })
+    @ApiResponse({ status: 404, description: 'Catégorie non trouvée' })
+    @ApiResponse({ status: 409, description: 'Nom déjà utilisé' })
+    @ApiResponse({ status: 500, description: 'Erreur serveur' })
     async updateCategory(@Param('id') id: number, @Body() dto: CategoryUpdateDto) {
         this.logger.log(`PUT /category/${id} body=${JSON.stringify(dto)}`);
         try {
@@ -80,8 +107,12 @@ export class CategoryController {
     }
 
     @Delete('/:id')
-    @ApiParam({ name: 'id', type: Number })
+    @ApiOperation({ summary: 'Supprimer une catégorie', description: 'Supprime une catégorie si elle ne contient plus de produits.' })
+    @ApiParam({ name: 'id', type: Number, description: 'ID de la catégorie à supprimer' })
     @ApiResponse({ status: 200, description: 'Catégorie supprimée' })
+    @ApiResponse({ status: 404, description: 'Catégorie non trouvée' })
+    @ApiResponse({ status: 400, description: 'Supprimez d’abord les produits de cette catégorie' })
+    @ApiResponse({ status: 500, description: 'Erreur serveur' })
     async deleteCategory(@Param('id') id: number) {
         this.logger.log(`DELETE /category/${id}`);
         try {

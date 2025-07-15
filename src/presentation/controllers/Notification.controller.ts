@@ -1,10 +1,11 @@
 import { Controller, Get, Put, Param, Query, Body, HttpException, HttpStatus, UseGuards, Req } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiParam, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { NotificationService } from '../../application/services/notification.service';
 import { NotificationResponseDto, MarkNotificationAsReadDto } from '../dtos/Notification.dto';
 import { AuthGuard } from '@nestjs/passport';
 
-@ApiTags('notifications')
+@ApiTags('Notifications')
+@ApiBearerAuth()
 @Controller('notifications')
 export class NotificationController {
     constructor(private readonly notificationService: NotificationService) { }
@@ -12,7 +13,7 @@ export class NotificationController {
     @UseGuards(AuthGuard('jwt'))
     @Get()
     @ApiOperation({ summary: 'Récupérer les notifications d’un utilisateur' })
-    @ApiQuery({ name: 'userId', required: true })
+    @ApiQuery({ name: 'userId', description: 'shopId est userId dans le context du seller', required: true })
     @ApiResponse({ status: 200, type: [NotificationResponseDto] })
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     async listNotifications(@Query('userId') userId: number) {

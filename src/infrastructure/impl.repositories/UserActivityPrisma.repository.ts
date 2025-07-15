@@ -20,8 +20,30 @@ export class UserActivityPrismaRepository implements IUserActivityRepository {
     }
     async getShopActivities(shopId: number): Promise<UserActivityEntity[]> {
         try {
-            // TODO: Implémenter la logique pour récupérer les activités liées à un shop
-            throw new Error('Method not implemented');
+            // Récupérer les activités liées à un shop via productId OU orderId
+            return await prisma.userActivity.findMany({
+                where: {
+                    OR: [
+                        {
+                            productId: {
+                                in: (await prisma.product.findMany({
+                                    where: { shopId },
+                                    select: { id: true }
+                                })).map(p => p.id)
+                            }
+                        },
+                        {
+                            orderId: {
+                                in: (await prisma.order.findMany({
+                                    where: { shopId },
+                                    select: { id: true }
+                                })).map(o => o.id)
+                            }
+                        }
+                    ]
+                },
+                orderBy: { createdAt: 'desc' }
+            }) as UserActivityEntity[];
         } catch (error) {
             throw error;
         }

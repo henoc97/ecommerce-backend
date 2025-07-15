@@ -1,10 +1,11 @@
 import { Controller, Get, Post, Delete, Body, Query, HttpException, HttpStatus, Inject } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { NewsletterSubscriptionService } from '../../application/services/newslettersubscription.service';
 import { SubscribeNewsletterDto, NewsletterSubscriptionStatusDto } from '../dtos/NewsletterSubscription.dto';
 
-@ApiTags('newsletter-subscription')
-@Controller('newsletter-subscription')
+@ApiTags('Abonnements Newsletter')
+@ApiBearerAuth()
+@Controller('newsletter-subscriptions')
 export class NewsletterSubscriptionController {
     constructor(
         @Inject(NewsletterSubscriptionService) private readonly newsletterService: NewsletterSubscriptionService) { }

@@ -3,11 +3,12 @@ import { Request, Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { UserService } from 'src/application/services/user.service';
 import { AddressService } from 'src/application/services/address.service';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiProperty } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { UserProfileResponseDto, UserProfileUpdateDto } from '../dtos/user.dto';
 
-@ApiTags('user')
-@Controller()
+@ApiTags('Profils Utilisateur')
+@ApiBearerAuth()
+@Controller('user-profiles')
 export class UserProfileController {
     constructor(
         @Inject(UserService) private readonly userService: UserService,

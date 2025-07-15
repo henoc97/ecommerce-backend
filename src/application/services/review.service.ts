@@ -51,4 +51,12 @@ export class ReviewService {
             throw error;
         }
     }
+
+    async getShopReviews(shopId: number) {
+        try {
+            return await this.repository.getShopReviews(shopId);
+        } catch (error) {
+            throw error;
+        }
+    }
 } 
