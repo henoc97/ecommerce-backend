@@ -1,5 +1,5 @@
-import { Controller, Post, Get, Body, Query, UseGuards, Req, HttpException, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Post, Get, Body, Query, UseGuards, Req, HttpException, HttpStatus, Param } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { TicketService } from '../../application/services/ticket.service';
 import { TicketEntity } from '../../domain/entities/Ticket.entity';
@@ -57,31 +57,51 @@ export class TicketController {
 
     @UseGuards(AuthGuard('jwt'))
     @Get()
-    @ApiOperation({ summary: 'Lister les tickets du commerçant ou client', description: 'Permet de lister les tickets associés à un utilisateur spécifique.' })
-    @ApiQuery({ name: 'userId', required: true, description: 'ID du commerçant ou client pour lequel on souhaite lister les tickets.' })
-    @ApiResponse({ status: 200, description: 'Liste des tickets', type: [TicketEntity] })
-    @ApiResponse({ status: 400, description: 'userId manquant', type: HttpException })
-    @ApiResponse({ status: 401, description: 'Non authentifié', type: HttpException })
-    @ApiResponse({ status: 500, description: 'Erreur serveur', type: HttpException })
-    async listTickets(@Query('userId') userId: number, @Req() req: any) {
-        console.log('[TicketController] listTickets', { userId });
+    @ApiOperation({ summary: 'Lister les tickets', description: 'Retourne la liste des tickets, filtrable par boutique (shopId) ou utilisateur (userId).' })
+    @ApiQuery({ name: 'shopId', required: false, description: 'ID de la boutique' })
+    @ApiQuery({ name: 'userId', required: false, description: 'ID de l\'utilisateur' })
+    @ApiResponse({ status: 200, description: 'Liste des tickets' })
+    @ApiResponse({ status: 500, description: 'Erreur serveur' })
+    async listTickets(@Query('shopId') shopId?: string, @Query('userId') userId?: string) {
+        console.log('[TicketController] listTickets', { shopId, userId });
         try {
-            if (!userId) {
-                console.log('[TicketController] listTickets BAD_REQUEST');
-                throw new HttpException('userId requis', HttpStatus.BAD_REQUEST);
-            }
-            // Vérification que le userId correspond bien à l'utilisateur connecté
-            if (userId !== req.user.id) {
-                console.log('[TicketController] listTickets FORBIDDEN');
-                throw new HttpException('Accès interdit', HttpStatus.FORBIDDEN);
-            }
-            const tickets = await this.ticketService.listTickets({ userId });
+            const filter: any = {};
+            if (shopId) filter.shopId = Number(shopId);
+            if (userId) filter.userId = Number(userId);
+            const tickets = await this.ticketService.listTickets(filter);
             console.log('[TicketController] listTickets SUCCESS', tickets);
             return tickets || [];
         } catch (e) {
             console.error('[TicketController] listTickets ERROR', e);
-            if (e instanceof HttpException) throw e;
             throw new HttpException('Erreur serveur lors de la récupération des tickets', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Post(':id/reply')
+    @ApiOperation({ summary: 'Répondre à un ticket', description: 'Ajoute une réponse à un ticket de support.' })
+    @ApiParam({ name: 'id', required: true, description: 'ID du ticket' })
+    @ApiBody({ schema: { type: 'object', properties: { content: { type: 'string', example: 'Votre problème a été résolu.' } }, required: ['content'] } })
+    @ApiResponse({ status: 200, description: 'Réponse enregistrée' })
+    @ApiResponse({ status: 400, description: 'Message vide ou invalide' })
+    @ApiResponse({ status: 404, description: 'Ticket non trouvé' })
+    @ApiResponse({ status: 500, description: 'Erreur serveur' })
+    async replyToTicket(@Param('id') id: number, @Body('content') content: string) {
+        console.log('[TicketController] replyToTicket', { id, content });
+        if (!content || content.trim().length === 0) {
+            throw new HttpException('Message vide ou invalide', HttpStatus.BAD_REQUEST);
+        }
+        try {
+            const updated = await this.ticketService.updateTicket(id, { response: content });
+            if (!updated) {
+                console.error('Ticket non trouvé');
+                throw new HttpException('Ticket non trouvé', HttpStatus.NOT_FOUND);
+            }
+            console.log('[TicketController] replyToTicket SUCCESS', updated);
+            return { success: true };
+        } catch (e) {
+            console.error('[TicketController] replyToTicket ERROR', e);
+            throw new HttpException('Erreur serveur lors de la réponse au ticket', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 } 

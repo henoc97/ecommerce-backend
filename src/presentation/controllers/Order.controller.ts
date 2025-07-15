@@ -1,16 +1,19 @@
-import { Controller, Post, Get, Param, Query, Body, Res, HttpStatus, UseGuards, Req, Inject } from '@nestjs/common';
+import { Controller, Post, Get, Param, Query, Body, Res, HttpStatus, UseGuards, Req, Inject, HttpException } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { OrderService } from 'src/application/services/order.service';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateOrderFromCartUseCase } from 'src/application/use-cases/order.use-case/CreateOrderFromCart.use-case';
 import { CreateOrderDto } from '../dtos/Order.dto';
+import { Logger } from '@nestjs/common';
 
 
 @ApiTags('Commandes')
 @ApiBearerAuth()
 @Controller('orders')
 export class OrderController {
+    private readonly logger = new Logger(OrderController.name);
+
     constructor(
         @Inject(OrderService) private readonly orderService: OrderService,
         @Inject(CreateOrderFromCartUseCase) private readonly createOrderFromCartUseCase: CreateOrderFromCartUseCase
@@ -40,55 +43,49 @@ export class OrderController {
     }
 
     @UseGuards(AuthGuard('jwt'))
-    @ApiOperation({ summary: 'Lister les commandes par utilisateur ou par boutique', description: 'Cette route permet de lister toutes les commandes d\'un utilisateur ou de toutes les commandes d\'une boutique.' })
-    @ApiQuery({ name: 'userId', required: false, description: 'ID de l\'utilisateur pour filtrer les commandes de cet utilisateur. Si non fourni, la liste sera de toutes les commandes.' })
-    @ApiQuery({ name: 'shopId', required: false, description: 'ID de la boutique pour filtrer les commandes de cette boutique. Si non fourni, la liste sera de toutes les commandes.' })
-    @ApiResponse({ status: 200, description: 'Liste des commandes filtrées' })
-    @ApiResponse({ status: 400, description: 'Aucun paramètre fourni pour la recherche' })
-    @ApiResponse({ status: 500, description: 'Erreur serveur' })
     @Get()
-    async listOrders(@Query('userId') userId: string, @Query('shopId') shopId: string, @Res() res: Response) {
-        console.log('[OrderController] listOrders', { userId, shopId });
+    @ApiOperation({ summary: 'Lister les commandes', description: 'Retourne la liste des commandes, filtrable par statut, boutique ou utilisateur.' })
+    @ApiQuery({ name: 'status', required: false, description: 'Statut de la commande (PENDING, DELIVERED, etc.)' })
+    @ApiQuery({ name: 'shopId', required: false, description: 'ID de la boutique' })
+    @ApiQuery({ name: 'userId', required: false, description: 'ID de l\'utilisateur' })
+    @ApiResponse({ status: 200, description: 'Liste des commandes' })
+    @ApiResponse({ status: 500, description: 'Erreur serveur' })
+    async listOrders(@Query('status') status?: string, @Query('shopId') shopId?: string, @Query('userId') userId?: string) {
+        this.logger.log(`[OrderController] listOrders status=${status} shopId=${shopId} userId=${userId}`);
         try {
-            if (!userId && !shopId) {
-                return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Veuillez fournir userId ou shopId' });
-            }
             const filter: any = {};
-            if (userId) filter.userId = Number(userId);
+            if (status) filter.status = status;
             if (shopId) filter.shopId = Number(shopId);
+            if (userId) filter.userId = Number(userId);
             const orders = await this.orderService.listOrders(filter);
-            console.log('[OrderController] listOrders SUCCESS', orders);
-            return res.status(HttpStatus.OK).json(orders);
-        } catch (error) {
-            console.error('[OrderController] listOrders ERROR', error);
-            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur serveur' });
+            this.logger.log('[OrderController] listOrders SUCCESS', orders);
+            return orders || [];
+        } catch (e) {
+            this.logger.error('[OrderController] listOrders ERROR', e);
+            throw new HttpException('Erreur serveur lors de la récupération des commandes', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @UseGuards(AuthGuard('jwt'))
-    @ApiOperation({ summary: 'Détails d\'une commande', description: 'Cette route permet de récupérer les détails d\'une commande spécifique.' })
-    @ApiParam({ name: 'id', description: 'ID de la commande à récupérer' })
-    @ApiResponse({ status: 200, description: 'Détail de la commande' })
-    @ApiResponse({ status: 403, description: 'Commande non autorisée' })
-    @ApiResponse({ status: 404, description: 'Commande introuvable' })
-    @ApiResponse({ status: 500, description: 'Erreur serveur' })
     @Get(':id')
-    async getOrder(@Param('id') id: string, @Req() req: any, @Res() res: Response) {
-        console.log('[OrderController] getOrder', { userId: req.user?.id, id });
+    @ApiOperation({ summary: 'Détail d\'une commande', description: 'Retourne le détail complet d\'une commande (items, client, paiement, etc.).' })
+    @ApiParam({ name: 'id', required: true, description: 'ID de la commande' })
+    @ApiResponse({ status: 200, description: 'Détail de la commande' })
+    @ApiResponse({ status: 404, description: 'Commande non trouvée' })
+    @ApiResponse({ status: 500, description: 'Erreur serveur' })
+    async getOrderDetail(@Param('id') id: number) {
+        this.logger.log(`[OrderController] getOrderDetail id=${id}`);
         try {
-            const userId = req.user.id;
             const order = await this.orderService.findById(Number(id));
             if (!order) {
-                return res.status(HttpStatus.NOT_FOUND).json({ message: 'Commande introuvable' });
+                this.logger.error('Commande non trouvée');
+                throw new HttpException('Commande non trouvée', HttpStatus.NOT_FOUND);
             }
-            if (order.userId !== userId) {
-                return res.status(HttpStatus.FORBIDDEN).json({ message: 'Commande non autorisée' });
-            }
-            console.log('[OrderController] getOrder SUCCESS', order);
-            return res.status(HttpStatus.OK).json(order);
-        } catch (error) {
-            console.error('[OrderController] getOrder ERROR', error);
-            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur serveur' });
+            this.logger.log('[OrderController] getOrderDetail SUCCESS', order);
+            return order;
+        } catch (e) {
+            this.logger.error('[OrderController] getOrderDetail ERROR', e);
+            throw new HttpException('Erreur serveur lors de la récupération du détail de la commande', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 } 

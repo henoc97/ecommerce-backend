@@ -69,4 +69,17 @@ export class PaymentPrismaRepository implements IPaymentRepository {
             throw error;
         }
     }
+
+    async getPaymentDetail(id: number) {
+        return await prisma.payment.findUnique({
+            where: { id },
+            include: {
+                order: {
+                    include: {
+                        user: true
+                    }
+                }
+            }
+        });
+    }
 } 

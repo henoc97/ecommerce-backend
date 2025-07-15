@@ -64,4 +64,11 @@ export class PaymentService {
             throw error;
         }
     }
+    async getPaymentDetail(id: number) {
+        try {
+            return await this.repository.getPaymentDetail(id);
+        } catch (error) {
+            throw error;
+        }
+    }
 } 
