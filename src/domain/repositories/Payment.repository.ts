@@ -9,4 +9,5 @@ export interface IPaymentRepository {
     getUserPayments(userId: number): Promise<PaymentEntity[]>;
     getOrderPayment(orderId: number): Promise<PaymentEntity>;
     getShopPayments(shopId: number): Promise<PaymentEntity[]>;
+    getPaymentDetail(id: number): Promise<any>;
 } 

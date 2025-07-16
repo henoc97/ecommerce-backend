@@ -13,4 +13,6 @@ export interface IUserRepository {
     signInWithGoogle(googleId: string): Promise<UserEntity>;
     // Gestion des rôles
     setRole(id: number, role: string): Promise<void>;
+    forceLogout(userId: number): Promise<void>;
+    deleteSensitiveData(userId: number): Promise<void>;
 } 
