@@ -78,6 +78,22 @@ export class PromotionController {
         }
     }
 
+    @Get('abusive')
+    @ApiOperation({ summary: 'Lister les promotions abusives', description: 'Retourne la liste des promotions considérées comme abusives (ex: discount > 90%, dates incohérentes).' })
+    @ApiResponse({ status: 200, description: 'Liste des promotions abusives' })
+    @ApiResponse({ status: 500, description: 'Erreur serveur' })
+    async listAbusivePromotions() {
+        this.logger.log('[PromotionController] listAbusivePromotions');
+        try {
+            const promos = await this.promotionService.detectAbusivePromotions();
+            this.logger.log('[PromotionController] listAbusivePromotions SUCCESS', promos);
+            return promos || [];
+        } catch (e) {
+            this.logger.error('[PromotionController] listAbusivePromotions ERROR', e);
+            throw new HttpException('Erreur serveur lors de la détection des promotions abusives', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @Delete()
     @ApiOperation({ summary: 'Supprimer une promotion', description: 'Supprime une promotion sur un produit ou une variante.' })
     @ApiBody({ type: DeletePromotionDto, description: 'Payload de suppression' })
@@ -114,6 +130,25 @@ export class PromotionController {
         }
     }
 
+    @Delete(':id')
+    @ApiOperation({ summary: 'Supprimer une promotion', description: 'Supprime une promotion par son ID.' })
+    @ApiParam({ name: 'id', required: true, description: 'ID de la promotion' })
+    @ApiResponse({ status: 200, description: 'Promotion supprimée' })
+    @ApiResponse({ status: 404, description: 'Promotion non trouvée' })
+    @ApiResponse({ status: 500, description: 'Erreur serveur' })
+    async deletePromotionById(@Param('id') id: number) {
+        this.logger.log(`[PromotionController] deletePromotion id=${id}`);
+        try {
+            await this.promotionService.deletePromotion(Number(id));
+
+            this.logger.log('[PromotionController] deletePromotion SUCCESS');
+            return { success: true };
+        } catch (e) {
+            this.logger.error('[PromotionController] deletePromotion ERROR', e);
+            throw new HttpException('Erreur serveur lors de la suppression de la promotion', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @Put('/promotion/:id')
     @ApiOperation({ summary: 'Mettre à jour une promotion', description: 'Modifie une promotion existante.' })
     @ApiParam({ name: 'id', type: Number, description: 'ID de la promotion à modifier' })
@@ -142,4 +177,4 @@ export class PromotionController {
             throw new HttpException('Erreur serveur', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-} 
+}

@@ -5,11 +5,13 @@ import { RefundDto, RefundResponseDto } from '../dtos/Refund.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { RefundEntity } from 'src/domain/entities/Refund.entity';
 import { ProcessRefundUseCase, RefundResult } from 'src/application/use-cases/payment.use-case/ProcessRefund.use-case';
+import { Logger } from 'winston';
 
 @ApiTags('Remboursements')
 @ApiBearerAuth()
 @Controller('refunds')
 export class RefundController {
+
     constructor(
         @Inject(RefundService) private readonly refundService: RefundService,
         @Inject(ProcessRefundUseCase) private readonly processRefundUseCase: ProcessRefundUseCase
@@ -39,19 +41,23 @@ export class RefundController {
 
     @UseGuards(AuthGuard('jwt'))
     @Get()
-    @ApiOperation({ summary: 'Lister les remboursements d\'un utilisateur', description: 'Permet de lister les remboursements d\'un utilisateur spécifique.' })
-    @ApiQuery({ name: 'userId', required: true, description: 'ID de l\'utilisateur.' })
-    @ApiResponse({ status: 200, description: 'Liste des remboursements récupérée avec succès.', type: [RefundResponseDto] })
-    async listRefunds(@Query('userId') userId: number): Promise<RefundEntity[]> {
-        console.log('[RefundController] listRefunds', { userId });
+    @ApiOperation({ summary: 'Lister les remboursements', description: 'Retourne la liste des remboursements, filtrable par statut ou boutique.' })
+    @ApiQuery({ name: 'status', required: false, description: 'Statut du remboursement (PENDING, APPROVED, etc.)' })
+    @ApiQuery({ name: 'shopId', required: false, description: 'ID de la boutique' })
+    @ApiResponse({ status: 200, description: 'Liste des remboursements' })
+    @ApiResponse({ status: 500, description: 'Erreur serveur' })
+    async listRefunds(@Query('status') status?: string, @Query('shopId') shopId?: string) {
+        console.log(`[RefundController] listRefunds status=${status} shopId=${shopId}`);
         try {
-            const result = await this.refundService.getUserRefunds(userId);
-            console.log('[RefundController] listRefunds SUCCESS', result);
-            return result;
+            const filter: any = {};
+            if (status) filter.status = status;
+            if (shopId) filter.shopId = Number(shopId);
+            const refunds = await this.refundService.listRefunds(filter);
+            console.log('[RefundController] listRefunds SUCCESS', refunds);
+            return refunds || [];
         } catch (e) {
             console.error('[RefundController] listRefunds ERROR', e);
-            if (e instanceof HttpException) throw e;
-            throw new HttpException('Erreur interne', HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new HttpException('Erreur serveur lors de la récupération des remboursements', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

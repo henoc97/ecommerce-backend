@@ -24,6 +24,7 @@ import { ShopSubscriptionModule } from './ShopSubscription.module';
 import { SubscriptionModule } from './Subscription.module';
 import { UserModule } from './User.module';
 import { SubsiteModule } from './Subsite.module';
+import { AnalyticsModule } from './Analytics.module';
 
 @Module({
   imports: [
@@ -51,7 +52,8 @@ import { SubsiteModule } from './Subsite.module';
     ShopSubscriptionModule,
     SubscriptionModule,
     UserModule,
-    SubsiteModule
+    SubsiteModule,
+    AnalyticsModule
   ],
 })
 export class AppModule { }

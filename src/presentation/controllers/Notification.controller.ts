@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Param, Query, Body, HttpException, HttpStatus, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Put, Param, Query, Body, HttpException, HttpStatus, UseGuards, Req, Post } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { NotificationService } from '../../application/services/notification.service';
 import { NotificationResponseDto, MarkNotificationAsReadDto } from '../dtos/Notification.dto';
@@ -51,6 +51,48 @@ export class NotificationController {
             return { message: 'Notification mise à jour' };
         } catch (error) {
             console.error('[NotificationController] markAsRead ERROR', error);
+            throw new HttpException('Erreur technique, veuillez réessayer', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Post()
+    @ApiOperation({ summary: 'Envoyer une notification à plusieurs utilisateurs' })
+    @ApiBody({
+        schema: {
+            type: 'object',
+            required: ['type', 'content', 'userIds'],
+            properties: {
+                type: { type: 'string', enum: ['INFO', 'PROMOTION', 'ORDER_UPDATE', 'WARNING'], description: 'Type de notification' },
+                content: { type: 'string', description: 'Contenu de la notification' },
+                userIds: { type: 'array', items: { type: 'number' }, description: 'Liste des IDs utilisateurs à notifier' },
+            },
+        },
+    })
+    @ApiResponse({ status: 201, description: 'Notifications envoyées' })
+    @ApiResponse({ status: 400, description: 'Type, contenu ou userIds manquant' })
+    @ApiResponse({ status: 500, description: 'Erreur serveur' })
+    async sendBulkNotification(@Body() body: any) {
+        const { type, content, userIds } = body;
+        console.log('[NotificationController] sendBulkNotification', { type, content, userIds });
+        if (!type || !content || !userIds || !Array.isArray(userIds) || userIds.length === 0) {
+            console.error('[NotificationController] sendBulkNotification BAD REQUEST', { type, content, userIds });
+            throw new HttpException('Type, contenu ou userIds manquant', HttpStatus.BAD_REQUEST);
+        }
+        try {
+            const notifications = userIds.map((userId: number) => ({
+                id: undefined,
+                userId,
+                type,
+                content,
+                isRead: false,
+                sentAt: new Date(),
+            }));
+            await this.notificationService.sendBulkNotification(notifications);
+            console.log('[NotificationController] sendBulkNotification SUCCESS');
+            return { message: 'Notifications envoyées' };
+        } catch (error) {
+            console.error('[NotificationController] sendBulkNotification ERROR', error);
             throw new HttpException('Erreur technique, veuillez réessayer', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

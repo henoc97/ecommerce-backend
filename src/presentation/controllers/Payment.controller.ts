@@ -8,7 +8,8 @@ import {
     Req,
     HttpException,
     HttpStatus,
-    NotFoundException
+    NotFoundException,
+    Query
 } from '@nestjs/common';
 import {
     ApiTags,
@@ -17,6 +18,7 @@ import {
     ApiBody,
     ApiParam,
     ApiBearerAuth,
+    ApiQuery
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { ProcessPaymentUseCase } from '../../application/use-cases/payment.use-case/ProcessPayment.use-case';
@@ -284,6 +286,53 @@ export class PaymentController {
             console.error('[PaymentController] getShopPayments ERROR', e);
             if (e instanceof HttpException) throw e;
             throw new HttpException('Erreur interne', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Get()
+    @UseGuards(AuthGuard('jwt'))
+    @ApiOperation({ summary: 'Lister les paiements', description: 'Retourne la liste des paiements, filtrable par statut, méthode ou devise.' })
+    @ApiQuery({ name: 'status', required: false, description: 'Statut du paiement (SUCCESS, FAILED, PENDING, etc.)' })
+    @ApiQuery({ name: 'method', required: false, description: 'Méthode de paiement (Stripe, PayPal, etc.)' })
+    @ApiQuery({ name: 'currency', required: false, description: 'Devise (EUR, USD, XOF, etc.)' })
+    @ApiResponse({ status: 200, description: 'Liste des paiements' })
+    @ApiResponse({ status: 500, description: 'Erreur serveur' })
+    async listPayments(@Query('status') status?: string, @Query('method') method?: string, @Query('currency') currency?: string) {
+        console.log(`[PaymentController] listPayments status=${status} method=${method} currency=${currency}`);
+        try {
+            const filter: any = {};
+            if (status) filter.status = status;
+            if (method) filter.method = method;
+            if (currency) filter.currency = currency;
+            const payments = await this.paymentService.listPayments(filter);
+            console.log('[PaymentController] listPayments SUCCESS', payments);
+            return payments || [];
+        } catch (e) {
+            console.error('[PaymentController] listPayments ERROR', e);
+            throw new HttpException('Erreur serveur lors de la récupération des paiements', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Get('/:id')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiOperation({ summary: 'Détail d\'un paiement', description: 'Retourne le détail complet d\'un paiement, avec lien vers la commande et le client.' })
+    @ApiParam({ name: 'id', required: true, description: 'ID du paiement' })
+    @ApiResponse({ status: 200, description: 'Détail du paiement' })
+    @ApiResponse({ status: 404, description: 'Paiement non trouvé' })
+    @ApiResponse({ status: 500, description: 'Erreur serveur' })
+    async getPaymentDetail(@Param('id') id: number) {
+        console.log(`[PaymentController] getPaymentDetail id=${id}`);
+        try {
+            const payment = await this.paymentService.getPaymentDetail(Number(id));
+            if (!payment) {
+                console.error('Paiement non trouvé');
+                throw new HttpException('Paiement non trouvé', HttpStatus.NOT_FOUND);
+            }
+            console.log('[PaymentController] getPaymentDetail SUCCESS', payment);
+            return payment;
+        } catch (e) {
+            console.error('[PaymentController] getPaymentDetail ERROR', e);
+            throw new HttpException('Erreur serveur lors de la récupération du détail du paiement', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
