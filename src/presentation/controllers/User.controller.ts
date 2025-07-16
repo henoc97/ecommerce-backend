@@ -60,7 +60,7 @@ export class UserController {
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     async createUser(@Body() body: any) {
         console.log('[UserController] createUser', body);
-        let created;
+        let created: any;
         try {
             if (!body.email || !body.password || !body.name || !body.role) {
                 throw new HttpException('Champs obligatoires manquants', HttpStatus.BAD_REQUEST);

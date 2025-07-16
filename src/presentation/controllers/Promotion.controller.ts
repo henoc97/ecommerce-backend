@@ -25,7 +25,7 @@ export class PromotionController {
     @ApiResponse({ status: 201, description: 'Promotion créée', type: PromotionResponseDto })
     @ApiResponse({ status: 401, description: 'Accès réservé aux vendeurs' })
     @ApiResponse({ status: 400, description: 'Erreur de validation' })
-    @ApiResponse({ status: 404, description: 'Produit/variante introuvable' })
+    @ApiResponse({ status: 404, description: 'Produits/variante introuvable' })
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     async createPromotion(
         @Body() dto: PromotionCreateDto,
@@ -149,7 +149,7 @@ export class PromotionController {
         }
     }
 
-    @Put('/promotion/:id')
+    @Put('/:id')
     @ApiOperation({ summary: 'Mettre à jour une promotion', description: 'Modifie une promotion existante.' })
     @ApiParam({ name: 'id', type: Number, description: 'ID de la promotion à modifier' })
     @ApiBody({ type: UpdatePromotionDto, description: 'Payload de mise à jour' })

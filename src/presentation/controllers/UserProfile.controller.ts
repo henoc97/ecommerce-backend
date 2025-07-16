@@ -90,11 +90,12 @@ export class UserProfileController {
             var userUpdated: any = null;
             var addressUpdated: any = null;
             if (Object.keys(userUpdate).length !== 0) {
-                const existingUser = await this.userService.findByEmail(userUpdate.email);
-                if (existingUser && existingUser.id !== user.id) {
-                    return res.status(HttpStatus.CONFLICT).json({ message: 'Cet email est déjà utilisé' });
+                if (userUpdate.email) {
+                    const existingUser = await this.userService.findByEmail(userUpdate.email);
+                    if (existingUser && existingUser.id !== user.id) {
+                        return res.status(HttpStatus.CONFLICT).json({ message: 'Cet email est déjà utilisé' });
+                    }
                 }
-            } else {
                 userUpdated = await this.userService.updateUser(user.id, { ...userUpdate });
             }
 

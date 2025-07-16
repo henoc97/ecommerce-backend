@@ -5,6 +5,7 @@ import { ShopService } from '../../application/services/shop.service';
 import { ShopSubscriptionDto } from '../dtos/Shop.dto';
 import { UserRole } from '../../domain/enums/UserRole.enum';
 import { ShopSubscriptionService } from 'src/application/services/shopsubscription.service';
+import { SubscriptionService } from '../../application/services/subscription.service';
 
 @ApiTags('Abonnements Boutique')
 @ApiBearerAuth()
@@ -12,7 +13,8 @@ import { ShopSubscriptionService } from 'src/application/services/shopsubscripti
 export class ShopSubscriptionController {
     constructor(
         private readonly shopService: ShopService,
-        private readonly shopSubscriptionService: ShopSubscriptionService
+        private readonly shopSubscriptionService: ShopSubscriptionService,
+        private readonly subscriptionService: SubscriptionService
     ) { }
 
     @UseGuards(AuthGuard('jwt'))
@@ -29,7 +31,17 @@ export class ShopSubscriptionController {
             throw new HttpException('Accès réservé aux vendeurs', HttpStatus.UNAUTHORIZED);
         }
         try {
-            const result = await this.shopService.subscribeToPlan(dto.shopId, dto.subscriptionId);
+            // Récupérer la durée de la formule
+            const subscription = await this.subscriptionService.findById(dto.subscriptionId);
+            if (!subscription || !subscription.duration) {
+                throw new HttpException('Formule non trouvée ou durée manquante', HttpStatus.NOT_FOUND);
+            }
+            // Calculer la date de fin
+            const startDate = new Date();
+            const endDate = new Date(startDate);
+            endDate.setDate(startDate.getDate() + subscription.duration);
+            // Créer la souscription avec endDate
+            const result = await this.shopSubscriptionService.subscribe(dto.shopId, dto.subscriptionId, startDate, endDate);
             console.log('[ShopSubscriptionController] subscribeShop SUCCESS', { result });
             return { message: 'Abonnement activé', result };
         } catch (error) {

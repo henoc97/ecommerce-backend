@@ -48,10 +48,16 @@ export class ShopPrismaRepository implements IShopRepository {
     }
     async listActiveShopsWithProducts(): Promise<ShopEntity[]> {
         try {
+            const now = new Date();
             return await prisma.shop.findMany({
                 where: {
                     shopSubscriptions: {
-                        some: { isActive: true }
+                        some: {
+                            OR: [
+                                { endDate: null },
+                                { endDate: { gt: now } }
+                            ]
+                        }
                     }
                 },
                 include: {

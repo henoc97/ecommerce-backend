@@ -103,7 +103,7 @@ export class CartController {
     @ApiQuery({ name: 'userId', required: true, description: 'ID de l\'utilisateur' })
     @ApiResponse({ status: 200, description: 'Liste des paniers' })
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
-    @Get('carts')
+    @Get()
     async listCarts(@Query('userId') userId: string, @Res() res: Response) {
         console.log('[CartController] listCarts', { userId });
         try {
@@ -121,7 +121,7 @@ export class CartController {
     @ApiParam({ name: 'id', description: 'ID du panier' })
     @ApiResponse({ status: 200, description: 'Détail du panier' })
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
-    @Get('carts/:id')
+    @Get('/:id')
     async getCart(@Param('id') id: string, @Res() res: Response) {
         console.log('[CartController] getCart', { id });
         try {

@@ -7,7 +7,6 @@ export class ShopSubscriptionEntity {
     subscriptionId: number;
     startDate: Date;
     endDate?: Date;
-    isActive: boolean;
     shop?: ShopEntity;
     subscription?: SubscriptionEntity;
 } 

@@ -62,6 +62,9 @@ import { SubscriptionPrismaRepository } from 'src/infrastructure/impl.repositori
 import { SubsiteService } from '../services/subsite.service';
 import { SubsitePrismaRepository } from 'src/infrastructure/impl.repositories/SubsitePrisma.repository';
 import { AnalyticsService } from '../services/analytics.service';
+import { AddImageToVariantUseCase } from '../use-cases/product-variant.use-case/AddImageToVariant.use-case';
+import { DeleteImageFromVariantUseCase } from '../use-cases/product-variant.use-case/DeleteImageFromVariant.use-case';
+import { CloudinaryService } from 'src/infrastructure/external-services/cloudinary.service';
 
 const providersExports = [
     AuthService,
@@ -94,6 +97,7 @@ const providersExports = [
     SubscriptionService,
     SubsiteService,
     AnalyticsService,
+    CloudinaryService,
     // ... autres factories
     PaymentGatewayFactory,
     // ... autres services
@@ -104,6 +108,8 @@ const providersExports = [
     ProcessPaymentUseCase,
     ProcessRefundUseCase,
     CreatePromotionUseCase,
+    AddImageToVariantUseCase,
+    DeleteImageFromVariantUseCase,
     // ... autres use-cases
     UserPrismaRepository,
     AddressPrismaRepository,

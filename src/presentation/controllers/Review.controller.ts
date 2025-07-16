@@ -80,7 +80,7 @@ export class ReviewController {
     }
 
     @UseGuards(AuthGuard('jwt'))
-    @Get('shop/:shopId')
+    @Get('/:shopId')
     @ApiOperation({ summary: 'Lister les avis d\'une boutique', description: 'Permet de lister tous les avis associés à une boutique.' })
     @ApiResponse({ status: 200, type: [ReviewResponseDto], description: 'Liste des avis de la boutique' })
     @ApiResponse({ status: 404, description: 'Aucun avis trouvé pour cette boutique', type: HttpException })

@@ -21,8 +21,8 @@ export class NewsletterCampaignController {
     @ApiResponse({ status: 403, description: 'Accès interdit au shop.' })
     @ApiResponse({ status: 404, description: 'Aucun abonné trouvé.' })
     @ApiQuery({ name: 'shopId', type: Number, description: 'ID du shop.' })
-    @Get('/newsletter-subscribers')
-    async getSubscribers(@Query('shopId') shopId: number, @Req() req) {
+    @Get('/subscribers')
+    async getSubscribers(@Query('shopId') shopId: number, @Req() req: any) {
         const userId = req.user?.id;
         const shop = await this.shopService.findById(shopId);
         if (!shop || shop.vendor.userId !== userId) {
@@ -53,8 +53,8 @@ export class NewsletterCampaignController {
             },
         },
     })
-    @Post('/send-newsletter')
-    async sendNewsletter(@Body() body, @Req() req) {
+    @Post('/send')
+    async sendNewsletter(@Body() body: any, @Req() req: any) {
         const { shopId, subject, content, type } = body;
         const userId = req.user?.id;
         const shop = await this.shopService.findById(shopId);

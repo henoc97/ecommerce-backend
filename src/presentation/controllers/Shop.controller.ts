@@ -43,7 +43,7 @@ export class ShopController {
     @ApiResponse({ status: 409, description: 'URL de boutique déjà utilisée' })
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     async createShop(@Body() body: any) {
-        console.log('[VendorController] createShop', body);
+        console.log('[ShopController] createShop', body);
         try {
             if (!body.name || !body.url || !body.vendorId) {
                 throw new HttpException('Champs invalides ou manquants', HttpStatus.BAD_REQUEST);
@@ -60,13 +60,13 @@ export class ShopController {
                 description: body.description,
                 vendorId: body.vendorId
             } as any);
-            console.log('[VendorController] createShop SUCCESS', shop);
+            console.log('[ShopController] createShop SUCCESS', shop);
             return { shopId: shop.id };
         } catch (e: any) {
             if (e.code === 'P2002' || e.message?.includes('unique') || e.message?.includes('url')) {
                 throw new HttpException('URL de boutique déjà utilisée', HttpStatus.CONFLICT);
             }
-            console.error('[VendorController] createShop ERROR', e);
+            console.error('[ShopController] createShop ERROR', e);
             throw new HttpException('Erreur serveur lors de la création de la boutique', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -61,7 +61,7 @@ export class ProductController {
     @ApiResponse({ status: 400, description: 'Conflit de contrainte (doublon)' })
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     async createProduct(@Body() dto: ProductCreateDto): Promise<ProductResponseDto> {
-        this.logger.log('POST /product', JSON.stringify(dto));
+        this.logger.log('POST /products', JSON.stringify(dto));
         try {
             const product = await this.productService.createProduct(dto as any);
             this.logger.log('Produit créé avec succès', JSON.stringify(product));
@@ -83,7 +83,7 @@ export class ProductController {
     @ApiResponse({ status: 404, description: 'Produit introuvable' })
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     async updateProduct(@Param('id') id: number, @Body() dto: ProductUpdateDto): Promise<ProductResponseDto> {
-        this.logger.log(`PUT /product/${id}`, JSON.stringify(dto));
+        this.logger.log(`PUT /products/${id}`, JSON.stringify(dto));
         try {
             const existing = await this.productService.findById(Number(id));
             if (!existing) {
@@ -107,7 +107,7 @@ export class ProductController {
     @ApiResponse({ status: 409, description: 'Impossible de supprimer le produit (lié à des commandes ou reviews)' })
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     async deleteProduct(@Param('id') id: number): Promise<{ message: string }> {
-        this.logger.log(`DELETE /product/${id}`);
+        this.logger.log(`DELETE /products/${id}`);
         try {
             const existing = await this.productService.findById(Number(id));
             if (!existing) {
