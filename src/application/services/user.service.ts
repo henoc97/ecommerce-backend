@@ -82,4 +82,18 @@ export class UserService {
     async validateUserPassword(user: any, password: string): Promise<boolean> {
         return user?.password ? await comparePassword(password, user.password) : false;
     }
+    async forceLogout(userId: number) {
+        try {
+            return await this.repository.forceLogout(userId);
+        } catch (error) {
+            throw error;
+        }
+    }
+    async deleteSensitiveData(userId: number) {
+        try {
+            return await this.repository.deleteSensitiveData(userId);
+        } catch (error) {
+            throw error;
+        }
+    }
 } 

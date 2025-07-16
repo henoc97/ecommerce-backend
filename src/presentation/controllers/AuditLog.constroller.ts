@@ -36,4 +36,37 @@ export class AuditLogController {
             throw new HttpException('Erreur serveur', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Get('/all')
+    @ApiOperation({ summary: 'Lister tous les logs d’audit avec filtres dynamiques (admin)' })
+    @ApiQuery({ name: 'userId', required: false })
+    @ApiQuery({ name: 'entity', required: false })
+    @ApiQuery({ name: 'entityId', required: false })
+    @ApiQuery({ name: 'action', required: false })
+    @ApiQuery({ name: 'from', required: false, description: 'Date de début (ISO)' })
+    @ApiQuery({ name: 'to', required: false, description: 'Date de fin (ISO)' })
+    @ApiResponse({ status: 200, description: 'Liste filtrée des logs d’audit' })
+    @ApiResponse({ status: 500, description: 'Erreur serveur' })
+    async listAllAuditLogs(@Query() query: any) {
+        console.log('[AuditLogController] listAllAuditLogs', query);
+        try {
+            const filter: any = {};
+            if (query.userId) filter.userId = Number(query.userId);
+            if (query.entity) filter.entity = query.entity;
+            if (query.entityId) filter.entityId = Number(query.entityId);
+            if (query.action) filter.action = query.action;
+            if (query.from || query.to) {
+                filter.createdAt = {};
+                if (query.from) filter.createdAt["gte"] = new Date(query.from);
+                if (query.to) filter.createdAt["lte"] = new Date(query.to);
+            }
+            const logs = await this.auditLogService.listLogs(filter);
+            console.log('[AuditLogController] listAllAuditLogs SUCCESS', logs);
+            return logs || [];
+        } catch (e) {
+            console.error('[AuditLogController] listAllAuditLogs ERROR', e);
+            throw new HttpException('Erreur serveur', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

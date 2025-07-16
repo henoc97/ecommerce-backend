@@ -61,6 +61,7 @@ import { SubscriptionService } from '../services/subscription.service';
 import { SubscriptionPrismaRepository } from 'src/infrastructure/impl.repositories/SubscriptionPrisma.repository';
 import { SubsiteService } from '../services/subsite.service';
 import { SubsitePrismaRepository } from 'src/infrastructure/impl.repositories/SubsitePrisma.repository';
+import { AnalyticsService } from '../services/analytics.service';
 
 const providersExports = [
     AuthService,
@@ -92,6 +93,7 @@ const providersExports = [
     ShopSubscriptionService,
     SubscriptionService,
     SubsiteService,
+    AnalyticsService,
     // ... autres factories
     PaymentGatewayFactory,
     // ... autres services

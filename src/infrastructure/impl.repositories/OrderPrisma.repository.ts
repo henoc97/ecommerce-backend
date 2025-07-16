@@ -93,4 +93,61 @@ export class OrderPrismaRepository implements IOrderRepository {
             throw error;
         }
     }
+
+    async getTopSellers(from?: string, to?: string): Promise<any[]> {
+        // Utilise Prisma pour compter les commandes par vendeur (vendorId via shop)
+        // et retourne les vendeurs triés par nombre de commandes
+        const where: any = {};
+        if (from || to) {
+            where.createdAt = {};
+            if (from) where.createdAt.gte = new Date(from);
+            if (to) where.createdAt.lte = new Date(to);
+        }
+        // Jointure avec Shop pour récupérer le vendorId
+        const result = await prisma.order.groupBy({
+            by: ['shopId'],
+            where,
+            _count: { id: true },
+        });
+        // Récupère les shops et vendors associés
+        const shops = await prisma.shop.findMany({
+            where: { id: { in: result.map(r => r.shopId) } },
+            include: { vendor: true }
+        });
+        // Regroupe par vendeur
+        const vendorStats: Record<number, { vendorId: number, totalOrders: number }> = {};
+        for (const r of result) {
+            const shop = shops.find(s => s.id === r.shopId);
+            if (shop && shop.vendorId) {
+                if (!vendorStats[shop.vendorId]) vendorStats[shop.vendorId] = { vendorId: shop.vendorId, totalOrders: 0 };
+                vendorStats[shop.vendorId].totalOrders += r._count.id;
+            }
+        }
+        return Object.values(vendorStats).sort((a, b) => b.totalOrders - a.totalOrders);
+    }
+
+    async getTopProducts(from?: string, to?: string): Promise<any[]> {
+        // Utilise Prisma pour compter les OrderItem par productVariantId
+        // puis regroupe par produit parent
+        const where: any = {};
+        if (from || to) {
+            where.createdAt = {};
+            if (from) where.createdAt.gte = new Date(from);
+            if (to) where.createdAt.lte = new Date(to);
+        }
+        const orderItems = await prisma.orderItem.findMany({
+            where,
+            include: { productVatiant: { include: { product: true } } }
+        });
+        // Regroupe par produit
+        const productStats: Record<number, { productId: number, totalSold: number }> = {};
+        for (const item of orderItems) {
+            const productId = item.productVatiant?.product?.id;
+            if (productId) {
+                if (!productStats[productId]) productStats[productId] = { productId, totalSold: 0 };
+                productStats[productId].totalSold += item.quantity;
+            }
+        }
+        return Object.values(productStats).sort((a, b) => b.totalSold - a.totalSold);
+    }
 } 

@@ -77,4 +77,35 @@ export class UserPrismaRepository implements IUserRepository {
             throw error;
         }
     }
+
+    async forceLogout(userId: number): Promise<void> {
+        try {
+            await prisma.user.update({ where: { id: userId }, data: { authProvider: 'FORCED_LOGOUT' } });
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async deleteSensitiveData(userId: number): Promise<void> {
+        try {
+            // Suppression des notifications
+            await prisma.notification.deleteMany({ where: { userId } });
+            // Suppression des adresses
+            await prisma.address.deleteMany({ where: { userId } });
+            // Suppression des paniers
+            await prisma.cart.deleteMany({ where: { userId } });
+            // Suppression des tickets
+            await prisma.ticket.deleteMany({ where: { userId } });
+            // Suppression des reviews
+            await prisma.review.deleteMany({ where: { userId } });
+            // Suppression des logs d'activité
+            await prisma.userActivity.deleteMany({ where: { userId } });
+            // Suppression des logs d'audit
+            await prisma.auditLog.deleteMany({ where: { userId } });
+            // (Optionnel) Désactive le compte utilisateur
+            await prisma.user.update({ where: { id: userId }, data: { isEmailVerified: false } });
+        } catch (error) {
+            throw error;
+        }
+    }
 } 

@@ -64,5 +64,38 @@ export class UserActivityController {
         }
     }
 
+    @UseGuards(AuthGuard('jwt'))
+    @Get('/all')
+    @ApiOperation({ summary: 'Lister toutes les activités utilisateur avec filtres dynamiques (admin)' })
+    @ApiQuery({ name: 'userId', required: false })
+    @ApiQuery({ name: 'action', required: false })
+    @ApiQuery({ name: 'productId', required: false })
+    @ApiQuery({ name: 'orderId', required: false })
+    @ApiQuery({ name: 'from', required: false, description: 'Date de début (ISO)' })
+    @ApiQuery({ name: 'to', required: false, description: 'Date de fin (ISO)' })
+    @ApiResponse({ status: 200, description: 'Liste filtrée des activités utilisateur' })
+    @ApiResponse({ status: 500, description: 'Erreur serveur' })
+    async listAllActivities(@Query() query: any) {
+        console.log('[UserActivityController] listAllActivities', query);
+        try {
+            const filter: any = {};
+            if (query.userId) filter.userId = Number(query.userId);
+            if (query.action) filter.action = query.action;
+            if (query.productId) filter.productId = Number(query.productId);
+            if (query.orderId) filter.orderId = Number(query.orderId);
+            if (query.from || query.to) {
+                filter.createdAt = {};
+                if (query.from) filter.createdAt["gte"] = new Date(query.from);
+                if (query.to) filter.createdAt["lte"] = new Date(query.to);
+            }
+            const activities = await this.userActivityService.listActivities(filter);
+            console.log('[UserActivityController] listAllActivities SUCCESS', activities);
+            return activities || [];
+        } catch (e) {
+            console.error('[UserActivityController] listAllActivities ERROR', e);
+            throw new HttpException('Erreur serveur', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 } 
