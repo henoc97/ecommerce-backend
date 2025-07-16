@@ -5,4 +5,5 @@ export interface INewsletterSubscriptionRepository {
     unsubscribe(email: string, shopId: number): Promise<void>;
     checkSubscriptionStatus(email: string, shopId: number): Promise<boolean>;
     listSubscribers(shopId: number): Promise<NewsletterSubscriptionEntity[]>;
+    listActiveSubscribers(shopId: number): Promise<NewsletterSubscriptionEntity[]>;
 } 
