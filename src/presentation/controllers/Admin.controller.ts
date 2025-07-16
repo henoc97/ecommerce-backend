@@ -121,4 +121,4 @@ export class AdminController {
             throw new HttpException('Erreur serveur', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-} 
+}
