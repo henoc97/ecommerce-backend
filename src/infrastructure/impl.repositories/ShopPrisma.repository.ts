@@ -34,7 +34,7 @@ export class ShopPrismaRepository implements IShopRepository {
     }
     async findById(id: number): Promise<ShopEntity> {
         try {
-            return await prisma.shop.findUnique({ where: { id } as Prisma.ShopWhereUniqueInput }) as ShopEntity;
+            return await prisma.shop.findUnique({ where: { id } as Prisma.ShopWhereUniqueInput, include: { vendor: true } }) as ShopEntity;
         } catch (error) {
             throw error;
         }

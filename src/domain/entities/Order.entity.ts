@@ -21,4 +21,5 @@ export class OrderEntity {
     items?: OrderItemEntity[];
     payment?: PaymentEntity;
     refund?: RefundEntity;
+    expiresAt?: Date;
 } 

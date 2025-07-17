@@ -30,7 +30,8 @@ export class OrderController {
         console.log('[OrderController] createOrder', { userId: req.user?.id, body });
         try {
             const userId = req.user.id;
-            const result = await this.createOrderFromCartUseCase.execute(userId, body.shopId, body.paymentId);
+            // On ne passe plus paymentId ici
+            const result = await this.createOrderFromCartUseCase.execute(userId, body.shopId);
             if (result.error) {
                 return res.status(HttpStatus.BAD_REQUEST).json({ message: result.error, details: result.details });
             }

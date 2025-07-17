@@ -224,7 +224,7 @@ model Cart {
   userId        Int
   shopId        Int
   user          User       @relation(fields: [userId], references: [id])
-  totalPrice    Int        @default(0)
+  totalPrice    Float        @default(0)
   totalQuantity Int        @default(0)
   items         CartItem[]
   shop          Shop       @relation(fields: [shopId], references: [id])
@@ -248,6 +248,7 @@ model Order {
   refundId       Int?        @unique
   trackingNumber String?
   status         OrderStatus
+  expiresAt     DateTime     // Order expires after 15 min if not paid
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
   userId         Int

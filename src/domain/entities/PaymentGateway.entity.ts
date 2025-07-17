@@ -3,10 +3,7 @@ export interface PaymentGatewayRequest {
     currency: string;
     method: string;
     cardData?: {
-        number: string;
-        expMonth: number;
-        expYear: number;
-        cvc: string;
+        token: string;
     };
     paypalData?: {
         paymentMethodId: string;

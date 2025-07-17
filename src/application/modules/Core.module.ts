@@ -65,6 +65,7 @@ import { AnalyticsService } from '../services/analytics.service';
 import { AddImageToVariantUseCase } from '../use-cases/product-variant.use-case/AddImageToVariant.use-case';
 import { DeleteImageFromVariantUseCase } from '../use-cases/product-variant.use-case/DeleteImageFromVariant.use-case';
 import { CloudinaryService } from 'src/infrastructure/external-services/cloudinary.service';
+import { OrderCronService } from '../services/order-cron.service';
 
 const providersExports = [
     AuthService,
@@ -98,6 +99,7 @@ const providersExports = [
     SubsiteService,
     AnalyticsService,
     CloudinaryService,
+    OrderCronService,
     // ... autres factories
     PaymentGatewayFactory,
     // ... autres services

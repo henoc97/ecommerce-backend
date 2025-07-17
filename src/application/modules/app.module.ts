@@ -25,9 +25,11 @@ import { SubscriptionModule } from './Subscription.module';
 import { UserModule } from './User.module';
 import { SubsiteModule } from './Subsite.module';
 import { AnalyticsModule } from './Analytics.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     AuthModule,
     UserProfileModule,
     ShopModule,

@@ -39,6 +39,7 @@ export class CreatePromotionUseCase {
                 (error as any).code = 'FORBIDDEN_VARIANT';
                 throw error;
             }
+            delete dto.productId;
             // Créer la promotion
             const promo = await this.promotionService.createPromotion({ ...dto, productVariantId: variant.id } as any);
             this.logger.log('Promotion créée sur variante', JSON.stringify(promo));
@@ -62,6 +63,7 @@ export class CreatePromotionUseCase {
             }
             const results = [];
             let hasError = false;
+            delete dto.productId;
             for (const variant of variants) {
                 try {
                     const promo = await this.promotionService.createPromotion({ ...dto, productVariantId: variant.id } as any);

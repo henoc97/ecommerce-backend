@@ -1,5 +1,5 @@
-import { Controller, Post, Get, Body, Query, HttpException, HttpStatus, UseGuards, Inject, Req } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Post, Get, Body, Query, HttpException, HttpStatus, UseGuards, Inject, Req, Patch, Param } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { RefundService } from '../../application/services/refund.service';
 import { RefundDto, RefundResponseDto } from '../dtos/Refund.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -40,6 +40,28 @@ export class RefundController {
     }
 
     @UseGuards(AuthGuard('jwt'))
+    @Patch(':id/approve')
+    @ApiParam({ name: 'id', required: true, description: 'ID du remboursement à approuver.' })
+    @ApiOperation({ summary: 'Approuver et exécuter le remboursement', description: 'Permet au commerçant d\'approuver et de déclencher le remboursement réel.' })
+    @ApiResponse({ status: 200, description: 'Remboursement approuvé et exécuté.' })
+    async approveRefund(@Req() req: any, @Param('id') id: number): Promise<RefundResult> {
+        const userId = req.user.id;
+        const result = await this.processRefundUseCase.approveRefund(Number(id), userId);
+        return result;
+    }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Patch(':id/reject')
+    @ApiParam({ name: 'id', required: true, description: 'ID du remboursement à refuser.' })
+    @ApiOperation({ summary: 'Refuser la demande de remboursement', description: 'Permet au commerçant de refuser la demande de remboursement.' })
+    @ApiResponse({ status: 200, description: 'Remboursement refusé.' })
+    async rejectRefund(@Req() req: any, @Param('id') id: number): Promise<RefundResult> {
+        const userId = req.user.id;
+        const result = await this.processRefundUseCase.rejectRefund(Number(id), userId);
+        return result;
+    }
+
+    @UseGuards(AuthGuard('jwt'))
     @Get()
     @ApiOperation({ summary: 'Lister les remboursements', description: 'Retourne la liste des remboursements, filtrable par statut ou boutique.' })
     @ApiQuery({ name: 'status', required: false, description: 'Statut du remboursement (PENDING, APPROVED, etc.)' })
@@ -62,35 +84,12 @@ export class RefundController {
     }
 
     @UseGuards(AuthGuard('jwt'))
-    @Get(':shopId')
-    @ApiOperation({ summary: 'Lister les remboursements d\'une boutique', description: 'Permet de lister les remboursements d\'une boutique spécifique.' })
-    @ApiQuery({ name: 'shopId', required: true, description: 'ID de la boutique.' })
-    @ApiResponse({ status: 200, description: 'Liste des remboursements récupérée avec succès.', type: [RefundResponseDto] })
-    @ApiResponse({ status: 404, description: 'Aucun remboursement trouvé pour cette boutique.' })
-    async listShopRefunds(@Query('shopId') shopId: number): Promise<RefundEntity[]> {
-        console.log('[RefundController] listShopRefunds', { shopId });
-        try {
-            const result = await this.refundService.getShopRefunds(shopId);
-            if (!result || result.length === 0) {
-                console.log('[RefundController] Aucun remboursement trouvé pour cette boutique', { shopId });
-                throw new HttpException('Aucun remboursement trouvé pour cette boutique', HttpStatus.NOT_FOUND);
-            }
-            console.log('[RefundController] listShopRefunds SUCCESS', result);
-            return result;
-        } catch (e) {
-            console.error('[RefundController] listShopRefunds ERROR', e);
-            if (e instanceof HttpException) throw e;
-            throw new HttpException('Erreur interne', HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @UseGuards(AuthGuard('jwt'))
     @Get(':id')
     @ApiOperation({ summary: 'Détail d\'un remboursement', description: 'Permet de récupérer les détails d\'un remboursement spécifique.' })
-    @ApiQuery({ name: 'id', required: true, description: 'ID du remboursement.' })
+    @ApiParam({ name: 'id', required: true, description: 'ID du remboursement.' })
     @ApiResponse({ status: 200, description: 'Détail du remboursement récupéré avec succès.', type: RefundResponseDto })
     @ApiResponse({ status: 404, description: 'Aucun remboursement trouvé avec cet ID.' })
-    async getRefundById(@Query('id') id: number): Promise<RefundEntity> {
+    async getRefundById(@Param('id') id: number): Promise<RefundEntity> {
         console.log('[RefundController] getRefundById', { id });
         try {
             const refund = await this.refundService.findById(id);

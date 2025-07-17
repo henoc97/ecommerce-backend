@@ -96,4 +96,12 @@ export class OrderService {
             throw error;
         }
     }
+    async cancelExpiredUnpaidOrders() {
+        const now = new Date();
+        const expiredOrders = await this.repository.listExpiredUnpaidOrders(now);
+        for (const order of expiredOrders) {
+            await this.repository.updateOrderStatus(order.id, OrderStatus.CANCELLED);
+        }
+        return expiredOrders.length;
+    }
 } 

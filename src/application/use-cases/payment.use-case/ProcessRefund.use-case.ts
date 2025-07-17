@@ -20,7 +20,6 @@ export interface RefundResult {
 @Injectable()
 export class ProcessRefundUseCase {
     constructor(
-        @Inject(PaymentService) private readonly paymentService: PaymentService,
         @Inject(RefundService) private readonly refundService: RefundService,
         @Inject(OrderService) private readonly orderService: OrderService,
         @Inject(PaymentGatewayFactory) private readonly paymentGatewayFactory: PaymentGatewayFactory,
@@ -66,11 +65,37 @@ export class ProcessRefundUseCase {
             };
         }
 
-        // 4. Appeler la gateway de remboursement
+        // 4. Créer la demande de remboursement en base (statut PENDING)
+        const refundData = {
+            orderId: payment.orderId,
+            reason: dto.reason || 'Remboursement client',
+            amount: refundAmount,
+            status: RefundStatus.PENDING,
+        };
+        const refund = await this.refundService.createRefund(refundData as any);
+
+        return {
+            success: true,
+            refund: refund,
+            refundId: refund.id
+        };
+    }
+
+    // Appelée par l'admin/commerçant pour approuver le remboursement
+    async approveRefund(refundId: number, userId: number): Promise<RefundResult> {
+        // 1. Récupérer le remboursement et le paiement associé
+        const refund = await this.refundService.findById(refundId);
+        if (!refund) return { success: false, error: 'Remboursement introuvable', code: 404 };
+        if (refund.status === RefundStatus.APPROVED) {
+            return { success: false, error: 'Ce remboursement a déjà été approuvé.', code: 400 };
+        }
+        const payment = await this.orderService.getOrderPayment(refund.orderId);
+        if (!payment) return { success: false, error: 'Paiement introuvable', code: 404 };
+        // 2. Appeler la gateway
         let refundResult: RefundResult;
         try {
             const gatewayService = this.paymentGatewayFactory.getService(payment.method);
-            refundResult = await gatewayService.refundPayment(payment.providerId, refundAmount);
+            refundResult = await gatewayService.refundPayment(payment.providerId, refund.amount);
         } catch (error) {
             return {
                 success: false,
@@ -89,26 +114,24 @@ export class ProcessRefundUseCase {
                 details: refundResult.details
             };
         }
-
-        // 6. Enregistrer le remboursement en base
-        const refundData = {
-            orderId: payment.orderId,
-            reason: dto.reason || 'Remboursement client',
-            amount: refundAmount,
-            status: RefundStatus.APPROVED,
-        };
-
-        const refund = await this.refundService.createRefund(refundData as any);
-
-        // 7. Mettre à jour le statut de la commande si remboursement total
-        if (refundAmount >= payment.amount) {
+        // 3. Mettre à jour le statut à APPROVED
+        await this.refundService.updateRefund(refundId, { status: RefundStatus.APPROVED });
+        // 4. Mettre à jour la commande si remboursement total
+        if (refund.amount >= payment.amount) {
             await this.orderService.updateOrder(payment.orderId, { status: OrderStatus.REFUNDED });
         }
-
         return {
             success: true,
             refund: refundResult,
-            refundId: refund.id
+            refundId: refundId
         };
+    }
+
+    // Appelée par l'admin/commerçant pour refuser le remboursement
+    async rejectRefund(refundId: number, userId: number): Promise<RefundResult> {
+        const refund = await this.refundService.findById(refundId);
+        if (!refund) return { success: false, error: 'Remboursement introuvable', code: 404 };
+        await this.refundService.updateRefund(refundId, { status: RefundStatus.REJECTED });
+        return { success: true, refundId };
     }
 } 

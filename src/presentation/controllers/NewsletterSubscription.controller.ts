@@ -32,11 +32,15 @@ export class NewsletterSubscriptionController {
     @ApiOperation({ summary: 'S’abonner à la newsletter d’une boutique' })
     @ApiBody({ type: SubscribeNewsletterDto })
     @ApiResponse({ status: 201, description: 'Abonnement confirmé' })
+    @ApiResponse({ status: 400, description: 'Email invalide' })
     @ApiResponse({ status: 409, description: 'Déjà abonné à cette boutique' })
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     async subscribe(@Body() dto: SubscribeNewsletterDto) {
         console.log('[NewsletterSubscriptionController] subscribe', dto);
         try {
+            if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(dto.email)) {
+                throw new HttpException('Email invalide', HttpStatus.BAD_REQUEST);
+            }
             const result = await this.newsletterService.subscribe(dto.email, dto.shopId);
             console.log('[NewsletterSubscriptionController] subscribe SUCCESS', result);
             return { message: 'Abonnement confirmé' };
