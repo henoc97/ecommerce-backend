@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Query, Body, Req, ForbiddenException, NotFoundException, BadGatewayException } from '@nestjs/common';
+import { Controller, Get, Post, Query, Body, Req, ForbiddenException, NotFoundException, BadGatewayException, UseGuards } from '@nestjs/common';
 import { NewsletterSubscriptionService } from '../../application/services/newslettersubscription.service';
 import { ShopService } from '../../application/services/shop.service';
 import { EmailService } from '../../application/services/email.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 // EmailService à créer ou à mocker
 
 @ApiTags('Campagnes Newsletter')
@@ -16,19 +17,20 @@ export class NewsletterCampaignController {
     ) { }
 
     // GET /newsletter-subscribers?shopId=...
+    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Récupérer les abonnés d\'une newsletter pour un shop' })
     @ApiResponse({ status: 200, description: 'Liste des abonnés actifs pour le shop.' })
     @ApiResponse({ status: 403, description: 'Accès interdit au shop.' })
     @ApiResponse({ status: 404, description: 'Aucun abonné trouvé.' })
     @ApiQuery({ name: 'shopId', type: Number, description: 'ID du shop.' })
-    @Get('/newsletter-subscribers')
-    async getSubscribers(@Query('shopId') shopId: number, @Req() req) {
+    @Get('/subscribers')
+    async getSubscribers(@Query('shopId') shopId: number, @Req() req: any) {
         const userId = req.user?.id;
-        const shop = await this.shopService.findById(shopId);
-        if (!shop || shop.vendor.userId !== userId) {
+        const shop = await this.shopService.findById(Number(shopId));
+        if (!shop || !shop.vendor || shop.vendor.userId !== userId) {
             throw new ForbiddenException('Accès interdit à ce shop');
         }
-        const subscribers = await this.newsletterSubscriptionService.listActiveSubscribers(shopId);
+        const subscribers = await this.newsletterSubscriptionService.listActiveSubscribers(Number(shopId));
         if (!subscribers || subscribers.length === 0) {
             throw new NotFoundException('Aucun abonné à la newsletter');
         }
@@ -36,6 +38,7 @@ export class NewsletterCampaignController {
     }
 
     // POST /send-newsletter
+    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Envoyer une newsletter à tous les abonnés d\'un shop' })
     @ApiResponse({ status: 200, description: 'Newsletter envoyée avec succès.' })
     @ApiResponse({ status: 403, description: 'Accès interdit au shop.' })
@@ -53,15 +56,15 @@ export class NewsletterCampaignController {
             },
         },
     })
-    @Post('/send-newsletter')
-    async sendNewsletter(@Body() body, @Req() req) {
+    @Post('/send')
+    async sendNewsletter(@Body() body: any, @Req() req: any) {
         const { shopId, subject, content, type } = body;
         const userId = req.user?.id;
-        const shop = await this.shopService.findById(shopId);
+        const shop = await this.shopService.findById(Number(shopId));
         if (!shop || shop.vendor.userId !== userId) {
             throw new ForbiddenException('Accès interdit à ce shop');
         }
-        const subscribers = await this.newsletterSubscriptionService.listActiveSubscribers(shopId);
+        const subscribers = await this.newsletterSubscriptionService.listActiveSubscribers(Number(shopId));
         if (!subscribers || subscribers.length === 0) {
             throw new NotFoundException('Aucun abonné actif à la newsletter');
         }

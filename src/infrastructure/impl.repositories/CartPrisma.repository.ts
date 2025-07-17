@@ -43,10 +43,10 @@ export class CartPrismaRepository implements ICartRepository {
     async updateCartTotals(cartId: number): Promise<void> {
         try {
             // À adapter selon la logique métier réelle
-            const items = await prisma.cartItem.findMany({ where: { cartId } });
+            const items = await prisma.cartItem.findMany({ where: { cartId }, include: { productVariant: true } });
             const totalQuantity = items.reduce((sum: number, item: any) => sum + item.quantity, 0);
             // Suppose que chaque item a un champ price (sinon adapter)
-            const totalPrice = items.reduce((sum: number, item: any) => sum + (item['price'] || 0) * item.quantity, 0);
+            const totalPrice = items.reduce((sum: number, item: any) => sum + (item['productVariant']['price'] || 0) * item.quantity, 0);
             await prisma.cart.update({ where: { id: cartId }, data: { totalQuantity, totalPrice } });
         } catch (error) {
             throw error;

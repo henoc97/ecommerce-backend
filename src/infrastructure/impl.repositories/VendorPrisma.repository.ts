@@ -14,7 +14,10 @@ export class VendorPrismaRepository implements IVendorRepository {
     }
     async findByUserId(userId: number): Promise<VendorEntity> {
         try {
-            return await prisma.vendor.findUnique({ where: { userId } as Prisma.VendorWhereUniqueInput }) as VendorEntity;
+            return await prisma.vendor.findUnique({
+                where: { userId } as Prisma.VendorWhereUniqueInput,
+                include: { shops: true }
+            }) as VendorEntity;
         } catch (error) {
             throw error;
         }

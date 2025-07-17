@@ -83,7 +83,7 @@ export class SubscriptionController {
     async updateSubscription(@Param('id') id: number, @Body() body: any) {
         console.log('[SubscriptionController] updateSubscription', { id, body });
         try {
-            const updated = await this.subscriptionService.updateSubscription(id, body);
+            const updated = await this.subscriptionService.updateSubscription(Number(id), body);
             if (!updated) {
                 throw new HttpException('Plan non trouvé', HttpStatus.NOT_FOUND);
             }
@@ -110,7 +110,7 @@ export class SubscriptionController {
             if (actives && actives.some(s => s.subscriptionId === Number(id))) {
                 throw new HttpException('Plan utilisé, suppression impossible', HttpStatus.CONFLICT);
             }
-            await this.subscriptionService.deleteSubscription(id);
+            await this.subscriptionService.deleteSubscription(Number(id));
             return { success: true };
         } catch (e) {
             if (e instanceof HttpException) throw e;

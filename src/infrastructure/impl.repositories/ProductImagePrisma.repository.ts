@@ -17,13 +17,6 @@ export class ProductImagePrismaRepository implements IProductImageRepository {
             throw error;
         }
     }
-    async findByVariantId(productVariantId: number): Promise<ProductImageEntity> {
-        try {
-            return await prisma.productImage.findUnique({ where: { productVariantId } }) as ProductImageEntity;
-        } catch (error) {
-            throw error;
-        }
-    }
     async listImagesByVariant(productVariantId: number): Promise<ProductImageEntity[]> {
         try {
             return await prisma.productImage.findMany({ where: { productVariantId } }) as ProductImageEntity[];

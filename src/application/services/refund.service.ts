@@ -58,11 +58,4 @@ export class RefundService {
             throw error;
         }
     }
-    async getShopRefunds(shopId: number) {
-        try {
-            return await this.repository.getShopRefunds(shopId);
-        } catch (error) {
-            throw error;
-        }
-    }
 } 

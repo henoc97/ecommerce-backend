@@ -53,13 +53,14 @@ export class AuthController {
                 httpOnly: true,
                 secure: false, // Passez à true en production
                 sameSite: "strict",
-                maxAge: 60 * 60 * 1000, // 1 heure
+                maxAge: 10 * 60 * 60 * 1000, // 10 heure
             });
 
             console.log('tokens', tokens);
             const response = {
                 message: 'Compte créé, veuillez vérifier votre email',
-                userId: created.id
+                userId: created.id,
+                accessToken: tokens.accessToken
             };
             console.log('[AuthController] sign SUCCESS', response);
             return res.status(HttpStatus.CREATED).json(response);
@@ -108,14 +109,15 @@ export class AuthController {
                 httpOnly: true,
                 secure: false, // Passez à true en production
                 sameSite: "strict",
-                maxAge: 60 * 60 * 1000, // 1 heure
+                maxAge: 10 * 60 * 60 * 1000, // 10 heure
             });
 
             // 5. Retourner la réponse
             console.log('tokens', tokens);
             const response = {
                 message: "Connexion au compte utilisateur",
-                userId: user.id
+                userId: user.id,
+                accessToken: tokens.accessToken
             };
             console.log('[AuthController] login SUCCESS', response);
             return res.status(HttpStatus.CREATED).json(response);

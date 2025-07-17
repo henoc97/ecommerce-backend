@@ -142,9 +142,7 @@ model ShopSubscription {
   subscription   Subscription @relation(fields: [subscriptionId], references: [id])
   startDate      DateTime     @default(now())
   endDate        DateTime?
-  // set to true when the subscription is active : endDate > now()
-  isActive       Boolean      @default(true)
-
+  // isActive est maintenant calculé dynamiquement côté code
 }
 
 // Shop Model: Represents a generated e-commerce site for each vendor
@@ -204,7 +202,7 @@ model ProductVariant {
 // Product Image Model
 model ProductImage {
   id               Int            @id @default(autoincrement())
-  productVariantId Int            @unique
+  productVariantId Int            
   productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
   url              String
 }
@@ -226,7 +224,7 @@ model Cart {
   userId        Int
   shopId        Int
   user          User       @relation(fields: [userId], references: [id])
-  totalPrice    Int        @default(0)
+  totalPrice    Float        @default(0)
   totalQuantity Int        @default(0)
   items         CartItem[]
   shop          Shop       @relation(fields: [shopId], references: [id])
@@ -250,6 +248,7 @@ model Order {
   refundId       Int?        @unique
   trackingNumber String?
   status         OrderStatus
+  expiresAt     DateTime     // Order expires after 15 min if not paid
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
   userId         Int

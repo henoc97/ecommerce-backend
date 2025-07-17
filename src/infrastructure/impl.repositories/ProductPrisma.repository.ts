@@ -29,7 +29,11 @@ export class ProductPrismaRepository implements IProductRepository {
     }
     async findById(id: number): Promise<ProductEntity> {
         try {
-            return await prisma.product.findUnique({ where: { id } }) as ProductEntity;
+            return await prisma.product.findUnique({
+                where: { id }, include: {
+                    shop: true
+                }
+            }) as ProductEntity;
         } catch (error) {
             throw error;
         }

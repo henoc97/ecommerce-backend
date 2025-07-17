@@ -7,7 +7,7 @@ import { ProductVariantService } from 'src/application/services/productvariant.s
 @Injectable()
 export class AddProductToCartUseCase {
     constructor(
-        @Inject(CartService) private readonly Service: CartService,
+        @Inject(CartService) private readonly cartService: CartService,
         @Inject(ProductVariantService) private readonly productVariantService: ProductVariantService,
         @Inject(ProductService) private readonly productService: ProductService,
         @Inject(CartItemService) private readonly cartItemService: CartItemService,
@@ -24,9 +24,9 @@ export class AddProductToCartUseCase {
         const shopId = product.shopId;
 
         // 2. Vérifier si le user a déjà un cart pour ce shop
-        let cart = await this.Service.findByUserIdAndShopId(userId, shopId);
+        let cart = await this.cartService.findByUserIdAndShopId(userId, shopId);
         if (!cart) {
-            cart = await this.Service.createCart(userId, shopId);
+            cart = await this.cartService.createCart(userId, shopId);
         }
 
         // 3. Vérifier si le produit est déjà dans le panier
@@ -39,7 +39,7 @@ export class AddProductToCartUseCase {
         // 5. Ajouter le CartItem
         const cartItem = await this.cartItemService.addItem(cart.id, productId, quantity);
         // Mettre à jour les totaux du panier
-        await this.Service.updateCartTotals(cart.id);
+        await this.cartService.updateCartTotals(cart.id);
         return cartItem;
     }
 } 

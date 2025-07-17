@@ -25,7 +25,7 @@ export class PromotionController {
     @ApiResponse({ status: 201, description: 'Promotion créée', type: PromotionResponseDto })
     @ApiResponse({ status: 401, description: 'Accès réservé aux vendeurs' })
     @ApiResponse({ status: 400, description: 'Erreur de validation' })
-    @ApiResponse({ status: 404, description: 'Produit/variante introuvable' })
+    @ApiResponse({ status: 404, description: 'Produits/variante introuvable' })
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     async createPromotion(
         @Body() dto: PromotionCreateDto,
@@ -57,6 +57,7 @@ export class PromotionController {
         }
     }
 
+    @UseGuards(AuthGuard('jwt'))
     @Get()
     @ApiOperation({ summary: 'Lister les promotions', description: 'Retourne la liste des promotions. Si active=true, ne retourne que les promotions actives.' })
     @ApiQuery({ name: 'active', required: false, type: Boolean, description: 'true pour ne retourner que les promotions actives' })
@@ -78,6 +79,7 @@ export class PromotionController {
         }
     }
 
+    @UseGuards(AuthGuard('jwt'))
     @Get('abusive')
     @ApiOperation({ summary: 'Lister les promotions abusives', description: 'Retourne la liste des promotions considérées comme abusives (ex: discount > 90%, dates incohérentes).' })
     @ApiResponse({ status: 200, description: 'Liste des promotions abusives' })
@@ -94,6 +96,7 @@ export class PromotionController {
         }
     }
 
+    @UseGuards(AuthGuard('jwt'))
     @Delete()
     @ApiOperation({ summary: 'Supprimer une promotion', description: 'Supprime une promotion sur un produit ou une variante.' })
     @ApiBody({ type: DeletePromotionDto, description: 'Payload de suppression' })
@@ -130,6 +133,7 @@ export class PromotionController {
         }
     }
 
+    @UseGuards(AuthGuard('jwt'))
     @Delete(':id')
     @ApiOperation({ summary: 'Supprimer une promotion', description: 'Supprime une promotion par son ID.' })
     @ApiParam({ name: 'id', required: true, description: 'ID de la promotion' })
@@ -149,7 +153,8 @@ export class PromotionController {
         }
     }
 
-    @Put('/promotion/:id')
+    @UseGuards(AuthGuard('jwt'))
+    @Put('/:id')
     @ApiOperation({ summary: 'Mettre à jour une promotion', description: 'Modifie une promotion existante.' })
     @ApiParam({ name: 'id', type: Number, description: 'ID de la promotion à modifier' })
     @ApiBody({ type: UpdatePromotionDto, description: 'Payload de mise à jour' })

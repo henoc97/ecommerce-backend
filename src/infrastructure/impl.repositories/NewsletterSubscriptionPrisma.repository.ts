@@ -4,6 +4,7 @@ import { NewsletterSubscriptionEntity } from '../../domain/entities/NewsletterSu
 import { INewsletterSubscriptionRepository } from '../../domain/repositories/NewsletterSubscription.repository';
 
 export class NewsletterSubscriptionPrismaRepository implements INewsletterSubscriptionRepository {
+
     async subscribe(email: string, shopId: number): Promise<NewsletterSubscriptionEntity> {
         try {
             return await prisma.newsletterSubscription.create({ data: { email, shopId } }) as NewsletterSubscriptionEntity;

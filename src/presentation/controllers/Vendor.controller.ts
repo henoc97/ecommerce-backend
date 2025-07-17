@@ -1,4 +1,4 @@
-import { Controller, Get, Req, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Req, UseGuards, HttpException, HttpStatus, Post, Body, HttpCode } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { VendorService } from '../../application/services/vendor.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -59,5 +59,30 @@ export class VendorController {
         }
         console.log('[VendorController] getVendor SUCCESS', vendor);
         return vendor;
+    }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Post('')
+    @HttpCode(201)
+    @ApiOperation({ summary: 'Créer un vendeur pour l\'utilisateur connecté' })
+    @ApiResponse({ status: 201, description: 'Vendeur créé' })
+    @ApiResponse({ status: 400, description: 'Déjà vendeur' })
+    @ApiResponse({ status: 401, description: 'Non authentifié' })
+    async createVendor(@Req() req: any) {
+        console.log('[VendorController] createVendor', { user: req.user });
+        if (!req.user) {
+            throw new HttpException('Non authentifié', HttpStatus.UNAUTHORIZED);
+        }
+        // Vérifier si l'utilisateur est déjà vendeur
+        const existingVendor = await this.vendorService.findByUserId(req.user.id);
+        if (existingVendor) {
+            throw new HttpException('Vous êtes déjà vendeur', HttpStatus.BAD_REQUEST);
+        }
+        // Créer le vendeur
+        const vendor = await this.vendorService.createVendor(req.user.id);
+        // Mettre à jour le rôle utilisateur
+        await this.userService.setRole(req.user.id, UserRole.SELLER);
+        console.log('[VendorController] createVendor SUCCESS', vendor);
+        return { message: 'Vendeur créé', vendor };
     }
 }

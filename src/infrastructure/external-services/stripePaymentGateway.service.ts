@@ -41,21 +41,37 @@ export class StripePaymentGatewayService extends BasePaymentGatewayService {
                 return this.simulatePayment(request);
             }
 
-            // Créer un PaymentIntent avec Stripe
+            // Utiliser un token Stripe de test si fourni (ex: tok_visa)
+            if (request.cardData && request.cardData.token) {
+                const paymentIntent = await this.stripe.paymentIntents.create({
+                    amount: Math.round(request.amount * 100),
+                    currency: request.currency.toLowerCase(),
+                    payment_method_data: {
+                        type: 'card',
+                        card: { token: request.cardData.token }
+                    },
+                    confirm: true,
+                    return_url: process.env.STRIPE_RETURN_URL || `${process.env.CLIENT_URL}/payment/success`,
+                    metadata: {
+                        ...request.metadata,
+                        method: request.method,
+                        processedAt: new Date().toISOString(),
+                    },
+                });
+                return this.handleStripeIntentResult(paymentIntent);
+            }
+
+            // Sinon, fallback sur les données carte classiques (pour dev uniquement)
             const paymentIntent = await this.stripe.paymentIntents.create({
-                amount: Math.round(request.amount * 100), // Stripe utilise les centimes
+                amount: Math.round(request.amount * 100),
                 currency: request.currency.toLowerCase(),
                 payment_method_data: request.cardData ? {
                     type: 'card',
                     card: {
-                        number: request.cardData.number,
-                        exp_month: request.cardData.expMonth,
-                        exp_year: request.cardData.expYear,
-                        cvc: request.cardData.cvc,
+                        token: request.cardData.token,
                     },
                 } : undefined,
-                payment_method: request.paypalData?.paymentMethodId,
-                confirm: true, // Confirmer immédiatement le paiement
+                confirm: true,
                 return_url: process.env.STRIPE_RETURN_URL || `${process.env.CLIENT_URL}/payment/success`,
                 metadata: {
                     ...request.metadata,
@@ -63,47 +79,50 @@ export class StripePaymentGatewayService extends BasePaymentGatewayService {
                     processedAt: new Date().toISOString(),
                 },
             });
-
-            if (paymentIntent.status === 'succeeded') {
-                return {
-                    success: true,
-                    providerId: paymentIntent.id,
-                    transactionId: paymentIntent.latest_charge,
-                    details: {
-                        method: 'stripe',
-                        status: paymentIntent.status,
-                        amount: paymentIntent.amount / 100,
-                        currency: paymentIntent.currency,
-                        processedAt: new Date().toISOString(),
-                        paymentMethod: paymentIntent.payment_method,
-                    }
-                };
-            } else if (paymentIntent.status === 'requires_action') {
-                return {
-                    success: false,
-                    errorCode: 'requires_action',
-                    errorMessage: 'Action supplémentaire requise (3D Secure, etc.)',
-                    details: {
-                        method: 'stripe',
-                        status: paymentIntent.status,
-                        nextAction: paymentIntent.next_action,
-                        clientSecret: paymentIntent.client_secret,
-                    }
-                };
-            } else {
-                return {
-                    success: false,
-                    errorCode: 'payment_failed',
-                    errorMessage: `Paiement échoué: ${paymentIntent.status}`,
-                    details: {
-                        method: 'stripe',
-                        status: paymentIntent.status,
-                        lastPaymentError: paymentIntent.last_payment_error,
-                    }
-                };
-            }
+            return this.handleStripeIntentResult(paymentIntent);
         } catch (error) {
             return this.handleError(error);
+        }
+    }
+
+    private handleStripeIntentResult(paymentIntent: any): PaymentGatewayResponse {
+        if (paymentIntent.status === 'succeeded') {
+            return {
+                success: true,
+                providerId: paymentIntent.id,
+                transactionId: paymentIntent.latest_charge,
+                details: {
+                    method: 'stripe',
+                    status: paymentIntent.status,
+                    amount: paymentIntent.amount / 100,
+                    currency: paymentIntent.currency,
+                    processedAt: new Date().toISOString(),
+                    paymentMethod: paymentIntent.payment_method,
+                }
+            };
+        } else if (paymentIntent.status === 'requires_action') {
+            return {
+                success: false,
+                errorCode: 'requires_action',
+                errorMessage: 'Action supplémentaire requise (3D Secure, etc.)',
+                details: {
+                    method: 'stripe',
+                    status: paymentIntent.status,
+                    nextAction: paymentIntent.next_action,
+                    clientSecret: paymentIntent.client_secret,
+                }
+            };
+        } else {
+            return {
+                success: false,
+                errorCode: 'payment_failed',
+                errorMessage: `Paiement échoué: ${paymentIntent.status}`,
+                details: {
+                    method: 'stripe',
+                    status: paymentIntent.status,
+                    lastPaymentError: paymentIntent.last_payment_error,
+                }
+            };
         }
     }
 

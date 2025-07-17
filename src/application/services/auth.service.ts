@@ -51,7 +51,7 @@ export class AuthService {
         if (!jwtSecret) {
             throw new Error('JWT_SECRET environment variable is not defined');
         }
-        const accessToken = jwt.sign({ id: userId, email }, jwtSecret, { expiresIn: '1h' });
+        const accessToken = jwt.sign({ id: userId, email }, jwtSecret, { expiresIn: '10h' });
         const refreshToken = jwt.sign({ id: userId, email }, jwtSecret, { expiresIn: '7d' });
         const tokens = { accessToken, refreshToken };
         return tokens;

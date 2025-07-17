@@ -1,12 +1,15 @@
-import { Controller, Post, Body, Param, HttpException, HttpStatus, Logger, UseGuards, Req, Inject } from '@nestjs/common';
+import { Controller, Post, Body, Param, HttpException, HttpStatus, Logger, UseGuards, Req, Inject, UseInterceptors, UploadedFile, Delete, ParseIntPipe, UploadedFiles } from '@nestjs/common';
 import { ProductVariantService } from '../../application/services/productvariant.service';
 import { ProductImageService } from '../../application/services/productimage.service';
 import { ProductService } from '../../application/services/product.service';
 import { VendorService } from '../../application/services/vendor.service';
 import { ProductVariantCreateDto, ProductVariantResponseDto, ProductImageCreateDto } from '../dtos/Product.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiParam, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { UserRole } from '../../domain/enums/UserRole.enum';
+import { AddImageToVariantUseCase } from '../../application/use-cases/product-variant.use-case/AddImageToVariant.use-case';
+import { DeleteImageFromVariantUseCase } from '../../application/use-cases/product-variant.use-case/DeleteImageFromVariant.use-case';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Variantes Produit')
 @ApiBearerAuth()
@@ -19,20 +22,21 @@ export class ProductVariantController {
         @Inject(ProductImageService) private readonly productImageService: ProductImageService,
         @Inject(ProductService) private readonly productService: ProductService,
         @Inject(VendorService) private readonly vendorService: VendorService,
+        @Inject(AddImageToVariantUseCase) private readonly addImageToVariantUseCase: AddImageToVariantUseCase,
+        @Inject(DeleteImageFromVariantUseCase) private readonly deleteImageFromVariantUseCase: DeleteImageFromVariantUseCase,
     ) { }
 
     @UseGuards(AuthGuard('jwt'))
-    @Post('/product/:id/variant')
-    @ApiParam({ name: 'id', type: Number })
+    @Post('/:productId/variant')
     @ApiBody({ type: ProductVariantCreateDto })
     @ApiResponse({ status: 201, description: 'Variante créée', type: ProductVariantResponseDto })
     @ApiOperation({ summary: 'Créer une nouvelle variante pour un produit', description: 'Cette route permet de créer une nouvelle variante pour un produit existant. Seuls les vendeurs peuvent accéder.' })
     async createVariant(
-        @Param('id') productId: number,
+        @Param('productId') productId: number,
         @Body() dto: ProductVariantCreateDto,
         @Req() req: any
     ): Promise<ProductVariantResponseDto> {
-        this.logger.log(`POST /product/${productId}/variant`, JSON.stringify(dto));
+        this.logger.log(`POST /product-variants/${productId}/variant`, JSON.stringify(dto));
         try {
             if (!req.user || req.user.role !== UserRole.SELLER) {
                 this.logger.error('Accès réservé aux vendeurs', { user: req.user });
@@ -59,40 +63,71 @@ export class ProductVariantController {
     }
 
     @UseGuards(AuthGuard('jwt'))
-    @Post('/product-variant/:id/image')
+    @Post('/:id/images')
+    @UseInterceptors(FilesInterceptor('files'))
     @ApiParam({ name: 'id', type: Number })
-    @ApiBody({ type: ProductImageCreateDto })
-    @ApiResponse({ status: 201, description: 'Image ajoutée à la variante' })
-    @ApiOperation({ summary: 'Ajouter une image à une variante', description: 'Cette route permet d\'ajouter une image à une variante existante. Seuls les vendeurs peuvent accéder.' })
-    async addImageToVariant(
-        @Param('id') variantId: number,
-        @Body() dto: ProductImageCreateDto,
-        @Req() req: any
-    ): Promise<{ message: string }> {
-        this.logger.log(`POST /product-variant/${variantId}/image`, JSON.stringify(dto));
-        try {
-            if (!req.user || req.user.role !== UserRole.SELLER) {
-                this.logger.error('Accès réservé aux vendeurs', { user: req.user });
-                throw new HttpException('Accès réservé aux vendeurs', HttpStatus.UNAUTHORIZED);
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                files: {
+                    type: 'array',
+                    items: {
+                        type: 'string',
+                        format: 'binary'
+                    }
+                }
             }
-            // Vérifier que la variante existe et appartient au vendeur
-            const variant = await this.productVariantService.findById(Number(variantId));
-            if (!variant) {
-                this.logger.error('Variante introuvable');
-                throw new HttpException('Variante introuvable', HttpStatus.NOT_FOUND);
-            }
-            const product = await this.productService.findById(variant.productId);
-            const vendor = await this.vendorService.findByUserId(req.user.id);
-            if (!vendor || product.shop?.vendorId !== vendor.id) {
-                this.logger.error('Accès interdit : cette variante ne vous appartient pas', { userId: req.user.id, vendorId: vendor?.id, shopVendorId: product.shop?.vendorId });
-                throw new HttpException('Accès interdit', HttpStatus.FORBIDDEN);
-            }
-            await this.productImageService.addImage(Number(variantId), dto.url);
-            this.logger.log('Image ajoutée à la variante avec succès');
-            return { message: 'Image ajoutée à la variante' };
-        } catch (error) {
-            this.logger.error('Erreur lors de l\'ajout de l\'image', error.stack);
-            throw new HttpException(error.message || 'Erreur serveur', error.status || HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    })
+    @ApiResponse({ status: 201, description: 'Images ajoutées à la variante' })
+    @ApiOperation({ summary: 'Ajouter plusieurs images à une variante', description: 'Upload direct via Cloudinary. Seuls les vendeurs peuvent accéder.' })
+    async addImagesToVariant(
+        @Param('id', ParseIntPipe) variantId: number,
+        @UploadedFiles() files: Array<any>,
+        @Req() req: any
+    ): Promise<{ message: string; urls: string[] }> {
+        this.logger.log(`POST /product-variants/${variantId}/images`, { filesCount: files?.length });
+        if (!files || files.length === 0) throw new HttpException('Aucun fichier fourni', HttpStatus.BAD_REQUEST);
+        const urls: string[] = [];
+        for (const file of files) {
+            try {
+                const result = await this.addImageToVariantUseCase.execute(variantId, file.buffer, file.originalname, req.user);
+                urls.push(result.url);
+                this.logger.log(`Image uploadée: ${result.url}`);
+            } catch (error) {
+                this.logger.error('Erreur upload image', { file: file.originalname, error: error.message });
+                // On continue pour les autres fichiers
+            }
+        }
+        return { message: 'Images ajoutées à la variante', urls };
+    }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Delete('/:variantId/images')
+    @ApiParam({ name: 'variantId', type: Number })
+    @ApiBody({ description: 'IDs des images à supprimer', schema: { type: 'object', properties: { imageIds: { type: 'array', items: { type: 'number' } } } } })
+    @ApiResponse({ status: 200, description: 'Images supprimées de la variante' })
+    @ApiOperation({ summary: 'Supprimer plusieurs images d\'une variante', description: 'Supprime plusieurs images de Cloudinary et de la base. Seuls les vendeurs peuvent accéder.' })
+    async deleteImagesFromVariant(
+        @Param('variantId', ParseIntPipe) variantId: number,
+        @Body('imageIds') imageIds: number[],
+        @Req() req: any
+    ): Promise<{ message: string; deleted: number[]; errors: { id: number; error: string }[] }> {
+        this.logger.log(`DELETE /product-variants/${variantId}/images`, { imageIds });
+        const deleted: number[] = [];
+        const errors: { id: number; error: string }[] = [];
+        for (const imageId of imageIds) {
+            try {
+                await this.deleteImageFromVariantUseCase.execute(variantId, imageId, req.user);
+                deleted.push(imageId);
+                this.logger.log(`Image supprimée: ${imageId}`);
+            } catch (error) {
+                this.logger.error('Erreur suppression image', { imageId, error: error.message });
+                errors.push({ id: imageId, error: error.message });
+            }
+        }
+        return { message: 'Suppression terminée', deleted, errors };
     }
 } 

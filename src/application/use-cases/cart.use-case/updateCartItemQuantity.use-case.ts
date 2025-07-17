@@ -7,7 +7,7 @@ import { ProductVariantService } from 'src/application/services/productvariant.s
 export class UpdateCartItemQuantityUseCase {
     constructor(
         @Inject(ProductVariantService) private readonly productVariantService: ProductVariantService,
-        @Inject(CartItemService) private readonly cartService: CartService,
+        @Inject(CartService) private readonly cartService: CartService,
         @Inject(CartItemService) private readonly cartItemService: CartItemService,
     ) { }
 

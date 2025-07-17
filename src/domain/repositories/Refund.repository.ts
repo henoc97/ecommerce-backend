@@ -8,5 +8,4 @@ export interface IRefundRepository {
     listRefunds(filter?: Partial<RefundEntity>): Promise<RefundEntity[]>;
     getOrderRefund(orderId: number): Promise<RefundEntity>;
     getUserRefunds(userId: number): Promise<RefundEntity[]>;
-    getShopRefunds(shopId: number): Promise<RefundEntity[]>;
 } 

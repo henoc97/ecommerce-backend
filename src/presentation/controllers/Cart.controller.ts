@@ -85,11 +85,14 @@ export class CartController {
     async deleteCartItem(@Param('id') id: string, @Req() req: any, @Res() res: Response) {
         console.log('[CartController] deleteCartItem', { userId: req.user?.id, id });
         try {
-            const userId = req.user.id;
-            const result = await this.cartItemService.deleteItem(Number(id));
-            if (result === 'not_found') {
+            // On récupère l'item avant suppression pour avoir le cartId
+            const cartItem = await this.cartItemService.findById(Number(id));
+            if (!cartItem) {
                 return res.status(HttpStatus.NOT_FOUND).json({ message: 'Élément introuvable' });
             }
+            const result = await this.cartItemService.deleteItem(Number(id));
+            // Mettre à jour le panier après suppression
+            await this.cartService.updateCartTotals(cartItem.cartId);
             console.log('[CartController] deleteCartItem SUCCESS', result);
             return res.status(HttpStatus.OK).json({ message: 'Article retiré du panier' });
         } catch (error) {
@@ -103,7 +106,7 @@ export class CartController {
     @ApiQuery({ name: 'userId', required: true, description: 'ID de l\'utilisateur' })
     @ApiResponse({ status: 200, description: 'Liste des paniers' })
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
-    @Get('carts')
+    @Get()
     async listCarts(@Query('userId') userId: string, @Res() res: Response) {
         console.log('[CartController] listCarts', { userId });
         try {
@@ -121,7 +124,7 @@ export class CartController {
     @ApiParam({ name: 'id', description: 'ID du panier' })
     @ApiResponse({ status: 200, description: 'Détail du panier' })
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
-    @Get('carts/:id')
+    @Get('/:id')
     async getCart(@Param('id') id: string, @Res() res: Response) {
         console.log('[CartController] getCart', { id });
         try {

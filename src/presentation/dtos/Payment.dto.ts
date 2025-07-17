@@ -33,11 +33,16 @@ export class CreatePaymentDto {
         description: 'Données de carte pour Stripe',
         required: false,
         type: 'object',
+        // example: {
+        //     number: '4242424242424242',
+        //     expMonth: 12,
+        //     expYear: 2025,
+        //     cvc: '123'
+        // }
         example: {
-            number: '4242424242424242',
-            expMonth: 12,
-            expYear: 2025,
-            cvc: '123'
+            "cardData": {
+                "token": "tok_visa"
+            }
         }
     })
     cardData?: any;

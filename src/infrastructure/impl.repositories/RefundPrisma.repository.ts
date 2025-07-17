@@ -32,9 +32,15 @@ export class RefundPrismaRepository implements IRefundRepository {
             throw error;
         }
     }
-    async listRefunds(filter?: Partial<RefundEntity>): Promise<RefundEntity[]> {
+    async listRefunds(filter?: any): Promise<RefundEntity[]> {
         try {
-            return await prisma.refund.findMany({ where: filter as Prisma.RefundWhereInput }) as RefundEntity[];
+            return await prisma.refund.findMany({
+                where: { status: filter.status }, include: {
+                    order: {
+                        where: { shopId: filter.shopId },
+                    }
+                }
+            }) as RefundEntity[];
         } catch (error) {
             throw error;
         }
@@ -57,13 +63,6 @@ export class RefundPrismaRepository implements IRefundRepository {
     async getOrderRefund(orderId: number): Promise<RefundEntity> {
         try {
             return await prisma.refund.findFirst({ where: { orderId } }) as RefundEntity;
-        } catch (error) {
-            throw error;
-        }
-    }
-    async getShopRefunds(shopId: number): Promise<RefundEntity[]> {
-        try {
-            return await prisma.refund.findMany({ where: { order: { shopId } } }) as RefundEntity[];
         } catch (error) {
             throw error;
         }

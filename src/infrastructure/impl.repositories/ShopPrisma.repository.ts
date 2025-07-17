@@ -34,7 +34,7 @@ export class ShopPrismaRepository implements IShopRepository {
     }
     async findById(id: number): Promise<ShopEntity> {
         try {
-            return await prisma.shop.findUnique({ where: { id } as Prisma.ShopWhereUniqueInput }) as ShopEntity;
+            return await prisma.shop.findUnique({ where: { id } as Prisma.ShopWhereUniqueInput, include: { vendor: true } }) as ShopEntity;
         } catch (error) {
             throw error;
         }
@@ -48,10 +48,16 @@ export class ShopPrismaRepository implements IShopRepository {
     }
     async listActiveShopsWithProducts(): Promise<ShopEntity[]> {
         try {
+            const now = new Date();
             return await prisma.shop.findMany({
                 where: {
                     shopSubscriptions: {
-                        some: { isActive: true }
+                        some: {
+                            OR: [
+                                { endDate: null },
+                                { endDate: { gt: now } }
+                            ]
+                        }
                     }
                 },
                 include: {

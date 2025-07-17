@@ -7,9 +7,9 @@ export class ShopSubscriptionService {
         @Inject(ShopSubscriptionPrismaRepository) private readonly repository: ShopSubscriptionPrismaRepository,
     ) { }
 
-    async subscribe(shopId: number, subscriptionId: number) {
+    async subscribe(shopId: number, subscriptionId: number, startDate?: Date, endDate?: Date) {
         try {
-            return await this.repository.subscribe(shopId, subscriptionId);
+            return await this.repository.subscribe(shopId, subscriptionId, startDate, endDate);
         } catch (error) {
             throw error;
         }

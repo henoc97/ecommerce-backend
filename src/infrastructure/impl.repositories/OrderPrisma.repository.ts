@@ -6,6 +6,7 @@ import { PaymentEntity } from '../../domain/entities/Payment.entity';
 import { RefundEntity } from '../../domain/entities/Refund.entity';
 import { OrderStatus } from '../../domain/enums/OrderStatus.enum';
 import { IOrderRepository } from '../../domain/repositories/Order.repository';
+import { PaymentStatus } from 'src/domain/enums/PaymentStatus.enum';
 
 export class OrderPrismaRepository implements IOrderRepository {
     async createOrder(data: OrderEntity): Promise<OrderEntity> {
@@ -57,6 +58,19 @@ export class OrderPrismaRepository implements IOrderRepository {
             throw error;
         }
     }
+    async listExpiredUnpaidOrders(now: Date): Promise<OrderEntity[]> {
+        try {
+            return await prisma.order.findMany({
+                where: {
+                    status: 'PENDING',
+                    expiresAt: { lt: now },
+                    paymentId: null,
+                },
+            }) as OrderEntity[];
+        } catch (error) {
+            throw error;
+        }
+    }
     async getOrderItems(orderId: number): Promise<OrderItemEntity[]> {
         try {
             return await prisma.orderItem.findMany({ where: { orderId } }) as OrderItemEntity[];
@@ -66,7 +80,7 @@ export class OrderPrismaRepository implements IOrderRepository {
     }
     async getOrderPayment(orderId: number): Promise<PaymentEntity> {
         try {
-            return await prisma.payment.findFirst({ where: { orderId } }) as PaymentEntity;
+            return await prisma.payment.findFirst({ where: { AND: { orderId, status: PaymentStatus.SUCCESS } } }) as PaymentEntity;
         } catch (error) {
             throw error;
         }
