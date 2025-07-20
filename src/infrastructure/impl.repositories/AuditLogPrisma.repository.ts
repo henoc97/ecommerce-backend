@@ -25,4 +25,16 @@ export class AuditLogPrismaRepository implements IAuditLogRepository {
             throw error;
         }
     }
+
+    // GDPR - Recherche par utilisateur
+    async findByUserId(userId: number): Promise<AuditLogEntity[]> {
+        try {
+            return await prisma.auditLog.findMany({
+                where: { userId },
+                orderBy: { createdAt: 'desc' }
+            }) as AuditLogEntity[];
+        } catch (error) {
+            throw error;
+        }
+    }
 } 

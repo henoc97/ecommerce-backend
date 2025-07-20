@@ -59,4 +59,30 @@ export class CartPrismaRepository implements ICartRepository {
             throw error;
         }
     }
+
+    // GDPR - Recherche et suppression par utilisateur
+    async findByUserId(userId: number): Promise<CartEntity[]> {
+        try {
+            return await prisma.cart.findMany({
+                where: { userId },
+                include: { items: true, shop: true }
+            }) as CartEntity[];
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async deleteByUserId(userId: number): Promise<void> {
+        try {
+            // Supprimer d'abord les items du panier
+            const carts = await prisma.cart.findMany({ where: { userId } });
+            for (const cart of carts) {
+                await prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
+            }
+            // Puis supprimer les paniers
+            await prisma.cart.deleteMany({ where: { userId } });
+        } catch (error) {
+            throw error;
+        }
+    }
 } 

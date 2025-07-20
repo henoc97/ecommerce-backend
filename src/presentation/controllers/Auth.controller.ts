@@ -5,10 +5,13 @@ import { AuthService } from 'src/application/services/auth.service';
 import { UserEntity } from 'src/domain/entities/User.entity';
 import { AuthProvider } from 'src/domain/enums/AuthProvider';
 import { UserRole } from 'src/domain/enums/UserRole.enum';
+
+
 import { ApiProperty, ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { PassportConfig } from 'src/application/config/passport.config';
 import { LoginDto, SignUpDto } from '../dtos/Auth.dto';
+import { Throttle } from '@nestjs/throttler';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -45,13 +48,13 @@ export class AuthController {
             // Stockage du refresh token dans un cookie sécurisé
             res.cookie("refreshToken", tokens.refreshToken, {
                 httpOnly: true,
-                secure: false, // Passez à true en production
+                secure: process.env.ENV_NAME === 'development' ? false : true, // Passez à true en production
                 sameSite: "strict",
                 maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
             });
             res.cookie("accessToken", tokens.accessToken, {
                 httpOnly: true,
-                secure: false, // Passez à true en production
+                secure: process.env.ENV_NAME === 'development' ? false : true, // Passez à true en production
                 sameSite: "strict",
                 maxAge: 10 * 60 * 60 * 1000, // 10 heure
             });
@@ -79,6 +82,7 @@ export class AuthController {
     @ApiResponse({ status: 401, description: 'Mot de passe incorrect.' })
     @ApiResponse({ status: 500, description: 'Erreur serveur.' })
     @ApiBody({ type: LoginDto })
+    @Throttle({ login: { limit: 5, ttl: 60 } }) // applique la stratégie nommée 'login'
     @Post('login')
     async login(@Body() loginDto: LoginDto, @Res() res: Response) {
         console.log('[AuthController] login', { email: loginDto.email });
@@ -101,13 +105,13 @@ export class AuthController {
             // 4. Stocker les tokens dans des cookies sécurisés
             res.cookie("refreshToken", tokens.refreshToken, {
                 httpOnly: true,
-                secure: false, // Passez à true en production
+                secure: process.env.ENV_NAME === 'development' ? false : true, // Passez à true en production
                 sameSite: "strict",
                 maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
             });
             res.cookie("accessToken", tokens.accessToken, {
                 httpOnly: true,
-                secure: false, // Passez à true en production
+                secure: process.env.ENV_NAME === 'development' ? false : true, // Passez à true en production
                 sameSite: "strict",
                 maxAge: 10 * 60 * 60 * 1000, // 10 heure
             });
@@ -149,13 +153,13 @@ export class AuthController {
             const tokens = this.authService.generateToken(user['id'].toString(), user['email']);
             res.cookie("refreshToken", tokens.refreshToken, {
                 httpOnly: true,
-                secure: false, // Passe à true en production
+                secure: process.env.ENV_NAME === 'development' ? false : true, // Passe à true en production
                 sameSite: "strict",
                 maxAge: 7 * 24 * 60 * 60 * 1000,
             });
             res.cookie("accessToken", tokens.accessToken, {
                 httpOnly: true,
-                secure: false,
+                secure: process.env.ENV_NAME === 'development' ? false : true,
                 sameSite: "strict",
                 maxAge: 60 * 60 * 1000,
             });
@@ -188,7 +192,7 @@ export class AuthController {
 
                 res.cookie("accessToken", accessToken, {
                     httpOnly: true,
-                    secure: false, // Passez à true en production
+                    secure: process.env.ENV_NAME === 'development' ? false : true, // Passez à true en production
                     sameSite: "strict",
                     maxAge: 60 * 60 * 1000, // 1 heure
                 });
@@ -215,5 +219,12 @@ export class AuthController {
             console.error('[AuthController] logout ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur lors de la déconnexion' });
         }
+    }
+
+    @Throttle({ reset: { limit: 3, ttl: 60 } }) // applique la stratégie nommée 'reset'
+    @Post('reset-password')
+    async resetPassword(@Body() dto: any, @Res() res: Response) {
+        // ... logique de reset password à compléter ...
+        return res.status(200).json({ message: 'Si cet email existe, un lien a été envoyé.' });
     }
 }

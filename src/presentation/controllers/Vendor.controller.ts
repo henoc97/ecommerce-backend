@@ -2,10 +2,15 @@ import { Controller, Get, Req, UseGuards, HttpException, HttpStatus, Post, Body,
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { VendorService } from '../../application/services/vendor.service';
 import { AuthGuard } from '@nestjs/passport';
-import { UserRole } from '../../domain/enums/UserRole.enum';
 import { UserService } from '../../application/services/user.service';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+import { UserRole } from 'src/domain/enums/UserRole.enum';
+
 
 @ApiTags('Gestion Commerçants & Shops')
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(UserRole.SELLER, UserRole.ADMIN)
 @Controller('vendors')
 export class VendorController {
     constructor(
@@ -13,7 +18,6 @@ export class VendorController {
         private readonly userService: UserService,
     ) { }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get()
     @ApiOperation({ summary: 'Lister les vendeurs avec leurs utilisateurs et shops' })
     @ApiResponse({ status: 200, description: 'Liste des vendeurs et shops' })
@@ -41,17 +45,13 @@ export class VendorController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get('me')
     @ApiOperation({ summary: 'Récupérer les infos du vendeur connecté' })
     @ApiResponse({ status: 200 })
     @ApiResponse({ status: 404, description: 'Vendor non trouvé' })
     async getVendor(@Req() req: any) {
         console.log('[VendorController] getVendor', { user: req.user });
-        if (!req.user || req.user.role !== UserRole.SELLER) {
-            console.error('[VendorController] getVendor FORBIDDEN', { user: req.user });
-            throw new HttpException('Accès réservé aux vendeurs', HttpStatus.UNAUTHORIZED);
-        }
+        // Vérification du rôle supprimée (gérée par le guard)
         const vendor = await this.vendorService.findByUserId(req.user.id);
         if (!vendor) {
             console.error('[VendorController] getVendor NOT FOUND', { userId: req.user.id });
@@ -61,7 +61,6 @@ export class VendorController {
         return vendor;
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Post('')
     @HttpCode(201)
     @ApiOperation({ summary: 'Créer un vendeur pour l\'utilisateur connecté' })

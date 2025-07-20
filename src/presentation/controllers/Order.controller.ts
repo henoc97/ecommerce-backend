@@ -6,10 +6,15 @@ import { AuthGuard } from '@nestjs/passport';
 import { CreateOrderFromCartUseCase } from 'src/application/use-cases/order.use-case/CreateOrderFromCart.use-case';
 import { CreateOrderDto } from '../dtos/Order.dto';
 import { Logger } from '@nestjs/common';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+import { UserRole } from 'src/domain/enums/UserRole.enum';
 
 
 @ApiTags('Commandes')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(UserRole.CLIENT, UserRole.ADMIN)
 @Controller('orders')
 export class OrderController {
     private readonly logger = new Logger(OrderController.name);
@@ -19,7 +24,6 @@ export class OrderController {
         @Inject(CreateOrderFromCartUseCase) private readonly createOrderFromCartUseCase: CreateOrderFromCartUseCase
     ) { }
 
-    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Créer une commande à partir du panier', description: 'Cette route permet de créer une nouvelle commande à partir des articles présents dans le panier de l\'utilisateur.' })
     @ApiBody({ type: CreateOrderDto })
     @ApiResponse({ status: 201, description: 'Commande créée avec succès', })
@@ -43,7 +47,6 @@ export class OrderController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get()
     @ApiOperation({ summary: 'Lister les commandes', description: 'Retourne la liste des commandes, filtrable par statut, boutique ou utilisateur.' })
     @ApiQuery({ name: 'status', required: false, description: 'Statut de la commande (PENDING, DELIVERED, etc.)' })
@@ -67,7 +70,6 @@ export class OrderController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get(':id')
     @ApiOperation({ summary: 'Détail d\'une commande', description: 'Retourne le détail complet d\'une commande (items, client, paiement, etc.).' })
     @ApiParam({ name: 'id', required: true, description: 'ID de la commande' })

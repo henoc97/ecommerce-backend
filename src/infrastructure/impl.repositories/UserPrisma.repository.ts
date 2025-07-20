@@ -1,6 +1,6 @@
 import prisma from '../../../prisma/client/prisma.service';
 import { UserEntity } from '../../domain/entities/User.entity';
-import { IUserRepository } from '../../domain/repositories/User.repository';
+import { IUserRepository, IConsentPreferences } from '../../domain/repositories/User.repository';
 import { Prisma, UserRole as PrismaUserRole } from '@prisma/client';
 
 export class UserPrismaRepository implements IUserRepository {
@@ -104,6 +104,62 @@ export class UserPrismaRepository implements IUserRepository {
             await prisma.auditLog.deleteMany({ where: { userId } });
             // (Optionnel) Désactive le compte utilisateur
             await prisma.user.update({ where: { id: userId }, data: { isEmailVerified: false } });
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // GDPR - Gestion du consentement
+    async updateConsentPreferences(userId: number, preferences: IConsentPreferences): Promise<void> {
+        try {
+            // Sérialiser les préférences en JSON avec conversion explicite
+            const jsonPreferences = {
+                marketing: preferences.marketing,
+                analytics: preferences.analytics,
+                necessary: preferences.necessary,
+                preferences: preferences.preferences,
+                lastUpdated: preferences.lastUpdated.toISOString()
+            };
+
+            await prisma.user.update({
+                where: { id: userId },
+                data: {
+                    consentPreferences: jsonPreferences
+                }
+            });
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async getConsentPreferences(userId: number): Promise<IConsentPreferences | null> {
+        try {
+            const user = await prisma.user.findUnique({
+                where: { id: userId },
+                select: { consentPreferences: true }
+            });
+
+            if (!user?.consentPreferences) {
+                return null;
+            }
+
+            // Validation et conversion du JSON vers IConsentPreferences
+            const preferences = user.consentPreferences as any;
+
+            // Vérifier que c'est un objet avec les propriétés requises
+            if (typeof preferences === 'object' && preferences !== null) {
+                const validPreferences: IConsentPreferences = {
+                    marketing: Boolean(preferences.marketing),
+                    analytics: Boolean(preferences.analytics),
+                    necessary: Boolean(preferences.necessary),
+                    preferences: Boolean(preferences.preferences),
+                    lastUpdated: preferences.lastUpdated ? new Date(preferences.lastUpdated) : new Date()
+                };
+
+                return validPreferences;
+            }
+
+            return null;
         } catch (error) {
             throw error;
         }

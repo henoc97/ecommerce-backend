@@ -39,4 +39,13 @@ export class AddressPrismaRepository implements IAddressRepository {
             throw error;
         }
     }
+
+    // GDPR - Suppression par utilisateur (alias pour deleteAddress)
+    async deleteByUserId(userId: number): Promise<void> {
+        try {
+            await prisma.address.delete({ where: { userId } });
+        } catch (error) {
+            throw error;
+        }
+    }
 } 

@@ -43,4 +43,13 @@ export class AddressService {
             throw error;
         }
     }
+
+    // GDPR - Suppression par utilisateur (alias pour deleteAddress)
+    async deleteByUserId(userId: number) {
+        try {
+            return await this.repository.deleteByUserId(userId);
+        } catch (error) {
+            throw error;
+        }
+    }
 } 

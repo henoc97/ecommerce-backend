@@ -104,4 +104,21 @@ export class OrderService {
         }
         return expiredOrders.length;
     }
+
+    // GDPR - Recherche et anonymisation
+    async findByUserId(userId: number) {
+        try {
+            return await this.repository.findByUserId(userId);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async anonymizeByUserId(userId: number) {
+        try {
+            return await this.repository.anonymizeByUserId(userId);
+        } catch (error) {
+            throw error;
+        }
+    }
 } 

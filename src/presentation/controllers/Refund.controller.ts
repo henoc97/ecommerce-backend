@@ -6,9 +6,15 @@ import { AuthGuard } from '@nestjs/passport';
 import { RefundEntity } from 'src/domain/entities/Refund.entity';
 import { ProcessRefundUseCase, RefundResult } from 'src/application/use-cases/payment.use-case/ProcessRefund.use-case';
 import { Logger } from 'winston';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+import { UserRole } from 'src/domain/enums/UserRole.enum';
+
 
 @ApiTags('Remboursements')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(UserRole.CLIENT, UserRole.ADMIN)
 @Controller('refunds')
 export class RefundController {
 
@@ -17,7 +23,6 @@ export class RefundController {
         @Inject(ProcessRefundUseCase) private readonly processRefundUseCase: ProcessRefundUseCase
     ) { }
 
-    @UseGuards(AuthGuard('jwt'))
     @Post()
     @ApiOperation({ summary: 'Créer une demande de remboursement', description: 'Permet de créer une demande de remboursement pour une commande.' })
     @ApiBody({ type: RefundDto })
@@ -39,7 +44,6 @@ export class RefundController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Patch(':id/approve')
     @ApiParam({ name: 'id', required: true, description: 'ID du remboursement à approuver.' })
     @ApiOperation({ summary: 'Approuver et exécuter le remboursement', description: 'Permet au commerçant d\'approuver et de déclencher le remboursement réel.' })
@@ -50,7 +54,6 @@ export class RefundController {
         return result;
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Patch(':id/reject')
     @ApiParam({ name: 'id', required: true, description: 'ID du remboursement à refuser.' })
     @ApiOperation({ summary: 'Refuser la demande de remboursement', description: 'Permet au commerçant de refuser la demande de remboursement.' })
@@ -61,7 +64,6 @@ export class RefundController {
         return result;
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get()
     @ApiOperation({ summary: 'Lister les remboursements', description: 'Retourne la liste des remboursements, filtrable par statut ou boutique.' })
     @ApiQuery({ name: 'status', required: false, description: 'Statut du remboursement (PENDING, APPROVED, etc.)' })
@@ -83,7 +85,6 @@ export class RefundController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get(':id')
     @ApiOperation({ summary: 'Détail d\'un remboursement', description: 'Permet de récupérer les détails d\'un remboursement spécifique.' })
     @ApiParam({ name: 'id', required: true, description: 'ID du remboursement.' })

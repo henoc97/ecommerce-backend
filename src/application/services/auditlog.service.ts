@@ -29,4 +29,13 @@ export class AuditLogService {
             throw error;
         }
     }
+
+    // GDPR - Recherche par utilisateur
+    async findByUserId(userId: number) {
+        try {
+            return await this.repository.findByUserId(userId);
+        } catch (error) {
+            throw error;
+        }
+    }
 } 

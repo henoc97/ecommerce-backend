@@ -4,10 +4,17 @@ import { ShopService } from '../../application/services/shop.service';
 import { EmailService } from '../../application/services/email.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+import { UserRole } from 'src/domain/enums/UserRole.enum';
 // EmailService à créer ou à mocker
+import { ConsentGuard } from '../../application/helper/consent.guard';
+import { RequiresConsent } from '../../application/helper/requires-consent.decorator';
 
 @ApiTags('Campagnes Newsletter')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard, ConsentGuard)
+@Roles(UserRole.SELLER, UserRole.ADMIN)
 @Controller('newsletter-campaigns')
 export class NewsletterCampaignController {
     constructor(
@@ -17,7 +24,6 @@ export class NewsletterCampaignController {
     ) { }
 
     // GET /newsletter-subscribers?shopId=...
-    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Récupérer les abonnés d\'une newsletter pour un shop' })
     @ApiResponse({ status: 200, description: 'Liste des abonnés actifs pour le shop.' })
     @ApiResponse({ status: 403, description: 'Accès interdit au shop.' })
@@ -38,12 +44,11 @@ export class NewsletterCampaignController {
     }
 
     // POST /send-newsletter
-    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Envoyer une newsletter à tous les abonnés d\'un shop' })
     @ApiResponse({ status: 200, description: 'Newsletter envoyée avec succès.' })
     @ApiResponse({ status: 403, description: 'Accès interdit au shop.' })
     @ApiResponse({ status: 404, description: 'Aucun abonné actif trouvé.' })
-    @ApiResponse({ status: 502, description: 'Échec d’envoi de mails.' })
+    @ApiResponse({ status: 502, description: 'Échec d\'envoi de mails.' })
     @ApiBody({
         schema: {
             type: 'object',
@@ -56,6 +61,7 @@ export class NewsletterCampaignController {
             },
         },
     })
+    @RequiresConsent('marketing')
     @Post('/send')
     async sendNewsletter(@Body() body: any, @Req() req: any) {
         const { shopId, subject, content, type } = body;
@@ -72,7 +78,7 @@ export class NewsletterCampaignController {
             await this.emailService.sendBulk(subscribers.map(s => s.email), subject, content, type);
             return { success: true, count: subscribers.length };
         } catch (e) {
-            throw new BadGatewayException('Échec d’envoi de mails');
+            throw new BadGatewayException('Échec d\'envoi de mails');
         }
     }
 } 

@@ -2,14 +2,27 @@ import { Controller, Get, Query, HttpException, HttpStatus, UseGuards } from '@n
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { AnalyticsService } from '../../application/services/analytics.service';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+import { UserRole } from 'src/domain/enums/UserRole.enum';
+import { ConsentGuard } from '../../application/helper/consent.guard';
+import { RequiresConsent } from '../../application/helper/requires-consent.decorator';
 
 @ApiTags('Analytics')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard, ConsentGuard)
+@Roles(UserRole.ADMIN, UserRole.SELLER)
 @Controller('analytics')
 export class AnalyticsController {
     constructor(private readonly analyticsService: AnalyticsService) { }
 
-    @UseGuards(AuthGuard('jwt'))
+    @RequiresConsent('analytics')
+    @Get()
+    async getAnalytics(@Query() query: any) {
+        // ... logique existante ...
+        // return this.analyticsService.getAnalytics(query);
+    }
+
     @Get('/top-sellers')
     @ApiOperation({ summary: 'Obtenir le classement des vendeurs (top vendeurs) sur une période' })
     @ApiQuery({ name: 'from', required: false, description: 'Date de début (ISO)' })
@@ -28,7 +41,6 @@ export class AnalyticsController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get('/top-products')
     @ApiOperation({ summary: 'Obtenir le classement des produits (top produits) sur une période' })
     @ApiQuery({ name: 'from', required: false, description: 'Date de début (ISO)' })

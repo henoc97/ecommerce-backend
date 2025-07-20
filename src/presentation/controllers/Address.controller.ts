@@ -1,17 +1,25 @@
-import { Body, Controller, HttpException, HttpStatus, Post, UseGuards, Put, Param, Delete } from "@nestjs/common";
-import { AuthGuard } from "@nestjs/passport";
-import { ApiBody, ApiOperation, ApiResponse, ApiParam } from "@nestjs/swagger";
-import { AddressService } from "src/application/services/address.service";
-import { UserService } from "src/application/services/user.service";
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req, HttpException, HttpStatus } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { AddressService } from '../../application/services/address.service';
+import { UserService } from '../../application/services/user.service';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+import { UserRole } from 'src/domain/enums/UserRole.enum';
 
-@Controller('adresses')
+
+
+@ApiTags('Adresses')
+@ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(UserRole.CLIENT)
+@Controller('addresses')
 export class AddressController {
     constructor(
         private readonly addressService: AddressService,
         private readonly userService: UserService,
     ) { }
 
-    @UseGuards(AuthGuard('jwt'))
     @Post()
     @ApiOperation({ summary: 'Ajouter une adresse à un utilisateur' })
     @ApiBody({
@@ -57,7 +65,6 @@ export class AddressController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Put(':id')
     @ApiOperation({ summary: 'Modifier une adresse' })
     @ApiParam({ name: 'id', required: true, description: 'ID de l\'adresse' })
@@ -92,7 +99,6 @@ export class AddressController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Delete(':userId')
     @ApiOperation({ summary: 'Supprimer une adresse' })
     @ApiParam({ name: 'id', required: true, description: 'ID de l\'adresse' })

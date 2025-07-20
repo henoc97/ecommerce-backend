@@ -6,7 +6,7 @@ import { PaymentEntity } from '../../domain/entities/Payment.entity';
 import { RefundEntity } from '../../domain/entities/Refund.entity';
 import { OrderStatus } from '../../domain/enums/OrderStatus.enum';
 import { IOrderRepository } from '../../domain/repositories/Order.repository';
-import { PaymentStatus } from 'src/domain/enums/PaymentStatus.enum';
+import { PaymentStatus } from '../../domain/enums/PaymentStatus.enum';
 
 export class OrderPrismaRepository implements IOrderRepository {
     async createOrder(data: OrderEntity): Promise<OrderEntity> {
@@ -163,5 +163,37 @@ export class OrderPrismaRepository implements IOrderRepository {
             }
         }
         return Object.values(productStats).sort((a, b) => b.totalSold - a.totalSold);
+    }
+
+    // GDPR - Recherche et anonymisation
+    async findByUserId(userId: number): Promise<OrderEntity[]> {
+        try {
+            return await prisma.order.findMany({
+                where: { userId },
+                include: {
+                    items: true,
+                    payment: true,
+                    shop: true,
+                    refund: true
+                }
+            }) as OrderEntity[];
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async anonymizeByUserId(userId: number): Promise<void> {
+        try {
+            // Anonymiser les commandes en gardant les données comptables
+            await prisma.order.updateMany({
+                where: { userId },
+                data: {
+                    userId: null, // Déconnecter de l'utilisateur
+                    // Garder les autres données pour la comptabilité
+                }
+            });
+        } catch (error) {
+            throw error;
+        }
     }
 } 

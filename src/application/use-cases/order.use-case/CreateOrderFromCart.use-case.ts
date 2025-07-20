@@ -8,7 +8,7 @@ import { OrderStatus } from '../../../domain/enums/OrderStatus.enum';
 import { OrderEntity } from '../../../domain/entities/Order.entity';
 import { OrderItemEntity } from '../../../domain/entities/OrderItem.entity';
 import { PromotionService } from '../../services/promotion.service';
-import { DiscountType } from 'src/domain/enums/DiscountType.enum';
+import { DiscountType } from '../../../domain/enums/DiscountType.enum';
 
 @Injectable()
 export class CreateOrderFromCartUseCase {

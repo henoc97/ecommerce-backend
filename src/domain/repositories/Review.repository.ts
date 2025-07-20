@@ -9,4 +9,7 @@ export interface IReviewRepository {
     getProductReviews(productId: number): Promise<ReviewEntity[]>;
     getShopReviews(shopId: number): Promise<ReviewEntity[]>;
     checkUserProductReview(userId: number, productVariantId: number): Promise<ReviewEntity>;
+    // GDPR - Recherche et suppression par utilisateur
+    findByUserId(userId: number): Promise<ReviewEntity[]>;
+    deleteByUserId(userId: number): Promise<void>;
 } 

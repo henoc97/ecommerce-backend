@@ -3,15 +3,19 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiParam, ApiBea
 import { AuthGuard } from '@nestjs/passport';
 import { SubsiteService } from '../../application/services/subsite.service';
 import { CreateSubsiteDto } from '../dtos/Shop.dto';
-import { UserRole } from '../../domain/enums/UserRole.enum';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+import { UserRole } from 'src/domain/enums/UserRole.enum';
+
 
 @ApiTags('Sous-sites')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(UserRole.SELLER, UserRole.ADMIN)
 @Controller('subsites')
 export class SubsiteController {
     constructor(private readonly subsiteService: SubsiteService) { }
 
-    @UseGuards(AuthGuard('jwt'))
     @Post()
     @ApiOperation({ summary: 'Créer un sous-site pour une boutique' })
     @ApiBody({ type: CreateSubsiteDto })
@@ -37,7 +41,6 @@ export class SubsiteController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get(':shopId')
     @ApiOperation({ summary: 'Récupérer la config du sous-site d\'un shop' })
     @ApiParam({ name: 'shopId', required: true })
@@ -53,7 +56,6 @@ export class SubsiteController {
         return subsite;
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Put(':id')
     @ApiOperation({ summary: 'Mettre à jour la config JSON du sous-site' })
     @ApiParam({ name: 'id', required: true })

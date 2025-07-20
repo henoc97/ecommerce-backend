@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { CartService } from 'src/application/services/cart.service';
-import { CartItemService } from 'src/application/services/cartitem.service';
-import { ProductVariantService } from 'src/application/services/productvariant.service';
+import { CartService } from '../../services/cart.service';
+import { CartItemService } from '../../services/cartitem.service';
+import { ProductVariantService } from '../../services/productvariant.service';
 
 @Injectable()
 export class UpdateCartItemQuantityUseCase {
