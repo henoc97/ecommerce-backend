@@ -98,6 +98,7 @@ model User {
   googleId        String?        @unique
   lastLogin       DateTime?
   role            UserRole       @default(CLIENT)
+  consentPreferences Json?       // GDPR - Préférences de consentement
   updatedAt       DateTime       @updatedAt
   createdAt       DateTime       @default(now())
   // relations 

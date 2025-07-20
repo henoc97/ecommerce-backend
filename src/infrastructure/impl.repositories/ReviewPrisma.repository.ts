@@ -60,4 +60,24 @@ export class ReviewPrismaRepository implements IReviewRepository {
             throw error;
         }
     }
+
+    // GDPR - Recherche et suppression par utilisateur
+    async findByUserId(userId: number): Promise<ReviewEntity[]> {
+        try {
+            return await prisma.review.findMany({
+                where: { userId },
+                include: { productVariant: true }
+            }) as ReviewEntity[];
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async deleteByUserId(userId: number): Promise<void> {
+        try {
+            await prisma.review.deleteMany({ where: { userId } });
+        } catch (error) {
+            throw error;
+        }
+    }
 } 

@@ -164,4 +164,36 @@ export class OrderPrismaRepository implements IOrderRepository {
         }
         return Object.values(productStats).sort((a, b) => b.totalSold - a.totalSold);
     }
+
+    // GDPR - Recherche et anonymisation
+    async findByUserId(userId: number): Promise<OrderEntity[]> {
+        try {
+            return await prisma.order.findMany({
+                where: { userId },
+                include: {
+                    items: true,
+                    payment: true,
+                    shop: true,
+                    refund: true
+                }
+            }) as OrderEntity[];
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async anonymizeByUserId(userId: number): Promise<void> {
+        try {
+            // Anonymiser les commandes en gardant les données comptables
+            await prisma.order.updateMany({
+                where: { userId },
+                data: {
+                    userId: null, // Déconnecter de l'utilisateur
+                    // Garder les autres données pour la comptabilité
+                }
+            });
+        } catch (error) {
+            throw error;
+        }
+    }
 } 

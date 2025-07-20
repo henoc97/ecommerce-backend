@@ -8,11 +8,13 @@ import { DeletePromotionDto, UpdatePromotionDto } from '../dtos/Promotion.dto';
 import { CreatePromotionUseCase } from '../../application/use-cases/promotion.use-case/CreatePromotion.use-case';
 import { Roles } from '../../application/helper/roles.decorator';
 import { RolesGuard } from '../../application/helper/roles.guard';
+import { ConsentGuard } from '../../application/helper/consent.guard';
+import { RequiresConsent } from '../../application/helper/requires-consent.decorator';
 
 
 @ApiTags('Promotions')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(AuthGuard('jwt'), RolesGuard, ConsentGuard)
 @Roles(UserRole.SELLER)
 @Controller('/promotions')
 export class PromotionController {
@@ -24,6 +26,7 @@ export class PromotionController {
     ) { }
 
     @Post()
+    @RequiresConsent('marketing')
     @ApiOperation({ summary: 'Créer une promotion', description: 'Crée une promotion sur une variante de produit.' })
     @ApiBody({ type: PromotionCreateDto, description: 'Payload de création de promotion' })
     @ApiResponse({ status: 201, description: 'Promotion créée', type: PromotionResponseDto })

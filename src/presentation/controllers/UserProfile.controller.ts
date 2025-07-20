@@ -8,11 +8,13 @@ import { UserProfileResponseDto, UserProfileUpdateDto } from '../dtos/user.dto';
 import { Roles } from '../../application/helper/roles.decorator';
 import { RolesGuard } from '../../application/helper/roles.guard';
 import { UserRole } from 'src/domain/enums/UserRole.enum';
+import { ConsentGuard } from '../../application/helper/consent.guard';
+import { RequiresConsent } from '../../application/helper/requires-consent.decorator';
 
 
 @ApiTags('Profils Utilisateur')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(AuthGuard('jwt'), RolesGuard, ConsentGuard)
 @Roles(UserRole.CLIENT)
 @Controller('user-profiles')
 export class UserProfileController {
@@ -61,6 +63,7 @@ export class UserProfileController {
     @ApiResponse({ status: 401, description: 'Non authentifié' })
     @ApiResponse({ status: 409, description: 'Conflit (email déjà utilisé)' })
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
+    @RequiresConsent('preferences')
     @Put('me/update')
     async updateProfile(@Req() req: Request, @Body() body: UserProfileUpdateDto, @Res() res: Response) {
         console.log('[UserProfileController] updateProfile', { user: req.user, body });

@@ -6,4 +6,6 @@ export interface IAddressRepository {
     findByUserId(userId: number): Promise<AddressEntity>;
     findAllAddresses(userId: number): Promise<AddressEntity[]>;
     deleteAddress(userId: number): Promise<void>;
+    // GDPR - Suppression par utilisateur
+    deleteByUserId(userId: number): Promise<void>;
 }

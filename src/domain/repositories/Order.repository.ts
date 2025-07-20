@@ -15,4 +15,7 @@ export interface IOrderRepository {
     getOrderRefund(orderId: number): Promise<RefundEntity>;
     getOrderStatus(orderId: number): Promise<OrderStatus>;
     updateOrderStatus(orderId: number, status: OrderStatus): Promise<void>;
+    // GDPR - Recherche et anonymisation
+    findByUserId(userId: number): Promise<OrderEntity[]>;
+    anonymizeByUserId(userId: number): Promise<void>;
 } 

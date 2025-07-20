@@ -6,10 +6,12 @@ import { Roles } from '../../application/helper/roles.decorator';
 import { RolesGuard } from '../../application/helper/roles.guard';
 import { NotificationResponseDto, MarkNotificationAsReadDto } from '../dtos/Notification.dto';
 import { UserRole } from 'src/domain/enums/UserRole.enum';
+import { ConsentGuard } from '../../application/helper/consent.guard';
+import { RequiresConsent } from '../../application/helper/requires-consent.decorator';
 
 @ApiTags('Notifications')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(AuthGuard('jwt'), RolesGuard, ConsentGuard)
 @Roles(UserRole.CLIENT, UserRole.SELLER, UserRole.ADMIN)
 @Controller('notifications')
 export class NotificationController {
@@ -76,6 +78,7 @@ export class NotificationController {
     @ApiResponse({ status: 201, description: 'Notifications envoyées' })
     @ApiResponse({ status: 400, description: 'Type, contenu ou userIds manquant' })
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
+    @RequiresConsent('marketing')
     async sendBulkNotification(@Body() body: any) {
         const { type, content, userIds } = body;
         console.log('[NotificationController] sendBulkNotification', { type, content, userIds });

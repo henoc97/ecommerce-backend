@@ -48,4 +48,24 @@ export class UserActivityPrismaRepository implements IUserActivityRepository {
             throw error;
         }
     }
+
+    // GDPR - Recherche et suppression par utilisateur
+    async findByUserId(userId: number): Promise<UserActivityEntity[]> {
+        try {
+            return await prisma.userActivity.findMany({
+                where: { userId },
+                orderBy: { createdAt: 'desc' }
+            }) as UserActivityEntity[];
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async deleteByUserId(userId: number): Promise<void> {
+        try {
+            await prisma.userActivity.deleteMany({ where: { userId } });
+        } catch (error) {
+            throw error;
+        }
+    }
 } 

@@ -1,6 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { UserPrismaRepository } from '../../infrastructure/impl.repositories/UserPrisma.repository';
 import { UserEntity } from '../../domain/entities/User.entity';
+import { IConsentPreferences } from '../../domain/repositories/User.repository';
 import { comparePassword } from '../helper/hash-compare-pwd';
 
 @Injectable()
@@ -92,6 +93,23 @@ export class UserService {
     async deleteSensitiveData(userId: number) {
         try {
             return await this.repository.deleteSensitiveData(userId);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // GDPR - Gestion du consentement
+    async updateConsentPreferences(userId: number, preferences: IConsentPreferences) {
+        try {
+            return await this.repository.updateConsentPreferences(userId, preferences);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async getConsentPreferences(userId: number) {
+        try {
+            return await this.repository.getConsentPreferences(userId);
         } catch (error) {
             throw error;
         }

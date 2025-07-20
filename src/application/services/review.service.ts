@@ -59,4 +59,21 @@ export class ReviewService {
             throw error;
         }
     }
+
+    // GDPR - Recherche et suppression par utilisateur
+    async findByUserId(userId: number) {
+        try {
+            return await this.repository.findByUserId(userId);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async deleteByUserId(userId: number) {
+        try {
+            return await this.repository.deleteByUserId(userId);
+        } catch (error) {
+            throw error;
+        }
+    }
 } 

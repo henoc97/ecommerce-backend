@@ -8,11 +8,13 @@ import { OrderStatus } from '../../domain/enums/OrderStatus.enum';
 import { Roles } from '../../application/helper/roles.decorator';
 import { RolesGuard } from '../../application/helper/roles.guard';
 import { UserRole } from 'src/domain/enums/UserRole.enum';
+import { ConsentGuard } from '../../application/helper/consent.guard';
+import { RequiresConsent } from '../../application/helper/requires-consent.decorator';
 
 
 @ApiTags('Avis')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(AuthGuard('jwt'), RolesGuard, ConsentGuard)
 @Roles(UserRole.CLIENT)
 @Controller('reviews')
 export class ReviewController {
@@ -22,6 +24,7 @@ export class ReviewController {
     ) { }
 
     @Post()
+    @RequiresConsent('analytics')
     @ApiOperation({ summary: 'Créer un avis produit', description: 'Permet de créer un avis pour un produit acheté par l\'utilisateur.' })
     @ApiBody({ type: CreateReviewDto })
     @ApiResponse({ status: 201, type: ReviewResponseDto, description: 'Merci pour votre avis' })

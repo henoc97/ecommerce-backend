@@ -8,10 +8,12 @@ import { Roles } from '../../application/helper/roles.decorator';
 import { RolesGuard } from '../../application/helper/roles.guard';
 import { UserRole } from 'src/domain/enums/UserRole.enum';
 // EmailService à créer ou à mocker
+import { ConsentGuard } from '../../application/helper/consent.guard';
+import { RequiresConsent } from '../../application/helper/requires-consent.decorator';
 
 @ApiTags('Campagnes Newsletter')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(AuthGuard('jwt'), RolesGuard, ConsentGuard)
 @Roles(UserRole.SELLER, UserRole.ADMIN)
 @Controller('newsletter-campaigns')
 export class NewsletterCampaignController {
@@ -59,6 +61,7 @@ export class NewsletterCampaignController {
             },
         },
     })
+    @RequiresConsent('marketing')
     @Post('/send')
     async sendNewsletter(@Body() body: any, @Req() req: any) {
         const { shopId, subject, content, type } = body;

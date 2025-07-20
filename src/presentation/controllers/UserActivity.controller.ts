@@ -9,11 +9,13 @@ import { AuditLogService } from '../../application/services/auditlog.service';
 import { Roles } from '../../application/helper/roles.decorator';
 import { RolesGuard } from '../../application/helper/roles.guard';
 import { UserRole } from 'src/domain/enums/UserRole.enum';
+import { ConsentGuard } from '../../application/helper/consent.guard';
+import { RequiresConsent } from '../../application/helper/requires-consent.decorator';
 
 
 @ApiTags('Activités Utilisateur')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(AuthGuard('jwt'), RolesGuard, ConsentGuard)
 @Roles(UserRole.CLIENT, UserRole.ADMIN)
 @Controller('user-activities')
 export class UserActivityController {
@@ -23,6 +25,7 @@ export class UserActivityController {
     ) { }
 
     @UseGuards(AuthGuard('jwt'))
+    @RequiresConsent('analytics')
     @ApiOperation({ summary: 'Enregistrer une activité utilisateur (SEARCH, VIEW_PRODUCT, ADD_TO_CART, REMOVE_FROM_CART, PURCHASE)' })
     @ApiBody({ type: UserActivityDto })
     @ApiResponse({ status: 201, description: 'Activité enregistrée' })
