@@ -48,13 +48,13 @@ export class AuthController {
             // Stockage du refresh token dans un cookie sécurisé
             res.cookie("refreshToken", tokens.refreshToken, {
                 httpOnly: true,
-                secure: false, // Passez à true en production
+                secure: process.env.ENV_NAME === 'development' ? false : true, // Passez à true en production
                 sameSite: "strict",
                 maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
             });
             res.cookie("accessToken", tokens.accessToken, {
                 httpOnly: true,
-                secure: false, // Passez à true en production
+                secure: process.env.ENV_NAME === 'development' ? false : true, // Passez à true en production
                 sameSite: "strict",
                 maxAge: 10 * 60 * 60 * 1000, // 10 heure
             });
@@ -105,13 +105,13 @@ export class AuthController {
             // 4. Stocker les tokens dans des cookies sécurisés
             res.cookie("refreshToken", tokens.refreshToken, {
                 httpOnly: true,
-                secure: false, // Passez à true en production
+                secure: process.env.ENV_NAME === 'development' ? false : true, // Passez à true en production
                 sameSite: "strict",
                 maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
             });
             res.cookie("accessToken", tokens.accessToken, {
                 httpOnly: true,
-                secure: false, // Passez à true en production
+                secure: process.env.ENV_NAME === 'development' ? false : true, // Passez à true en production
                 sameSite: "strict",
                 maxAge: 10 * 60 * 60 * 1000, // 10 heure
             });
@@ -153,13 +153,13 @@ export class AuthController {
             const tokens = this.authService.generateToken(user['id'].toString(), user['email']);
             res.cookie("refreshToken", tokens.refreshToken, {
                 httpOnly: true,
-                secure: false, // Passe à true en production
+                secure: process.env.ENV_NAME === 'development' ? false : true, // Passe à true en production
                 sameSite: "strict",
                 maxAge: 7 * 24 * 60 * 60 * 1000,
             });
             res.cookie("accessToken", tokens.accessToken, {
                 httpOnly: true,
-                secure: false,
+                secure: process.env.ENV_NAME === 'development' ? false : true,
                 sameSite: "strict",
                 maxAge: 60 * 60 * 1000,
             });
@@ -192,7 +192,7 @@ export class AuthController {
 
                 res.cookie("accessToken", accessToken, {
                     httpOnly: true,
-                    secure: false, // Passez à true en production
+                    secure: process.env.ENV_NAME === 'development' ? false : true, // Passez à true en production
                     sameSite: "strict",
                     maxAge: 60 * 60 * 1000, // 1 heure
                 });
