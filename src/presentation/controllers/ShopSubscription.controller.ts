@@ -1,14 +1,19 @@
 import { Controller, Post, Body, Req, UseGuards, HttpException, HttpStatus, Get } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { ShopService } from '../../application/services/shop.service';
 import { ShopSubscriptionDto } from '../dtos/Shop.dto';
 import { UserRole } from '../../domain/enums/UserRole.enum';
 import { ShopSubscriptionService } from 'src/application/services/shopsubscription.service';
 import { SubscriptionService } from '../../application/services/subscription.service';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+
 
 @ApiTags('Abonnements Boutique')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(UserRole.SELLER, UserRole.ADMIN)
 @Controller('shop-subscriptions')
 export class ShopSubscriptionController {
     constructor(
@@ -17,7 +22,6 @@ export class ShopSubscriptionController {
         private readonly subscriptionService: SubscriptionService
     ) { }
 
-    @UseGuards(AuthGuard('jwt'))
     @Post()
     @ApiOperation({ summary: 'Souscrire une boutique à une formule' })
     @ApiBody({ type: ShopSubscriptionDto })
@@ -50,7 +54,6 @@ export class ShopSubscriptionController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get()
     @ApiOperation({ summary: 'Lister toutes les souscriptions de shops actives' })
     @ApiResponse({ status: 200, description: 'Liste des souscriptions' })
@@ -65,7 +68,6 @@ export class ShopSubscriptionController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get('/expired')
     @ApiOperation({ summary: 'Lister les souscriptions expirées' })
     @ApiResponse({ status: 200, description: 'Liste des souscriptions expirées' })

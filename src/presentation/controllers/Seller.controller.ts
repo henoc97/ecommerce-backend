@@ -5,9 +5,14 @@ import { ShopService } from '../../application/services/shop.service';
 import { SellerDashboardDto, SellerShopsListDto, SellerShopListItemDto } from '../dtos/SellerDashboard.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UserRole } from '../../domain/enums/UserRole.enum';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+
 
 @ApiTags('Vendeurs')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(UserRole.SELLER)
 @Controller('sellers')
 export class SellerController {
     constructor(
@@ -15,7 +20,6 @@ export class SellerController {
         private readonly shopService: ShopService,
     ) { }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get('dashboard')
     @ApiOperation({ summary: 'Liste des shops du vendeur (accès sécurisé)', description: 'Récupère la liste des shops associés à l\'utilisateur vendeur.' })
     @ApiResponse({ status: 200, description: 'Liste des shops réussie.', type: SellerShopsListDto })
@@ -24,10 +28,7 @@ export class SellerController {
     @ApiResponse({ status: 500, description: 'Erreur serveur.', type: HttpException })
     async getShopsList(@Req() req: any) {
         console.log('[SellerController] getShopsList', { user: req.user });
-        if (!req.user || req.user.role !== UserRole.SELLER) {
-            console.error('[SellerController] getShopsList FORBIDDEN', { user: req.user });
-            throw new HttpException('Accès réservé aux vendeurs', HttpStatus.UNAUTHORIZED);
-        }
+        // Vérification du rôle supprimée (gérée par le guard)
         try {
             const vendor = await this.vendorService.findByUserId(req.user.id);
             if (!vendor) {
@@ -56,9 +57,8 @@ export class SellerController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get('dashboard/:shopId')
-    @ApiOperation({ summary: 'Dashboard détaillé d’un shop du vendeur (accès sécurisé)', description: 'Récupère le dashboard détaillé d\'une boutique spécifique associée à l\'utilisateur vendeur.' })
+    @ApiOperation({ summary: 'Dashboard détaillé d\'un shop du vendeur (accès sécurisé)', description: 'Récupère le dashboard détaillé d\'une boutique spécifique associée à l\'utilisateur vendeur.' })
     @ApiParam({ name: 'shopId', description: 'ID de la boutique à récupérer.', type: Number })
     @ApiResponse({ status: 200, description: 'Dashboard de la boutique réussie.', type: SellerDashboardDto })
     @ApiResponse({ status: 401, description: 'Non authentifié ou non vendeur.', type: HttpException })
@@ -66,10 +66,7 @@ export class SellerController {
     @ApiResponse({ status: 500, description: 'Erreur serveur.', type: HttpException })
     async getShopDashboard(@Req() req: any, @Param('shopId') shopId: number) {
         console.log('[SellerController] getShopDashboard', { user: req.user, shopId });
-        if (!req.user || req.user.role !== UserRole.SELLER) {
-            console.error('[SellerController] getShopDashboard FORBIDDEN', { user: req.user });
-            throw new HttpException('Accès réservé aux vendeurs', HttpStatus.UNAUTHORIZED);
-        }
+        // Vérification du rôle supprimée (gérée par le guard)
         try {
             const vendor = await this.vendorService.findByUserId(req.user.id);
             if (!vendor) {

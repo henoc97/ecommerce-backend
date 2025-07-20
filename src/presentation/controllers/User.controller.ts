@@ -5,9 +5,14 @@ import { UserService } from '../../application/services/user.service';
 import { UserEntity } from '../../domain/entities/User.entity';
 import { UserRole } from '../../domain/enums/UserRole.enum';
 import { VendorService } from '../../application/services/vendor.service';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+
 
 @ApiTags('Utilisateurs')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(UserRole.ADMIN)
 @Controller('users')
 export class UserController {
     constructor(
@@ -15,7 +20,6 @@ export class UserController {
         private readonly vendorService: VendorService,
     ) { }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get()
     @ApiOperation({ summary: 'Lister ou filtrer les utilisateurs', description: 'Récupère la liste des utilisateurs avec ou sans filtre.' })
     @ApiQuery({ name: 'filter', required: false, description: 'Filtre (nom, email, rôle, etc.)' })
@@ -39,7 +43,6 @@ export class UserController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Post()
     @ApiOperation({ summary: 'Créer un utilisateur (ADMIN ou SELLER)', description: 'Crée un nouvel utilisateur avec le rôle spécifié.' })
     @ApiBody({
@@ -93,7 +96,6 @@ export class UserController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Put(':id')
     @ApiOperation({ summary: 'Mettre à jour ou désactiver un utilisateur', description: 'Met à jour les détails d\'un utilisateur existant ou le désactive.' })
     @ApiParam({ name: 'id', required: true, description: 'ID de l\'utilisateur à mettre à jour' })

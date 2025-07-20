@@ -6,9 +6,14 @@ import { AuthGuard } from '@nestjs/passport';
 import { UserRole } from '../../domain/enums/UserRole.enum';
 import { DeletePromotionDto, UpdatePromotionDto } from '../dtos/Promotion.dto';
 import { CreatePromotionUseCase } from '../../application/use-cases/promotion.use-case/CreatePromotion.use-case';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+
 
 @ApiTags('Promotions')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(UserRole.SELLER)
 @Controller('/promotions')
 export class PromotionController {
     private readonly logger = new Logger(PromotionController.name);
@@ -18,7 +23,6 @@ export class PromotionController {
         private readonly createPromotionUseCase: CreatePromotionUseCase,
     ) { }
 
-    @UseGuards(AuthGuard('jwt'))
     @Post()
     @ApiOperation({ summary: 'Créer une promotion', description: 'Crée une promotion sur une variante de produit.' })
     @ApiBody({ type: PromotionCreateDto, description: 'Payload de création de promotion' })
@@ -32,10 +36,7 @@ export class PromotionController {
         @Req() req: any
     ) {
         try {
-            if (!req.user || req.user.role !== UserRole.SELLER) {
-                this.logger.error('Accès réservé aux vendeurs');
-                throw new HttpException('Accès réservé aux vendeurs', HttpStatus.UNAUTHORIZED);
-            }
+            // Vérification du rôle supprimée (gérée par le guard)
             const result = await this.createPromotionUseCase.execute(dto, req.user.id);
             return result;
         } catch (e) {
@@ -57,7 +58,6 @@ export class PromotionController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get()
     @ApiOperation({ summary: 'Lister les promotions', description: 'Retourne la liste des promotions. Si active=true, ne retourne que les promotions actives.' })
     @ApiQuery({ name: 'active', required: false, type: Boolean, description: 'true pour ne retourner que les promotions actives' })
@@ -79,7 +79,6 @@ export class PromotionController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get('abusive')
     @ApiOperation({ summary: 'Lister les promotions abusives', description: 'Retourne la liste des promotions considérées comme abusives (ex: discount > 90%, dates incohérentes).' })
     @ApiResponse({ status: 200, description: 'Liste des promotions abusives' })
@@ -96,7 +95,6 @@ export class PromotionController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Delete()
     @ApiOperation({ summary: 'Supprimer une promotion', description: 'Supprime une promotion sur un produit ou une variante.' })
     @ApiBody({ type: DeletePromotionDto, description: 'Payload de suppression' })
@@ -133,7 +131,6 @@ export class PromotionController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Delete(':id')
     @ApiOperation({ summary: 'Supprimer une promotion', description: 'Supprime une promotion par son ID.' })
     @ApiParam({ name: 'id', required: true, description: 'ID de la promotion' })
@@ -153,7 +150,6 @@ export class PromotionController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Put('/:id')
     @ApiOperation({ summary: 'Mettre à jour une promotion', description: 'Modifie une promotion existante.' })
     @ApiParam({ name: 'id', type: Number, description: 'ID de la promotion à modifier' })

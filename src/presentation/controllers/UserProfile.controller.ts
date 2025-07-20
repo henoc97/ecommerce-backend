@@ -5,9 +5,15 @@ import { UserService } from 'src/application/services/user.service';
 import { AddressService } from 'src/application/services/address.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { UserProfileResponseDto, UserProfileUpdateDto } from '../dtos/user.dto';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+import { UserRole } from 'src/domain/enums/UserRole.enum';
+
 
 @ApiTags('Profils Utilisateur')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(UserRole.CLIENT)
 @Controller('user-profiles')
 export class UserProfileController {
     constructor(
@@ -15,7 +21,6 @@ export class UserProfileController {
         @Inject(AddressService) private readonly addressService: AddressService
     ) { }
 
-    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Récupérer le profil utilisateur connecté' })
     @ApiResponse({ status: 200, description: 'Profil utilisateur', type: UserProfileResponseDto })
     @ApiResponse({ status: 401, description: 'Non authentifié' })
@@ -49,7 +54,6 @@ export class UserProfileController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Mettre à jour le profil utilisateur connecté' })
     @ApiBody({ type: UserProfileUpdateDto })
     @ApiResponse({ status: 200, description: 'Données personnelles mises à jour avec succès' })

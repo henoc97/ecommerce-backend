@@ -6,13 +6,18 @@ import { VendorService } from '../../application/services/vendor.service';
 import { ProductVariantCreateDto, ProductVariantResponseDto, ProductImageCreateDto } from '../dtos/Product.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiParam, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
-import { UserRole } from '../../domain/enums/UserRole.enum';
 import { AddImageToVariantUseCase } from '../../application/use-cases/product-variant.use-case/AddImageToVariant.use-case';
 import { DeleteImageFromVariantUseCase } from '../../application/use-cases/product-variant.use-case/DeleteImageFromVariant.use-case';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+import { UserRole } from 'src/domain/enums/UserRole.enum';
+
 
 @ApiTags('Variantes Produit')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(UserRole.SELLER, UserRole.ADMIN)
 @Controller('product-variants')
 export class ProductVariantController {
     private readonly logger = new Logger(ProductVariantController.name);
@@ -26,7 +31,6 @@ export class ProductVariantController {
         @Inject(DeleteImageFromVariantUseCase) private readonly deleteImageFromVariantUseCase: DeleteImageFromVariantUseCase,
     ) { }
 
-    @UseGuards(AuthGuard('jwt'))
     @Post('/:productId/variant')
     @ApiBody({ type: ProductVariantCreateDto })
     @ApiResponse({ status: 201, description: 'Variante créée', type: ProductVariantResponseDto })
@@ -38,10 +42,7 @@ export class ProductVariantController {
     ): Promise<ProductVariantResponseDto> {
         this.logger.log(`POST /product-variants/${productId}/variant`, JSON.stringify(dto));
         try {
-            if (!req.user || req.user.role !== UserRole.SELLER) {
-                this.logger.error('Accès réservé aux vendeurs', { user: req.user });
-                throw new HttpException('Accès réservé aux vendeurs', HttpStatus.UNAUTHORIZED);
-            }
+            // Vérification du rôle supprimée (gérée par le guard)
             // Vérifier que le produit existe et appartient au vendeur
             const product = await this.productService.findById(Number(productId));
             if (!product) {
@@ -62,7 +63,6 @@ export class ProductVariantController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Post('/:id/images')
     @UseInterceptors(FilesInterceptor('files'))
     @ApiParam({ name: 'id', type: Number })
@@ -104,7 +104,6 @@ export class ProductVariantController {
         return { message: 'Images ajoutées à la variante', urls };
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Delete('/:variantId/images')
     @ApiParam({ name: 'variantId', type: Number })
     @ApiBody({ description: 'IDs des images à supprimer', schema: { type: 'object', properties: { imageIds: { type: 'array', items: { type: 'number' } } } } })

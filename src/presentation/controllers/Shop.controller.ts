@@ -9,9 +9,14 @@ import { ShopService } from '../../application/services/shop.service';
 import { VendorService } from '../../application/services/vendor.service';
 import { UpdateShopDto } from '../dtos/Shop.dto';
 import { UserRole } from '../../domain/enums/UserRole.enum';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+
 
 @ApiTags('Boutiques')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(UserRole.SELLER, UserRole.ADMIN)
 @Controller('shops')
 export class ShopController {
     constructor(
@@ -22,7 +27,6 @@ export class ShopController {
         private readonly vendorService: VendorService,
     ) { }
 
-    @UseGuards(AuthGuard('jwt'))
     @Post()
     @ApiOperation({ summary: 'Créer une boutique pour un vendeur', description: 'Crée une nouvelle boutique pour un vendeur existant.' })
     @ApiBody({
@@ -71,7 +75,6 @@ export class ShopController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Lister les boutiques actives', description: 'Récupère la liste des boutiques actives avec leurs statistiques.' })
     @ApiResponse({ status: 200, description: 'Liste des boutiques actives', type: Object })
     @ApiResponse({ status: 500, description: 'Impossible de charger les boutiques' })
@@ -88,7 +91,6 @@ export class ShopController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Lister les produits d\'une boutique', description: 'Récupère la liste des produits d\'une boutique spécifique.' })
     @ApiParam({ name: 'id', description: 'ID de la boutique', example: 1 })
     @ApiResponse({ status: 200, description: 'Liste des produits de la boutique', type: Object })
@@ -106,7 +108,6 @@ export class ShopController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Lister les produits d\'une boutique filtrés par catégorie', description: 'Récupère la liste des produits d\'une boutique filtrés par catégorie.' })
     @ApiParam({ name: 'id', description: 'ID de la boutique', example: 1 })
     @ApiQuery({ name: 'category', required: true, description: 'Nom de la catégorie', example: 'Artisanat' })
@@ -125,7 +126,6 @@ export class ShopController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get(':id/products')
     @ApiOperation({ summary: 'Lister les produits d\'un shop', description: 'Récupère la liste des produits d\'un shop spécifique.' })
     @ApiParam({ name: 'id', required: true, description: 'ID du shop', example: 1 })
@@ -142,7 +142,6 @@ export class ShopController {
         return products || [];
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Put(':id')
     @ApiOperation({ summary: 'Modifier une boutique', description: 'Modifie les détails d\'une boutique existante.' })
     @ApiParam({ name: 'id', required: true, description: 'ID de la boutique à modifier', example: 1 })
@@ -152,10 +151,7 @@ export class ShopController {
     @ApiResponse({ status: 409, description: 'URL déjà utilisée' })
     async updateShop(@Req() req: any, @Param('id') id: number, @Body() dto: UpdateShopDto) {
         console.log('[ShopController] updateShop', { user: req.user, id, dto });
-        if (!req.user || req.user.role !== UserRole.SELLER) {
-            console.error('[ShopController] updateShop FORBIDDEN', { user: req.user });
-            throw new HttpException('Accès réservé aux vendeurs', HttpStatusNest.UNAUTHORIZED);
-        }
+        // Vérification du rôle supprimée (gérée par le guard)
         const shop = await this.shopService.findById(Number(id));
         if (!shop) {
             console.error('[ShopController] updateShop NOT FOUND shop', { id });
@@ -180,7 +176,6 @@ export class ShopController {
         return { message: 'Boutique mise à jour' };
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Delete(':id')
     @ApiOperation({ summary: 'Supprimer un shop (admin)', description: 'Supprime un shop spécifique. Cette action est réservée aux administrateurs.' })
     @ApiParam({ name: 'id', required: true, description: 'ID du shop à supprimer', example: 1 })

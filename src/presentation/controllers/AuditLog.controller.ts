@@ -2,17 +2,21 @@ import { Controller, Get, HttpException, HttpStatus, Query, UseGuards } from "@n
 import { AuthGuard } from "@nestjs/passport";
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { AuditLogService } from "src/application/services/auditlog.service";
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+import { UserRole } from 'src/domain/enums/UserRole.enum';
 
 
 @ApiTags('Logs d\'audit')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(UserRole.ADMIN)
 @Controller('audit-logs')
 export class AuditLogController {
     constructor(
         private readonly auditLogService: AuditLogService,
     ) { }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get()
     @ApiOperation({ summary: 'Visualiser son propre historique d\'actions' })
     @ApiQuery({ name: 'userId', required: true, description: 'ID de l\'utilisateur (shop)' })
@@ -37,7 +41,6 @@ export class AuditLogController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get('/all')
     @ApiOperation({ summary: 'Lister tous les logs d’audit avec filtres dynamiques (admin)' })
     @ApiQuery({ name: 'userId', required: false })

@@ -1,10 +1,17 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, HttpException, HttpStatus, Logger } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, HttpException, HttpStatus, Logger, UseGuards } from '@nestjs/common';
 import { CategoryService } from '../../application/services/category.service';
 import { CategoryCreateDto, CategoryUpdateDto, CategoryResponseDto } from '../dtos/Category.dto';
 import { ApiTags, ApiResponse, ApiQuery, ApiParam, ApiBody, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+import { UserRole } from 'src/domain/enums/UserRole.enum';
+
 
 @ApiTags('Catégories')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(UserRole.SELLER, UserRole.ADMIN)
 @Controller('/categories')
 export class CategoryController {
     private readonly logger = new Logger(CategoryController.name);

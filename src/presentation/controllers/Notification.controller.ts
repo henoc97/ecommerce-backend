@@ -1,16 +1,22 @@
-import { Controller, Get, Put, Param, Query, Body, HttpException, HttpStatus, UseGuards, Req, Post } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
-import { NotificationService } from '../../application/services/notification.service';
-import { NotificationResponseDto, MarkNotificationAsReadDto } from '../dtos/Notification.dto';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Req, HttpException, HttpStatus } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiParam, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { NotificationService } from '../../application/services/notification.service';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+import { NotificationResponseDto, MarkNotificationAsReadDto } from '../dtos/Notification.dto';
+import { UserRole } from 'src/domain/enums/UserRole.enum';
 
 @ApiTags('Notifications')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(UserRole.CLIENT, UserRole.SELLER, UserRole.ADMIN)
 @Controller('notifications')
 export class NotificationController {
-    constructor(private readonly notificationService: NotificationService) { }
+    constructor(
+        private readonly notificationService: NotificationService,
+    ) { }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get()
     @ApiOperation({ summary: 'Récupérer les notifications d’un utilisateur' })
     @ApiQuery({ name: 'userId', description: 'shopId est userId dans le context du seller', required: true })
@@ -28,7 +34,6 @@ export class NotificationController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Put(':id/mark-as-read')
     @ApiOperation({ summary: 'Marquer une notification comme lue' })
     @ApiParam({ name: 'id', required: true })
@@ -55,7 +60,6 @@ export class NotificationController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Post()
     @ApiOperation({ summary: 'Envoyer une notification à plusieurs utilisateurs' })
     @ApiBody({

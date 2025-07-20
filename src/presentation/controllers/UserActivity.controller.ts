@@ -1,13 +1,20 @@
-import { Controller, Post, Body, Res, HttpStatus, UseGuards, Req, Get, Query, HttpException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, UseGuards, Req, HttpException, HttpStatus, Param, Res } from '@nestjs/common';
 import { Response } from 'express';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiProperty, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiProperty, ApiQuery, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { UserActivityService } from 'src/application/services/useractivity.service';
 import { AuthGuard } from '@nestjs/passport';
 import { UserActivityEntity } from 'src/domain/entities/UserActivity.entity';
 import { UserActivityDto } from '../dtos/UserActivity.dto';
 import { AuditLogService } from '../../application/services/auditlog.service';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+import { UserRole } from 'src/domain/enums/UserRole.enum';
 
-@ApiTags('Statistiques & Historique')
+
+@ApiTags('Activités Utilisateur')
+@ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(UserRole.CLIENT, UserRole.ADMIN)
 @Controller('user-activities')
 export class UserActivityController {
     constructor(
