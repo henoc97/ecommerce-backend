@@ -273,3 +273,87 @@ await this.auditLogService.logAction({
 ```
 
 **En résumé :** Le consentement te permet de traiter les données légalement, et le registre prouve que tu respectes la loi. C'est à la fois une obligation légale et un atout pour la confiance de tes utilisateurs ! 🎯
+
+Excellente question !  
+Oui, **dans la pratique**, l’acceptation des consentements RGPD (marketing, analytics, preferences…) se fait **via une bannière ou un pop-up de gestion des cookies** qui s’affiche sur l’interface web lors de la première visite de l’utilisateur.
+
+---
+
+## 🎯 **Comment ça fonctionne côté web ?**
+
+1. **Affichage d’une bannière de consentement**
+   - Dès la première visite, une bannière s’affiche :  
+     « Ce site utilise des cookies pour… Acceptez-vous le marketing ? l’analytics ? la personnalisation ? »
+2. **L’utilisateur choisit**
+   - Il peut tout accepter, tout refuser, ou choisir granularité par granularité (marketing, analytics, preferences…)
+3. **Stockage du choix**
+   - Le choix est stocké côté navigateur (cookie, localStorage) **et** envoyé à ton backend pour être sauvegardé dans la base (via `/gdpr/consent-preferences`).
+4. **Application du consentement**
+   - Le frontend et le backend respectent ce choix :
+     - Pas de tracking analytics si refusé
+     - Pas de pub/newsletter si refusé
+     - Pas de personnalisation si refusé
+
+---
+
+## 🛠️ **Comment l’implémenter côté backend et frontend ?**
+
+### **Backend (déjà prêt dans ton code)**
+
+- Endpoints `/gdpr/consent-preferences` pour lire/mettre à jour les consentements
+- Guards et décorateurs pour bloquer les routes sensibles si pas de consentement
+
+### **Frontend (à ajouter)**
+
+1. **Afficher une bannière de consentement** (ex : [Cookiebot](https://www.cookiebot.com/fr/), [Osano](https://www.osano.com/), ou fait maison)
+2. **Appeler l’API backend** pour sauvegarder le choix de l’utilisateur
+   - `POST /gdpr/consent-preferences` avec `{ marketing: true, analytics: false, preferences: true }`
+3. **Stocker le choix localement** (cookie ou localStorage) pour ne pas réafficher la bannière à chaque visite
+4. **Respecter le consentement côté JS**
+   - Ne pas charger Google Analytics, Facebook Pixel, etc. si analytics refusé
+   - Ne pas afficher de pub personnalisée si marketing refusé
+
+---
+
+## **Exemple de flux complet**
+
+```mermaid
+sequenceDiagram
+    participant Utilisateur
+    participant Frontend
+    participant Backend
+
+    Utilisateur->>Frontend: Arrive sur le site
+    Frontend->>Utilisateur: Affiche la bannière de consentement
+    Utilisateur->>Frontend: Accepte/refuse chaque type de consentement
+    Frontend->>Backend: POST /gdpr/consent-preferences (avec le choix)
+    Backend-->>Frontend: 200 OK (sauvegarde en base)
+    Frontend->>Utilisateur: Stocke le choix (cookie/localStorage)
+    Frontend->>Frontend: (optionnel) Active/désactive les scripts selon le choix
+```
+
+---
+
+## **À ajouter dans ton projet**
+
+### **1. Frontend**
+
+- Bannière de consentement RGPD (librairie ou custom)
+- Appel à l’API `/gdpr/consent-preferences` pour sauvegarder le choix
+- Activation/désactivation dynamique des scripts de tracking/marketing
+
+### **2. Backend**
+
+- (Déjà prêt) : endpoints, guards, logique de respect du consentement
+
+---
+
+## **Résumé**
+
+- **Oui**, la gestion du consentement RGPD passe par une bannière cookies côté frontend.
+- **Le backend** ne fait que respecter et appliquer ce que l’utilisateur a choisi via cette bannière.
+- **À ajouter** : l’intégration frontend (bannière + appel API).
+
+---
+
+Veux-tu un exemple de code pour la bannière côté frontend (React, Vue, etc.) ou une recommandation de librairie ?

@@ -1,14 +1,14 @@
-import { Controller, Post, Body, Param, HttpException, HttpStatus, Logger, UseGuards, Req, Inject, UseInterceptors, UploadedFile, Delete, ParseIntPipe, UploadedFiles } from '@nestjs/common';
+import { Controller, Post, Body, Param, HttpException, HttpStatus, Logger, UseGuards, Req, Inject, UseInterceptors, UploadedFile, Delete, ParseIntPipe, UploadedFiles, BadRequestException } from '@nestjs/common';
 import { ProductVariantService } from '../../application/services/productvariant.service';
-import { ProductImageService } from '../../application/services/productimage.service';
 import { ProductService } from '../../application/services/product.service';
 import { VendorService } from '../../application/services/vendor.service';
-import { ProductVariantCreateDto, ProductVariantResponseDto, ProductImageCreateDto } from '../dtos/Product.dto';
+import { ProductVariantCreateDto, ProductVariantResponseDto } from '../dtos/Product.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiParam, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { AddImageToVariantUseCase } from '../../application/use-cases/product-variant.use-case/AddImageToVariant.use-case';
 import { DeleteImageFromVariantUseCase } from '../../application/use-cases/product-variant.use-case/DeleteImageFromVariant.use-case';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { extname } from 'path';
 import { Roles } from '../../application/helper/roles.decorator';
 import { RolesGuard } from '../../application/helper/roles.guard';
 import { UserRole } from 'src/domain/enums/UserRole.enum';
@@ -24,7 +24,6 @@ export class ProductVariantController {
 
     constructor(
         @Inject(ProductVariantService) private readonly productVariantService: ProductVariantService,
-        @Inject(ProductImageService) private readonly productImageService: ProductImageService,
         @Inject(ProductService) private readonly productService: ProductService,
         @Inject(VendorService) private readonly vendorService: VendorService,
         @Inject(AddImageToVariantUseCase) private readonly addImageToVariantUseCase: AddImageToVariantUseCase,
@@ -64,7 +63,20 @@ export class ProductVariantController {
     }
 
     @Post('/:id/images')
-    @UseInterceptors(FilesInterceptor('files'))
+    @UseInterceptors(FilesInterceptor('files', 5, {
+        limits: { fileSize: 5 * 1024 * 1024 }, // 5 Mo max par fichier
+        fileFilter: (req, file, cb) => {
+            // Autoriser uniquement les images JPEG, PNG, GIF
+            if (!file.mimetype.match(/^image\/(jpeg|png|gif)$/)) {
+                return cb(new BadRequestException('Seuls les fichiers image (jpeg, png, gif) sont autorisés'), false);
+            }
+            // Refuser certaines extensions
+            if (!['.jpg', '.jpeg', '.png', '.gif'].includes(extname(file.originalname).toLowerCase())) {
+                return cb(new BadRequestException('Extension de fichier non autorisée'), false);
+            }
+            cb(null, true);
+        }
+    }))
     @ApiParam({ name: 'id', type: Number })
     @ApiConsumes('multipart/form-data')
     @ApiBody({
@@ -93,6 +105,7 @@ export class ProductVariantController {
         const urls: string[] = [];
         for (const file of files) {
             try {
+                // Ici, le fichier est déjà validé (taille/type/extension)
                 const result = await this.addImageToVariantUseCase.execute(variantId, file.buffer, file.originalname, req.user);
                 urls.push(result.url);
                 this.logger.log(`Image uploadée: ${result.url}`);

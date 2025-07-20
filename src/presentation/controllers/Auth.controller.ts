@@ -11,6 +11,7 @@ import { ApiProperty, ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestj
 import { AuthGuard } from '@nestjs/passport';
 import { PassportConfig } from 'src/application/config/passport.config';
 import { LoginDto, SignUpDto } from '../dtos/Auth.dto';
+import { Throttle } from '@nestjs/throttler';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -81,6 +82,7 @@ export class AuthController {
     @ApiResponse({ status: 401, description: 'Mot de passe incorrect.' })
     @ApiResponse({ status: 500, description: 'Erreur serveur.' })
     @ApiBody({ type: LoginDto })
+    @Throttle({ login: { limit: 5, ttl: 60 } }) // applique la stratégie nommée 'login'
     @Post('login')
     async login(@Body() loginDto: LoginDto, @Res() res: Response) {
         console.log('[AuthController] login', { email: loginDto.email });
@@ -217,5 +219,12 @@ export class AuthController {
             console.error('[AuthController] logout ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur lors de la déconnexion' });
         }
+    }
+
+    @Throttle({ reset: { limit: 3, ttl: 60 } }) // applique la stratégie nommée 'reset'
+    @Post('reset-password')
+    async resetPassword(@Body() dto: any, @Res() res: Response) {
+        // ... logique de reset password à compléter ...
+        return res.status(200).json({ message: 'Si cet email existe, un lien a été envoyé.' });
     }
 }
