@@ -1,12 +1,11 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { PaymentService } from '../../services/payment.service';
 import { RefundService } from '../../services/refund.service';
 import { OrderService } from '../../services/order.service';
 import { PaymentStatus } from '../../../domain/enums/PaymentStatus.enum';
 import { RefundStatus } from '../../../domain/enums/RefundStatus.enum';
 import { OrderStatus } from '../../../domain/enums/OrderStatus.enum';
-import { PaymentGatewayFactory } from 'src/application/factories/paymentGateway.factory';
-import { RefundDto } from 'src/presentation/dtos/Refund.dto';
+import { PaymentGatewayFactory } from '../../factories/paymentGateway.factory';
+import { RefundDto } from '../../../presentation/dtos/Refund.dto';
 
 export interface RefundResult {
     success: boolean;

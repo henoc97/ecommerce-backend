@@ -6,7 +6,7 @@ import { PaymentEntity } from '../../domain/entities/Payment.entity';
 import { RefundEntity } from '../../domain/entities/Refund.entity';
 import { OrderStatus } from '../../domain/enums/OrderStatus.enum';
 import { IOrderRepository } from '../../domain/repositories/Order.repository';
-import { PaymentStatus } from 'src/domain/enums/PaymentStatus.enum';
+import { PaymentStatus } from '../../domain/enums/PaymentStatus.enum';
 
 export class OrderPrismaRepository implements IOrderRepository {
     async createOrder(data: OrderEntity): Promise<OrderEntity> {

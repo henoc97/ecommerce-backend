@@ -1,4 +1,4 @@
-import { DiscountType } from 'src/domain/enums/DiscountType.enum';
+import { DiscountType } from '../../domain/enums/DiscountType.enum';
 import prisma from '../../../prisma/client/prisma.service';
 import { PromotionEntity } from '../../domain/entities/Promotion.entity';
 import { IPromotionRepository } from '../../domain/repositories/Promotion.repository';

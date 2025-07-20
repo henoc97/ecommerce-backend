@@ -33,7 +33,13 @@ export class CreatePromotionUseCase {
                 throw error;
             }
             const product = await this.productService.findById(variant.productId);
-            if (!product || product.shop?.vendorId !== vendor.id) {
+            if (!product) {
+                this.logger.error('Accès interdit : ce produit ne vous appartient pas', { userId, vendorId: vendor.id });
+                const error = new Error('Accès interdit au produit');
+                (error as any).code = 'FORBIDDEN_PRODUCT';
+                throw error;
+            }
+            if (product.shop?.vendorId !== vendor.id) {
                 this.logger.error('Accès interdit : cette variante ne vous appartient pas', { userId, vendorId: vendor.id, shopVendorId: product.shop?.vendorId });
                 const error = new Error('Accès interdit à la variante');
                 (error as any).code = 'FORBIDDEN_VARIANT';
@@ -45,39 +51,25 @@ export class CreatePromotionUseCase {
             this.logger.log('Promotion créée sur variante', JSON.stringify(promo));
             return promo;
         }
-        // Cas 2 : Promotion sur toutes les variantes d'un produit
+        // Cas 2 : Promotion sur un produit entier
         if (dto.productId) {
             const product = await this.productService.findById(dto.productId);
-            if (!product || product.shop?.vendorId !== vendor.id) {
+            if (!product) {
+                this.logger.error('Accès interdit : ce produit ne vous appartient pas', { userId, vendorId: vendor.id });
+                const error = new Error('Accès interdit au produit');
+                (error as any).code = 'FORBIDDEN_PRODUCT';
+                throw error;
+            }
+            if (product.shop?.vendorId !== vendor.id) {
                 this.logger.error('Accès interdit : ce produit ne vous appartient pas', { userId, vendorId: vendor.id, shopVendorId: product.shop?.vendorId });
                 const error = new Error('Accès interdit au produit');
                 (error as any).code = 'FORBIDDEN_PRODUCT';
                 throw error;
             }
-            const variants = await this.productVariantService.listVariants(product.id);
-            if (!variants || variants.length === 0) {
-                this.logger.error('Aucune variante trouvée pour ce produit');
-                const error = new Error('Aucune variante trouvée pour ce produit');
-                (error as any).code = 'NO_VARIANT_FOR_PRODUCT';
-                throw error;
-            }
-            const results = [];
-            let hasError = false;
-            delete dto.productId;
-            for (const variant of variants) {
-                try {
-                    const promo = await this.promotionService.createPromotion({ ...dto, productVariantId: variant.id } as any);
-                    results.push({ variantId: variant.id, promotion: promo });
-                } catch (err) {
-                    hasError = true;
-                    results.push({ variantId: variant.id, error: err.message });
-                    this.logger.error('Erreur lors de la création de la promotion sur variante', { variantId: variant.id, error: err.message });
-                }
-            }
-            if (hasError) {
-                return { message: 'Certaines variantes n\'ont pas pu être promues', results };
-            }
-            return { message: 'Promotions créées sur toutes les variantes', results };
+            // Créer la promotion
+            const promo = await this.promotionService.createPromotion({ ...dto, productId: product.id } as any);
+            this.logger.log('Promotion créée sur produit', JSON.stringify(promo));
+            return promo;
         }
         this.logger.error('Aucune cible de promotion fournie (productId ou productVariantId)');
         const error = new Error('Aucune cible de promotion fournie (productId ou productVariantId)');
