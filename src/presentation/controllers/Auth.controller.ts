@@ -7,7 +7,7 @@ import { AuthProvider } from 'src/domain/enums/AuthProvider';
 import { UserRole } from 'src/domain/enums/UserRole.enum';
 
 
-import { ApiProperty, ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { PassportConfig } from 'src/application/config/passport.config';
 import { LoginDto, SignUpDto } from '../dtos/Auth.dto';
