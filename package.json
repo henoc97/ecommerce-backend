@@ -20,13 +20,13 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@nestjs/common": "^10.0.0",
+    "@nestjs/common": "^11.1.5",
     "@nestjs/core": "^11.1.5",
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.1.5",
     "@nestjs/schedule": "^6.0.0",
-    "@nestjs/swagger": "^11.2.0",
+    "@nestjs/swagger": "^11.1.5",
     "@nestjs/throttler": "^6.4.0",
     "@paypal/checkout-server-sdk": "^1.0.3",
     "@prisma/client": "^6.11.1",
