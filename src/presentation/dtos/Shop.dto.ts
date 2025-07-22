@@ -21,7 +21,7 @@ export class UpdateShopDto {
 export class CreateSubsiteDto {
     @ApiProperty({ example: 'Mon sous-site' })
     title: string;
-    @ApiProperty({ example: { theme: 'dark', layout: 'modern' }, type: 'object' })
+    @ApiProperty({ example: { theme: 'dark', layout: 'modern' }, type: 'object', additionalProperties: true })
     config: any;
     @ApiProperty({ example: 1 })
     shopId: number;

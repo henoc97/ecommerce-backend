@@ -54,7 +54,8 @@ export class UserController {
                 name: { type: 'string', example: 'Jean Dupont' },
                 role: { type: 'string', enum: Object.values(UserRole), example: 'SELLER' }
             },
-            required: ['email', 'password', 'name', 'role']
+            required: ['email', 'password', 'name', 'role'],
+            additionalProperties: true
         }
     })
     @ApiResponse({ status: 201, description: 'Utilisateur créé', type: UserEntity })
@@ -108,7 +109,8 @@ export class UserController {
                 phone: { type: 'string', example: '+33612345678' },
                 role: { type: 'string', enum: Object.values(UserRole), example: 'ADMIN' },
                 isActive: { type: 'boolean', example: false }
-            }
+            },
+            additionalProperties: true
         }
     })
     @ApiResponse({ status: 200, description: 'Utilisateur mis à jour', type: UserEntity })

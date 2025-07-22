@@ -2,9 +2,9 @@ name: Security Audit
 
 on:
   push:
-    branches: [main, henoc, develop]
+    branches: ['**']
   pull_request:
-    branches: [main, henoc, develop]
+    branches: ['**']
 
 jobs:
   security:
@@ -17,11 +17,8 @@ jobs:
           node-version: 18
       - run: npm ci
 
-      # - name: Audit npm dependencies
-      #   run: npm audit --audit-level=moderate
-
-      - name: Run unit tests
-        run: npm test
+      - name: Audit npm dependencies
+        run: npm audit --audit-level=moderate
 
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/node@master

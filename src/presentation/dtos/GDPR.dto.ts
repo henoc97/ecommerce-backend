@@ -33,7 +33,8 @@ export class ConsentPreferencesDto {
 export class GDPRDataExportDto {
     @ApiProperty({
         description: 'Données utilisateur',
-        type: 'object'
+        type: 'object',
+        additionalProperties: true
     })
     user: any;
 
@@ -146,12 +147,13 @@ export class DataProcessingInfoDto {
         description: 'Durées de conservation des données',
         type: 'object',
         example: {
-            userAccount: '3 ans après dernière activité',
-            orders: '10 ans (obligation fiscale)',
-            marketingData: '3 ans après retrait du consentement',
-            analytics: '2 ans',
-            auditLogs: '5 ans'
-        }
+            userAccount: '2 ans',
+            orders: '5 ans',
+            marketingData: '3 ans',
+            analytics: '13 mois',
+            auditLogs: '6 ans'
+        },
+        additionalProperties: true
     })
     retentionPeriods: Record<string, string>;
 
@@ -175,10 +177,11 @@ export class DataProcessingInfoDto {
         description: 'Informations de contact du DPO',
         type: 'object',
         example: {
-            email: 'dpo@votreentreprise.com',
-            address: '123 Rue de la Protection, 75001 Paris, France',
-            phone: '+33 1 23 45 67 89'
-        }
+            email: 'dpo@exemple.com',
+            address: '10 rue de la Paix',
+            phone: '+33612345678'
+        },
+        additionalProperties: true
     })
     contactInfo: {
         email: string;

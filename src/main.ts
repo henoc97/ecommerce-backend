@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AuthModule } from './application/modules/Auth.module';
 import * as cookieParser from 'cookie-parser';
 import { AppModule } from './application/modules/app.module';
+import crypto from 'crypto';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

@@ -4,7 +4,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { UserService } from 'src/application/services/user.service';
 import { AddressService } from 'src/application/services/address.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
-import { UserProfileResponseDto, UserProfileUpdateDto } from '../dtos/user.dto';
+import { UserProfileResponseDto, UserProfileUpdateDto } from '../dtos/User.dto';
 import { Roles } from '../../application/helper/roles.decorator';
 import { RolesGuard } from '../../application/helper/roles.guard';
 import { UserRole } from 'src/domain/enums/UserRole.enum';

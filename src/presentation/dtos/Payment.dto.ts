@@ -32,16 +32,10 @@ export class CreatePaymentDto {
     @ApiProperty({
         description: 'Données de carte pour Stripe',
         required: false,
-        type: 'object',
-        // example: {
-        //     number: '4242424242424242',
-        //     expMonth: 12,
-        //     expYear: 2025,
-        //     cvc: '123'
-        // }
+        type: Object,
         example: {
-            "cardData": {
-                "token": "tok_visa"
+            cardData: {
+                token: 'tok_visa'
             }
         }
     })
@@ -50,7 +44,7 @@ export class CreatePaymentDto {
     @ApiProperty({
         description: 'Données PayPal',
         required: false,
-        type: 'object',
+        type: Object,
         example: {
             paymentMethodId: 'pay_1234567890'
         }
