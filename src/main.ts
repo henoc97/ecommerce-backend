@@ -2,7 +2,13 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import { AppModule } from './application/modules/app.module';
-import crypto from 'crypto';
+
+import * as crypto from 'crypto';
+
+if (!globalThis.crypto) {
+  // @ts-ignore
+  globalThis.crypto = crypto.webcrypto || crypto;
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
