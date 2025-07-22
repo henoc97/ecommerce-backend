@@ -24,10 +24,15 @@ import { AuthGuard } from '@nestjs/passport';
 import { ProcessPaymentUseCase } from '../../application/use-cases/payment.use-case/ProcessPayment.use-case';
 import { PaymentService } from '../../application/services/payment.service';
 import { CreatePaymentDto, PaymentResponseDto } from '../dtos/Payment.dto';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+import { UserRole } from 'src/domain/enums/UserRole.enum';
 
 
 @ApiTags('Payment')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(UserRole.CLIENT, UserRole.ADMIN)
 @Controller('payments')
 export class PaymentController {
     constructor(
@@ -36,7 +41,6 @@ export class PaymentController {
     ) { }
 
     @Post()
-    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({
         summary: 'Traiter un paiement pour une commande',
         description: 'Effectue un paiement pour une commande en attente. Supporte Stripe et PayPal.'
@@ -129,7 +133,6 @@ export class PaymentController {
     }
 
     @Get(':orderId')
-    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({
         summary: 'Récupérer le paiement d\'une commande',
         description: 'Retourne les détails du paiement associé à une commande spécifique'
@@ -192,7 +195,6 @@ export class PaymentController {
     }
 
     @Get()
-    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({
         summary: 'Lister les paiements de l\'utilisateur',
         description: 'Retourne tous les paiements de l\'utilisateur connecté'
@@ -231,7 +233,6 @@ export class PaymentController {
     }
 
     @Get('/:shopId')
-    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({
         summary: 'Lister les paiements d\'une boutique',
         description: 'Retourne tous les paiements associés à une boutique spécifique.'
@@ -290,7 +291,6 @@ export class PaymentController {
     }
 
     @Get()
-    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Lister les paiements', description: 'Retourne la liste des paiements, filtrable par statut, méthode ou devise.' })
     @ApiQuery({ name: 'status', required: false, description: 'Statut du paiement (SUCCESS, FAILED, PENDING, etc.)' })
     @ApiQuery({ name: 'method', required: false, description: 'Méthode de paiement (Stripe, PayPal, etc.)' })
@@ -314,7 +314,6 @@ export class PaymentController {
     }
 
     @Get('/:id')
-    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Détail d\'un paiement', description: 'Retourne le détail complet d\'un paiement, avec lien vers la commande et le client.' })
     @ApiParam({ name: 'id', required: true, description: 'ID du paiement' })
     @ApiResponse({ status: 200, description: 'Détail du paiement' })
@@ -337,7 +336,6 @@ export class PaymentController {
     }
 
     @Get('/:id')
-    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({
         summary: 'Détails d\'un paiement',
         description: 'Retourne les détails d\'un paiement à partir de son ID.'

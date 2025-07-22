@@ -36,4 +36,43 @@ export class NewsletterSubscriptionPrismaRepository implements INewsletterSubscr
             throw error;
         }
     }
+
+    // GDPR - Recherche et suppression par utilisateur
+    async findByUserId(userId: number): Promise<NewsletterSubscriptionEntity[]> {
+        try {
+            // Récupérer l'email de l'utilisateur
+            const user = await prisma.user.findUnique({
+                where: { id: userId },
+                select: { email: true }
+            });
+
+            if (!user) return [];
+
+            // Trouver tous les abonnements avec cet email
+            return await prisma.newsletterSubscription.findMany({
+                where: { email: user.email }
+            }) as NewsletterSubscriptionEntity[];
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async deleteByUserId(userId: number): Promise<void> {
+        try {
+            // Récupérer l'email de l'utilisateur
+            const user = await prisma.user.findUnique({
+                where: { id: userId },
+                select: { email: true }
+            });
+
+            if (user) {
+                // Supprimer tous les abonnements avec cet email
+                await prisma.newsletterSubscription.deleteMany({
+                    where: { email: user.email }
+                });
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
 } 

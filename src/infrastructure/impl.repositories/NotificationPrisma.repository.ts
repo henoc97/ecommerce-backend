@@ -32,4 +32,21 @@ export class NotificationPrismaRepository implements INotificationRepository {
             throw error;
         }
     }
+
+    // GDPR - Recherche et suppression par utilisateur
+    async findByUserId(userId: number): Promise<NotificationEntity[]> {
+        try {
+            return await prisma.notification.findMany({ where: { userId } }) as NotificationEntity[];
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async deleteByUserId(userId: number): Promise<void> {
+        try {
+            await prisma.notification.deleteMany({ where: { userId } });
+        } catch (error) {
+            throw error;
+        }
+    }
 } 

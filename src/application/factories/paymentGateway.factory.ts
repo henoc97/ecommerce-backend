@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { PaymentGatewayRepository } from "src/domain/repositories/PaymentGateway.repository";
-import { PayPalPaymentGatewayService } from "src/infrastructure/external-services/payPalPaymentGateway.service";
-import { StripePaymentGatewayService } from "src/infrastructure/external-services/stripePaymentGateway.service";
+import { PaymentGatewayRepository } from "../../domain/repositories/PaymentGateway.repository";
+import { PayPalPaymentGatewayService } from "../../infrastructure/external-services/payPalPaymentGateway.service";
+import { StripePaymentGatewayService } from "../../infrastructure/external-services/stripePaymentGateway.service";
 
 @Injectable()
 export class PaymentGatewayFactory {

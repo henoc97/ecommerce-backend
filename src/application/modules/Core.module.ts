@@ -66,6 +66,8 @@ import { AddImageToVariantUseCase } from '../use-cases/product-variant.use-case/
 import { DeleteImageFromVariantUseCase } from '../use-cases/product-variant.use-case/DeleteImageFromVariant.use-case';
 import { CloudinaryService } from 'src/infrastructure/external-services/cloudinary.service';
 import { OrderCronService } from '../services/order-cron.service';
+import { GDPRService } from '../services/gdpr.service';
+import { DataProcessingRegistryService } from '../services/data-processing-registry.service';
 
 const providersExports = [
     AuthService,
@@ -100,6 +102,8 @@ const providersExports = [
     AnalyticsService,
     CloudinaryService,
     OrderCronService,
+    GDPRService,
+    DataProcessingRegistryService,
     // ... autres factories
     PaymentGatewayFactory,
     // ... autres services

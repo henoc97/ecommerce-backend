@@ -7,9 +7,15 @@ import { AuthGuard } from '@nestjs/passport';
 import { AddProductToCartUseCase } from 'src/application/use-cases/cart.use-case/addProductToCart.use-case';
 import { UpdateCartItemQuantityUseCase } from 'src/application/use-cases/cart.use-case/updateCartItemQuantity.use-case';
 import { AddCartItemDto, UpdateCartItemDto } from '../dtos/CartItem.dot';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+import { UserRole } from 'src/domain/enums/UserRole.enum';
+
 
 @ApiTags('Paniers')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(UserRole.CLIENT)
 @Controller('carts')
 export class CartController {
     constructor(
@@ -19,7 +25,6 @@ export class CartController {
         @Inject(UpdateCartItemQuantityUseCase) private readonly updateCartItemQuantityUseCase: UpdateCartItemQuantityUseCase
     ) { }
 
-    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Ajouter un produit au panier' })
     @ApiBody({ type: AddCartItemDto })
     @ApiResponse({ status: 200, description: 'Produit ajouté au panier' })
@@ -46,7 +51,6 @@ export class CartController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Modifier la quantité d\'un article du panier' })
     @ApiParam({ name: 'id', description: 'ID du CartItem' })
     @ApiBody({ type: UpdateCartItemDto })
@@ -74,7 +78,6 @@ export class CartController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Supprimer un article du panier' })
     @ApiParam({ name: 'id', description: 'ID du CartItem' })
     @ApiResponse({ status: 200, description: 'Article retiré du panier' })
@@ -101,7 +104,6 @@ export class CartController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Lister les paniers d\'un utilisateur' })
     @ApiQuery({ name: 'userId', required: true, description: 'ID de l\'utilisateur' })
     @ApiResponse({ status: 200, description: 'Liste des paniers' })
@@ -119,7 +121,6 @@ export class CartController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Voir le détail d\'un panier' })
     @ApiParam({ name: 'id', description: 'ID du panier' })
     @ApiResponse({ status: 200, description: 'Détail du panier' })

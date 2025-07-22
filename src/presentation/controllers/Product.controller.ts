@@ -1,16 +1,23 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, HttpException, HttpStatus, Logger, Inject } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Query, Param, UseGuards, Req, HttpException, HttpStatus, Logger } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 import { ProductService } from '../../application/services/product.service';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
 import { ProductCreateDto, ProductUpdateDto, ProductResponseDto } from '../dtos/Product.dto';
-import { ApiTags, ApiResponse, ApiQuery, ApiParam, ApiBody, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { UserRole } from 'src/domain/enums/UserRole.enum';
 
 @ApiTags('Produits')
 @ApiBearerAuth()
-@Controller('/products')
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(UserRole.SELLER, UserRole.ADMIN)
+@Controller('products')
 export class ProductController {
     private readonly logger = new Logger(ProductController.name);
 
     constructor(
-        @Inject(ProductService) private readonly productService: ProductService) { }
+        private readonly productService: ProductService,
+    ) { }
 
     @Get()
     @ApiOperation({ summary: 'Lister les produits', description: 'Retourne la liste des produits filtrés par boutique (shopId) et/ou catégorie (categoryId).' })

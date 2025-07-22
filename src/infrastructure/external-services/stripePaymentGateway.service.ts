@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { BasePaymentGatewayService } from "src/application/services/payment-gateway.service";
-import { PaymentGatewayRequest, PaymentGatewayResponse } from "src/domain/entities/PaymentGateway.entity";
+import { BasePaymentGatewayService } from "../../application/services/payment-gateway.service";
+import { PaymentGatewayRequest, PaymentGatewayResponse } from "../../domain/entities/PaymentGateway.entity";
 
 @Injectable()
 export class StripePaymentGatewayService extends BasePaymentGatewayService {

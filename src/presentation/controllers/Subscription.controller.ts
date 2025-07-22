@@ -3,9 +3,15 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiParam, ApiBea
 import { AuthGuard } from '@nestjs/passport';
 import { SubscriptionService } from '../../application/services/subscription.service';
 import { ShopSubscriptionService } from '../../application/services/shopsubscription.service';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+import { UserRole } from 'src/domain/enums/UserRole.enum';
+
 
 @ApiTags('Abonnements')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(UserRole.CLIENT, UserRole.ADMIN)
 @Controller('subscriptions')
 export class SubscriptionController {
     constructor(
@@ -13,7 +19,6 @@ export class SubscriptionController {
         private readonly shopSubscriptionService: ShopSubscriptionService
     ) { }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get()
     @ApiOperation({ summary: 'Lister tous les plans d\'abonnement' })
     @ApiResponse({ status: 200, description: 'Liste des plans' })
@@ -28,7 +33,6 @@ export class SubscriptionController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Post()
     @ApiOperation({ summary: 'Créer un plan d\'abonnement' })
     @ApiBody({
@@ -61,7 +65,6 @@ export class SubscriptionController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Put(':id')
     @ApiOperation({ summary: 'Modifier un plan d\'abonnement' })
     @ApiParam({ name: 'id', required: true })
@@ -94,7 +97,6 @@ export class SubscriptionController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Delete(':id')
     @ApiOperation({ summary: 'Supprimer un plan d\'abonnement' })
     @ApiParam({ name: 'id', required: true })

@@ -68,7 +68,7 @@ export class ProductResponseDto {
 }
 
 export class ProductVariantCreateDto {
-    @ApiProperty({ example: { size: 'M', color: 'Red' }, description: 'Attributs de la variante (ex: taille, couleur)' })
+    @ApiProperty({ example: { size: 'M', color: 'Red' }, description: 'Attributs de la variante (ex: taille, couleur)', type: 'object', additionalProperties: true })
     attributes: any;
 
     @ApiProperty({ example: 10, description: 'Stock initial' })

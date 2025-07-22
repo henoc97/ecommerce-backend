@@ -5,7 +5,7 @@ import { OrderStatus } from '../../../domain/enums/OrderStatus.enum';
 import { PaymentStatus } from '../../../domain/enums/PaymentStatus.enum';
 import { PaymentEntity } from '../../../domain/entities/Payment.entity';
 import { PaymentGatewayFactory } from '../../factories/paymentGateway.factory';
-import { PaymentGatewayRequest, PaymentGatewayResponse } from 'src/domain/entities/PaymentGateway.entity';
+import { PaymentGatewayRequest, PaymentGatewayResponse } from '../../../domain/entities/PaymentGateway.entity';
 export interface PaymentDto {
     orderId: number;
     method: string;

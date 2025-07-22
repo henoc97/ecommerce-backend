@@ -4,10 +4,18 @@ import { AuthGuard } from '@nestjs/passport';
 import { UserService } from 'src/application/services/user.service';
 import { AddressService } from 'src/application/services/address.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
-import { UserProfileResponseDto, UserProfileUpdateDto } from '../dtos/user.dto';
+import { UserProfileResponseDto, UserProfileUpdateDto } from '../dtos/User.dto';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+import { UserRole } from 'src/domain/enums/UserRole.enum';
+import { ConsentGuard } from '../../application/helper/consent.guard';
+import { RequiresConsent } from '../../application/helper/requires-consent.decorator';
+
 
 @ApiTags('Profils Utilisateur')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard, ConsentGuard)
+@Roles(UserRole.CLIENT)
 @Controller('user-profiles')
 export class UserProfileController {
     constructor(
@@ -15,7 +23,6 @@ export class UserProfileController {
         @Inject(AddressService) private readonly addressService: AddressService
     ) { }
 
-    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Récupérer le profil utilisateur connecté' })
     @ApiResponse({ status: 200, description: 'Profil utilisateur', type: UserProfileResponseDto })
     @ApiResponse({ status: 401, description: 'Non authentifié' })
@@ -49,7 +56,6 @@ export class UserProfileController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Mettre à jour le profil utilisateur connecté' })
     @ApiBody({ type: UserProfileUpdateDto })
     @ApiResponse({ status: 200, description: 'Données personnelles mises à jour avec succès' })
@@ -57,6 +63,7 @@ export class UserProfileController {
     @ApiResponse({ status: 401, description: 'Non authentifié' })
     @ApiResponse({ status: 409, description: 'Conflit (email déjà utilisé)' })
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
+    @RequiresConsent('preferences')
     @Put('me/update')
     async updateProfile(@Req() req: Request, @Body() body: UserProfileUpdateDto, @Res() res: Response) {
         console.log('[UserProfileController] updateProfile', { user: req.user, body });

@@ -5,9 +5,17 @@ import { OrderService } from '../../application/services/order.service';
 import { CreateReviewDto, ReviewResponseDto } from '../dtos/Review.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { OrderStatus } from '../../domain/enums/OrderStatus.enum';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+import { UserRole } from 'src/domain/enums/UserRole.enum';
+import { ConsentGuard } from '../../application/helper/consent.guard';
+import { RequiresConsent } from '../../application/helper/requires-consent.decorator';
+
 
 @ApiTags('Avis')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard, ConsentGuard)
+@Roles(UserRole.CLIENT)
 @Controller('reviews')
 export class ReviewController {
     constructor(
@@ -15,8 +23,8 @@ export class ReviewController {
         private readonly orderService: OrderService,
     ) { }
 
-    @UseGuards(AuthGuard('jwt'))
     @Post()
+    @RequiresConsent('analytics')
     @ApiOperation({ summary: 'Créer un avis produit', description: 'Permet de créer un avis pour un produit acheté par l\'utilisateur.' })
     @ApiBody({ type: CreateReviewDto })
     @ApiResponse({ status: 201, type: ReviewResponseDto, description: 'Merci pour votre avis' })
@@ -56,7 +64,6 @@ export class ReviewController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get('check')
     @ApiOperation({ summary: 'Vérifier si un utilisateur a déjà évalué un produit', description: 'Permet de vérifier si un utilisateur a déjà évalué un produit spécifique.' })
     @ApiQuery({ name: 'userId', required: true, description: 'ID de l\'utilisateur' })
@@ -79,7 +86,6 @@ export class ReviewController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get('/:shopId')
     @ApiOperation({ summary: 'Lister les avis d\'une boutique', description: 'Permet de lister tous les avis associés à une boutique.' })
     @ApiResponse({ status: 200, type: [ReviewResponseDto], description: 'Liste des avis de la boutique' })

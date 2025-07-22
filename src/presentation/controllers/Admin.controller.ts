@@ -6,9 +6,15 @@ import { AuditLogService } from '../../application/services/auditlog.service';
 import { ReviewService } from '../../application/services/review.service';
 import { AuditLogAction } from 'src/domain/enums/AuditLogAction.enum';
 import { AuditLogEntity } from 'src/domain/entities/AuditLog.entity';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+import { UserRole } from 'src/domain/enums/UserRole.enum';
+
 
 @ApiTags('Admin')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(UserRole.ADMIN)
 @Controller('admin')
 export class AdminController {
     constructor(
@@ -17,7 +23,6 @@ export class AdminController {
         @Inject(ReviewService) private readonly reviewService: ReviewService,
     ) { }
 
-    @UseGuards(AuthGuard('jwt'))
     @Post('force-logout')
     @ApiOperation({ summary: 'Forcer la déconnexion d’un utilisateur' })
     @ApiBody({ schema: { type: 'object', properties: { userId: { type: 'number' } }, required: ['userId'] } })
@@ -25,9 +30,7 @@ export class AdminController {
     @ApiResponse({ status: 404, description: 'Utilisateur introuvable' })
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     async forceLogout(@Body('userId') userId: number, @Req() req: any) {
-        if (!req.user || req.user.role !== 'ADMIN') {
-            throw new HttpException('Accès réservé aux administrateurs', HttpStatus.FORBIDDEN);
-        }
+        // Vérification du rôle supprimée (gérée par le guard)
         console.log('[AdminController] forceLogout', { userId });
         try {
             const user = await this.userService.findById(userId);
@@ -51,7 +54,6 @@ export class AdminController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Delete('user-data')
     @ApiOperation({ summary: 'Supprimer les données sensibles d’un utilisateur' })
     @ApiBody({ schema: { type: 'object', properties: { userId: { type: 'number' } }, required: ['userId'] } })
@@ -60,9 +62,7 @@ export class AdminController {
     @ApiResponse({ status: 404, description: 'Utilisateur introuvable' })
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     async deleteUserData(@Body('userId') userId: number, @Req() req: any) {
-        if (!req.user || req.user.role !== 'ADMIN') {
-            throw new HttpException('Accès réservé aux administrateurs', HttpStatus.FORBIDDEN);
-        }
+        // Vérification du rôle supprimée (gérée par le guard)
         console.log('[AdminController] deleteUserData', { userId });
         try {
             const user = await this.userService.findById(userId);
@@ -88,7 +88,6 @@ export class AdminController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Delete('review/:id')
     @ApiOperation({ summary: 'Modérer (supprimer) un avis client' })
     @ApiParam({ name: 'id', required: true })
@@ -96,9 +95,7 @@ export class AdminController {
     @ApiResponse({ status: 404, description: 'Avis non trouvé' })
     @ApiResponse({ status: 500, description: 'Erreur serveur' })
     async moderateReview(@Param('id') id: number, @Req() req: any) {
-        if (!req.user || req.user.role !== 'ADMIN') {
-            throw new HttpException('Accès réservé aux administrateurs', HttpStatus.FORBIDDEN);
-        }
+        // Vérification du rôle supprimée (gérée par le guard)
         console.log('[AdminController] moderateReview', { id });
         try {
             const review = await this.reviewService.findById(id);

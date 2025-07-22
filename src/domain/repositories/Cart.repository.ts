@@ -9,4 +9,7 @@ export interface ICartRepository {
     getCartItems(cartId: number): Promise<CartItemEntity[]>;
     updateCartTotals(cartId: number): Promise<void>;
     deleteCart(cartId: number): Promise<void>;
+    // GDPR - Recherche et suppression par utilisateur
+    findByUserId(userId: number): Promise<CartEntity[]>;
+    deleteByUserId(userId: number): Promise<void>;
 } 

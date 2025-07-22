@@ -4,14 +4,19 @@ import { AuthGuard } from '@nestjs/passport';
 import { TicketService } from '../../application/services/ticket.service';
 import { TicketEntity } from '../../domain/entities/Ticket.entity';
 import { TicketStatus } from '../../domain/enums/TicketStatus.enum';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+import { UserRole } from 'src/domain/enums/UserRole.enum';
+
 
 @ApiTags('Tickets')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(UserRole.CLIENT, UserRole.ADMIN)
 @Controller('tickets')
 export class TicketController {
     constructor(private readonly ticketService: TicketService) { }
 
-    @UseGuards(AuthGuard('jwt'))
     @Post()
     @ApiOperation({ summary: 'Créer un ticket de support', description: 'Permet de créer un nouveau ticket de support pour un utilisateur.' })
     @ApiBody({
@@ -55,7 +60,6 @@ export class TicketController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get()
     @ApiOperation({ summary: 'Lister les tickets', description: 'Retourne la liste des tickets, filtrable par boutique (shopId) ou utilisateur (userId).' })
     @ApiQuery({ name: 'shopId', required: false, description: 'ID de la boutique' })
@@ -77,7 +81,6 @@ export class TicketController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Post(':id/reply')
     @ApiOperation({ summary: 'Répondre à un ticket', description: 'Ajoute une réponse à un ticket de support.' })
     @ApiParam({ name: 'id', required: true, description: 'ID du ticket' })

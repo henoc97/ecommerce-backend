@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AuthModule } from './application/modules/Auth.module';
 import * as cookieParser from 'cookie-parser';
 import { AppModule } from './application/modules/app.module';
+import crypto from 'crypto';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -13,7 +13,7 @@ async function bootstrap() {
   // Swagger config
   const config = new DocumentBuilder()
     .setTitle('API E-commerce')
-    .setDescription('Documentation de l’API e-commerce')
+    .setDescription('Documentation de l\'API e-commerce')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

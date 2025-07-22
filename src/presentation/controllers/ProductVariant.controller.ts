@@ -1,32 +1,35 @@
-import { Controller, Post, Body, Param, HttpException, HttpStatus, Logger, UseGuards, Req, Inject, UseInterceptors, UploadedFile, Delete, ParseIntPipe, UploadedFiles } from '@nestjs/common';
+import { Controller, Post, Body, Param, HttpException, HttpStatus, Logger, UseGuards, Req, Inject, UseInterceptors, UploadedFile, Delete, ParseIntPipe, UploadedFiles, BadRequestException } from '@nestjs/common';
 import { ProductVariantService } from '../../application/services/productvariant.service';
-import { ProductImageService } from '../../application/services/productimage.service';
 import { ProductService } from '../../application/services/product.service';
 import { VendorService } from '../../application/services/vendor.service';
-import { ProductVariantCreateDto, ProductVariantResponseDto, ProductImageCreateDto } from '../dtos/Product.dto';
+import { ProductVariantCreateDto, ProductVariantResponseDto } from '../dtos/Product.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiParam, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
-import { UserRole } from '../../domain/enums/UserRole.enum';
 import { AddImageToVariantUseCase } from '../../application/use-cases/product-variant.use-case/AddImageToVariant.use-case';
 import { DeleteImageFromVariantUseCase } from '../../application/use-cases/product-variant.use-case/DeleteImageFromVariant.use-case';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { extname } from 'path';
+import { Roles } from '../../application/helper/roles.decorator';
+import { RolesGuard } from '../../application/helper/roles.guard';
+import { UserRole } from 'src/domain/enums/UserRole.enum';
+
 
 @ApiTags('Variantes Produit')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(UserRole.SELLER, UserRole.ADMIN)
 @Controller('product-variants')
 export class ProductVariantController {
     private readonly logger = new Logger(ProductVariantController.name);
 
     constructor(
         @Inject(ProductVariantService) private readonly productVariantService: ProductVariantService,
-        @Inject(ProductImageService) private readonly productImageService: ProductImageService,
         @Inject(ProductService) private readonly productService: ProductService,
         @Inject(VendorService) private readonly vendorService: VendorService,
         @Inject(AddImageToVariantUseCase) private readonly addImageToVariantUseCase: AddImageToVariantUseCase,
         @Inject(DeleteImageFromVariantUseCase) private readonly deleteImageFromVariantUseCase: DeleteImageFromVariantUseCase,
     ) { }
 
-    @UseGuards(AuthGuard('jwt'))
     @Post('/:productId/variant')
     @ApiBody({ type: ProductVariantCreateDto })
     @ApiResponse({ status: 201, description: 'Variante créée', type: ProductVariantResponseDto })
@@ -38,10 +41,7 @@ export class ProductVariantController {
     ): Promise<ProductVariantResponseDto> {
         this.logger.log(`POST /product-variants/${productId}/variant`, JSON.stringify(dto));
         try {
-            if (!req.user || req.user.role !== UserRole.SELLER) {
-                this.logger.error('Accès réservé aux vendeurs', { user: req.user });
-                throw new HttpException('Accès réservé aux vendeurs', HttpStatus.UNAUTHORIZED);
-            }
+            // Vérification du rôle supprimée (gérée par le guard)
             // Vérifier que le produit existe et appartient au vendeur
             const product = await this.productService.findById(Number(productId));
             if (!product) {
@@ -62,9 +62,21 @@ export class ProductVariantController {
         }
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Post('/:id/images')
-    @UseInterceptors(FilesInterceptor('files'))
+    @UseInterceptors(FilesInterceptor('files', 5, {
+        limits: { fileSize: 5 * 1024 * 1024 }, // 5 Mo max par fichier
+        fileFilter: (req, file, cb) => {
+            // Autoriser uniquement les images JPEG, PNG, GIF
+            if (!file.mimetype.match(/^image\/(jpeg|png|gif)$/)) {
+                return cb(new BadRequestException('Seuls les fichiers image (jpeg, png, gif) sont autorisés'), false);
+            }
+            // Refuser certaines extensions
+            if (!['.jpg', '.jpeg', '.png', '.gif'].includes(extname(file.originalname).toLowerCase())) {
+                return cb(new BadRequestException('Extension de fichier non autorisée'), false);
+            }
+            cb(null, true);
+        }
+    }))
     @ApiParam({ name: 'id', type: Number })
     @ApiConsumes('multipart/form-data')
     @ApiBody({
@@ -93,6 +105,7 @@ export class ProductVariantController {
         const urls: string[] = [];
         for (const file of files) {
             try {
+                // Ici, le fichier est déjà validé (taille/type/extension)
                 const result = await this.addImageToVariantUseCase.execute(variantId, file.buffer, file.originalname, req.user);
                 urls.push(result.url);
                 this.logger.log(`Image uploadée: ${result.url}`);
@@ -104,7 +117,6 @@ export class ProductVariantController {
         return { message: 'Images ajoutées à la variante', urls };
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Delete('/:variantId/images')
     @ApiParam({ name: 'variantId', type: Number })
     @ApiBody({ description: 'IDs des images à supprimer', schema: { type: 'object', properties: { imageIds: { type: 'array', items: { type: 'number' } } } } })
