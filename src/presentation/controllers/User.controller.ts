@@ -5,8 +5,8 @@ import { UserService } from '../../application/services/user.service';
 import { UserEntity } from '../../domain/entities/User.entity';
 import { UserRole } from '../../domain/enums/UserRole.enum';
 import { VendorService } from '../../application/services/vendor.service';
-import { Roles } from '../../application/helper/roles.decorator';
-import { RolesGuard } from '../../application/helper/roles.guard';
+import { Roles } from '../../application/helpers/roles.decorator';
+import { RolesGuard } from '../../application/helpers/roles.guard';
 
 
 @ApiTags('Utilisateurs')

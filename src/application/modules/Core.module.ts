@@ -68,10 +68,12 @@ import { CloudinaryService } from '../../infrastructure/external-services/cloudi
 import { OrderCronService } from '../services/order-cron.service';
 import { GDPRService } from '../services/gdpr.service';
 import { DataProcessingRegistryService } from '../services/data-processing-registry.service';
+import { AppLogger } from '../helpers/logger/logger.service';
 
 const providersExports = [
     AuthService,
     PassportConfig,
+    AppLogger,
     UserService,
     AddressService,
     ProductService,

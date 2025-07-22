@@ -24,8 +24,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { ProcessPaymentUseCase } from '../../application/use-cases/payment.use-case/ProcessPayment.use-case';
 import { PaymentService } from '../../application/services/payment.service';
 import { CreatePaymentDto, PaymentResponseDto } from '../dtos/Payment.dto';
-import { Roles } from '../../application/helper/roles.decorator';
-import { RolesGuard } from '../../application/helper/roles.guard';
+import { Roles } from '../../application/helpers/roles.decorator';
+import { RolesGuard } from '../../application/helpers/roles.guard';
 import { UserRole } from 'src/domain/enums/UserRole.enum';
 
 

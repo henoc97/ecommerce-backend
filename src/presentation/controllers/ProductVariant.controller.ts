@@ -9,8 +9,8 @@ import { AddImageToVariantUseCase } from '../../application/use-cases/product-va
 import { DeleteImageFromVariantUseCase } from '../../application/use-cases/product-variant.use-case/DeleteImageFromVariant.use-case';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { extname } from 'path';
-import { Roles } from '../../application/helper/roles.decorator';
-import { RolesGuard } from '../../application/helper/roles.guard';
+import { Roles } from '../../application/helpers/roles.decorator';
+import { RolesGuard } from '../../application/helpers/roles.guard';
 import { UserRole } from 'src/domain/enums/UserRole.enum';
 
 

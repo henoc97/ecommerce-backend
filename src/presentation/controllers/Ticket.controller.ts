@@ -4,8 +4,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { TicketService } from '../../application/services/ticket.service';
 import { TicketEntity } from '../../domain/entities/Ticket.entity';
 import { TicketStatus } from '../../domain/enums/TicketStatus.enum';
-import { Roles } from '../../application/helper/roles.decorator';
-import { RolesGuard } from '../../application/helper/roles.guard';
+import { Roles } from '../../application/helpers/roles.decorator';
+import { RolesGuard } from '../../application/helpers/roles.guard';
 import { UserRole } from 'src/domain/enums/UserRole.enum';
 
 

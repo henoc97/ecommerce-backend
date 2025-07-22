@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@nestjs/common';
 import { UserPrismaRepository } from '../../infrastructure/impl.repositories/UserPrisma.repository';
 import { UserEntity } from '../../domain/entities/User.entity';
 import { IConsentPreferences } from '../../domain/repositories/User.repository';
-import { comparePassword } from '../helper/hash-compare-pwd';
+import { comparePassword } from '../helpers/hash-compare-pwd';
 
 @Injectable()
 export class UserService {

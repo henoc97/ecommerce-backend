@@ -5,8 +5,8 @@ import { ShopService } from '../../application/services/shop.service';
 import { SellerDashboardDto, SellerShopsListDto, SellerShopListItemDto } from '../dtos/SellerDashboard.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UserRole } from '../../domain/enums/UserRole.enum';
-import { Roles } from '../../application/helper/roles.decorator';
-import { RolesGuard } from '../../application/helper/roles.guard';
+import { Roles } from '../../application/helpers/roles.decorator';
+import { RolesGuard } from '../../application/helpers/roles.guard';
 
 
 @ApiTags('Vendeurs')

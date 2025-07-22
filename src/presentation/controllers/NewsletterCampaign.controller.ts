@@ -4,12 +4,12 @@ import { ShopService } from '../../application/services/shop.service';
 import { EmailService } from '../../application/services/email.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
-import { Roles } from '../../application/helper/roles.decorator';
-import { RolesGuard } from '../../application/helper/roles.guard';
+import { Roles } from '../../application/helpers/roles.decorator';
+import { RolesGuard } from '../../application/helpers/roles.guard';
 import { UserRole } from 'src/domain/enums/UserRole.enum';
 // EmailService à créer ou à mocker
-import { ConsentGuard } from '../../application/helper/consent.guard';
-import { RequiresConsent } from '../../application/helper/requires-consent.decorator';
+import { ConsentGuard } from '../../application/helpers/consent.guard';
+import { RequiresConsent } from '../../application/helpers/requires-consent.decorator';
 
 @ApiTags('Campagnes Newsletter')
 @ApiBearerAuth()

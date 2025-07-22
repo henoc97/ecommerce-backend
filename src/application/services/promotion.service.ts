@@ -1,7 +1,6 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PromotionPrismaRepository } from '../../infrastructure/impl.repositories/PromotionPrisma.repository';
 import { PromotionEntity } from '../../domain/entities/Promotion.entity';
-import logger from '../helper/logger/logRotation';
 import { UpdatePromotionDto } from '../../presentation/dtos/Promotion.dto';
 
 @Injectable()
@@ -64,7 +63,7 @@ export class PromotionService {
         if (!variantIds.length) return 0;
         // Supprimer toutes les promotions liées
         const count = await this.repository.deleteManyByProductVariantIds(variantIds);
-        logger.info(`User ${userId} deleted ${count} promotions for product ${productId}`);
+        console.log(`User ${userId} deleted ${count} promotions for product ${productId}`);
         return count;
     }
 
@@ -75,7 +74,7 @@ export class PromotionService {
         if (variant.product.shop.vendor.userId !== userId) throw new ForbiddenException('Accès interdit');
         // Supprimer la promotion
         const count = await this.repository.deleteManyByProductVariantId(productVariantId);
-        logger.info(`User ${userId} deleted ${count} promotions for variant ${productVariantId}`);
+        console.log(`User ${userId} deleted ${count} promotions for variant ${productVariantId}`);
         return count > 0;
     }
 
@@ -93,7 +92,7 @@ export class PromotionService {
         if (dto.endDate !== undefined) updateData.endDate = new Date(dto.endDate);
         // Ne pas passer productId/productVariantId
         await this.repository.updatePromotion(id, updateData);
-        logger.info(`User ${userId} updated promotion ${id}`);
+        console.log(`User ${userId} updated promotion ${id}`);
         return true;
     }
 } 

@@ -5,11 +5,11 @@ import { OrderService } from '../../application/services/order.service';
 import { CreateReviewDto, ReviewResponseDto } from '../dtos/Review.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { OrderStatus } from '../../domain/enums/OrderStatus.enum';
-import { Roles } from '../../application/helper/roles.decorator';
-import { RolesGuard } from '../../application/helper/roles.guard';
+import { Roles } from '../../application/helpers/roles.decorator';
+import { RolesGuard } from '../../application/helpers/roles.guard';
 import { UserRole } from 'src/domain/enums/UserRole.enum';
-import { ConsentGuard } from '../../application/helper/consent.guard';
-import { RequiresConsent } from '../../application/helper/requires-consent.decorator';
+import { ConsentGuard } from '../../application/helpers/consent.guard';
+import { RequiresConsent } from '../../application/helpers/requires-consent.decorator';
 
 
 @ApiTags('Avis')

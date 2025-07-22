@@ -6,8 +6,8 @@ import { ShopSubscriptionDto } from '../dtos/Shop.dto';
 import { UserRole } from '../../domain/enums/UserRole.enum';
 import { ShopSubscriptionService } from 'src/application/services/shopsubscription.service';
 import { SubscriptionService } from '../../application/services/subscription.service';
-import { Roles } from '../../application/helper/roles.decorator';
-import { RolesGuard } from '../../application/helper/roles.guard';
+import { Roles } from '../../application/helpers/roles.decorator';
+import { RolesGuard } from '../../application/helpers/roles.guard';
 
 
 @ApiTags('Abonnements Boutique')

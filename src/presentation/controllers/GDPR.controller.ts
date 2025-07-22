@@ -4,8 +4,8 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth, ApiQuery } 
 import { AuthGuard } from '@nestjs/passport';
 import { GDPRService } from '../../application/services/gdpr.service';
 import { DataProcessingRegistryService } from '../../application/services/data-processing-registry.service';
-import { Roles } from '../../application/helper/roles.decorator';
-import { RolesGuard } from '../../application/helper/roles.guard';
+import { Roles } from '../../application/helpers/roles.decorator';
+import { RolesGuard } from '../../application/helpers/roles.guard';
 import { UserRole } from '../../domain/enums/UserRole.enum';
 import { IConsentPreferences } from 'src/domain/repositories/User.repository';
 

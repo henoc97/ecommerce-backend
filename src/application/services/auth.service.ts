@@ -1,6 +1,6 @@
 import { AddressEntity } from 'src/domain/entities/Address.entity';
 import { UserEntity } from '../../domain/entities/User.entity';
-import { hashPassword, comparePassword } from '../helper/hash-compare-pwd';
+import { hashPassword, comparePassword } from '../helpers/hash-compare-pwd';
 import { AddressService } from './address.service';
 import { UserService } from './user.service';
 import { Inject, Injectable } from '@nestjs/common';

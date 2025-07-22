@@ -6,11 +6,11 @@ import { AuthGuard } from '@nestjs/passport';
 import { UserActivityEntity } from 'src/domain/entities/UserActivity.entity';
 import { UserActivityDto } from '../dtos/UserActivity.dto';
 import { AuditLogService } from '../../application/services/auditlog.service';
-import { Roles } from '../../application/helper/roles.decorator';
-import { RolesGuard } from '../../application/helper/roles.guard';
+import { Roles } from '../../application/helpers/roles.decorator';
+import { RolesGuard } from '../../application/helpers/roles.guard';
 import { UserRole } from 'src/domain/enums/UserRole.enum';
-import { ConsentGuard } from '../../application/helper/consent.guard';
-import { RequiresConsent } from '../../application/helper/requires-consent.decorator';
+import { ConsentGuard } from '../../application/helpers/consent.guard';
+import { RequiresConsent } from '../../application/helpers/requires-consent.decorator';
 
 
 @ApiTags('Activités Utilisateur')

@@ -6,8 +6,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { CreateOrderFromCartUseCase } from 'src/application/use-cases/order.use-case/CreateOrderFromCart.use-case';
 import { CreateOrderDto } from '../dtos/Order.dto';
 import { Logger } from '@nestjs/common';
-import { Roles } from '../../application/helper/roles.decorator';
-import { RolesGuard } from '../../application/helper/roles.guard';
+import { Roles } from '../../application/helpers/roles.decorator';
+import { RolesGuard } from '../../application/helpers/roles.guard';
 import { UserRole } from 'src/domain/enums/UserRole.enum';
 
 

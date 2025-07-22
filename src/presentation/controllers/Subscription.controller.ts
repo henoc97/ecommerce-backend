@@ -3,8 +3,8 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiParam, ApiBea
 import { AuthGuard } from '@nestjs/passport';
 import { SubscriptionService } from '../../application/services/subscription.service';
 import { ShopSubscriptionService } from '../../application/services/shopsubscription.service';
-import { Roles } from '../../application/helper/roles.decorator';
-import { RolesGuard } from '../../application/helper/roles.guard';
+import { Roles } from '../../application/helpers/roles.decorator';
+import { RolesGuard } from '../../application/helpers/roles.guard';
 import { UserRole } from 'src/domain/enums/UserRole.enum';
 
 

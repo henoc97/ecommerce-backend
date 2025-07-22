@@ -7,8 +7,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { AddProductToCartUseCase } from 'src/application/use-cases/cart.use-case/addProductToCart.use-case';
 import { UpdateCartItemQuantityUseCase } from 'src/application/use-cases/cart.use-case/updateCartItemQuantity.use-case';
 import { AddCartItemDto, UpdateCartItemDto } from '../dtos/CartItem.dot';
-import { Roles } from '../../application/helper/roles.decorator';
-import { RolesGuard } from '../../application/helper/roles.guard';
+import { Roles } from '../../application/helpers/roles.decorator';
+import { RolesGuard } from '../../application/helpers/roles.guard';
 import { UserRole } from 'src/domain/enums/UserRole.enum';
 
 

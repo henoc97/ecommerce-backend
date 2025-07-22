@@ -2,8 +2,8 @@ import { Controller, Get, Post, Put, Delete, Body, Query, Param, UseGuards, Req,
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { ProductService } from '../../application/services/product.service';
-import { Roles } from '../../application/helper/roles.decorator';
-import { RolesGuard } from '../../application/helper/roles.guard';
+import { Roles } from '../../application/helpers/roles.decorator';
+import { RolesGuard } from '../../application/helpers/roles.guard';
 import { ProductCreateDto, ProductUpdateDto, ProductResponseDto } from '../dtos/Product.dto';
 import { UserRole } from 'src/domain/enums/UserRole.enum';
 

@@ -6,8 +6,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { RefundEntity } from 'src/domain/entities/Refund.entity';
 import { ProcessRefundUseCase, RefundResult } from 'src/application/use-cases/payment.use-case/ProcessRefund.use-case';
 import { Logger } from 'winston';
-import { Roles } from '../../application/helper/roles.decorator';
-import { RolesGuard } from '../../application/helper/roles.guard';
+import { Roles } from '../../application/helpers/roles.decorator';
+import { RolesGuard } from '../../application/helpers/roles.guard';
 import { UserRole } from 'src/domain/enums/UserRole.enum';
 
 

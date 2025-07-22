@@ -2,11 +2,11 @@ import { Controller, Get, Query, HttpException, HttpStatus, UseGuards } from '@n
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { AnalyticsService } from '../../application/services/analytics.service';
-import { Roles } from '../../application/helper/roles.decorator';
-import { RolesGuard } from '../../application/helper/roles.guard';
+import { Roles } from '../../application/helpers/roles.decorator';
+import { RolesGuard } from '../../application/helpers/roles.guard';
 import { UserRole } from 'src/domain/enums/UserRole.enum';
-import { ConsentGuard } from '../../application/helper/consent.guard';
-import { RequiresConsent } from '../../application/helper/requires-consent.decorator';
+import { ConsentGuard } from '../../application/helpers/consent.guard';
+import { RequiresConsent } from '../../application/helpers/requires-consent.decorator';
 
 @ApiTags('Analytics')
 @ApiBearerAuth()

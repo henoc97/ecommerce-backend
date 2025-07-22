@@ -2,12 +2,12 @@ import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Req,
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiParam, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { NotificationService } from '../../application/services/notification.service';
-import { Roles } from '../../application/helper/roles.decorator';
-import { RolesGuard } from '../../application/helper/roles.guard';
+import { Roles } from '../../application/helpers/roles.decorator';
+import { RolesGuard } from '../../application/helpers/roles.guard';
 import { NotificationResponseDto, MarkNotificationAsReadDto } from '../dtos/Notification.dto';
 import { UserRole } from 'src/domain/enums/UserRole.enum';
-import { ConsentGuard } from '../../application/helper/consent.guard';
-import { RequiresConsent } from '../../application/helper/requires-consent.decorator';
+import { ConsentGuard } from '../../application/helpers/consent.guard';
+import { RequiresConsent } from '../../application/helpers/requires-consent.decorator';
 
 @ApiTags('Notifications')
 @ApiBearerAuth()

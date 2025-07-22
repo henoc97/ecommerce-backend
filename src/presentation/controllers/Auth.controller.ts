@@ -11,11 +11,13 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { LoginDto, SignUpDto } from '../dtos/Auth.dto';
 import { Throttle } from '@nestjs/throttler';
+import { AppLogger } from '../../application/helpers/logger/logger.service';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
     constructor(
+        private logger: AppLogger,
         @Inject(AuthService) private readonly authService: AuthService,
     ) { }
 
@@ -26,7 +28,7 @@ export class AuthController {
     @ApiBody({ type: SignUpDto })
     @Post('sign')
     async sign(@Body() signUpDto: SignUpDto, @Res() res: Response) {
-        console.log('[AuthController] sign', { email: signUpDto.email });
+        this.logger.log(`[AuthController] sign email:${signUpDto.email}`);
         try {
             // Vérifier si l'utilisateur existe déjà
             const existing = await this.authService['userService'].findByEmail(signUpDto.email);
@@ -57,19 +59,20 @@ export class AuthController {
                 maxAge: 10 * 60 * 60 * 1000, // 10 heure
             });
 
-            console.log('tokens', tokens);
+            this.logger.log(`tokens ${tokens}`);
             const response = {
                 message: 'Compte créé, veuillez vérifier votre email',
                 userId: created.id,
                 accessToken: tokens.accessToken
             };
-            console.log('[AuthController] sign SUCCESS', response);
+            this.logger.log(`[AuthController] sign SUCCESS ${response}`);
             return res.status(HttpStatus.CREATED).json(response);
         } catch (error: any) {
             if (error instanceof HttpException) {
+                this.logger.error('[AuthController] sign ERROR', error as any);
                 return res.status(error.getStatus()).json({ message: error.message });
             }
-            console.error('[AuthController] sign ERROR', error);
+            this.logger.error('[AuthController] sign ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Une erreur est survenue. Veuillez réessayer.' });
         }
     }
@@ -83,7 +86,7 @@ export class AuthController {
     @Throttle({ login: { limit: 5, ttl: 60, blockDuration: 120 } }) // applique la stratégie nommée 'login'
     @Post('login')
     async login(@Body() loginDto: LoginDto, @Res() res: Response) {
-        console.log('[AuthController] login', { email: loginDto.email });
+        this.logger.log(`[AuthController] login  email: ${loginDto.email}`);
         try {
             // 1. Chercher l'utilisateur par email
             const user = await this.authService['userService'].findByEmail(loginDto.email);
@@ -115,19 +118,20 @@ export class AuthController {
             });
 
             // 5. Retourner la réponse
-            console.log('tokens', tokens);
+            this.logger.log(`tokens ${tokens}`);
             const response = {
                 message: "Connexion au compte utilisateur",
                 userId: user.id,
                 accessToken: tokens.accessToken
             };
-            console.log('[AuthController] login SUCCESS', response);
+            this.logger.log(`[AuthController] login SUCCESS ${response}`);
             return res.status(HttpStatus.CREATED).json(response);
         } catch (error: any) {
             if (error instanceof HttpException) {
+                this.logger.error('[AuthController] login ERROR', error as any);
                 return res.status(error.getStatus()).json({ message: error.message });
             }
-            console.error('[AuthController] login ERROR', error);
+            this.logger.error('[AuthController] login ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Une erreur est survenue. Veuillez réessayer.' });
         }
     }
@@ -145,7 +149,7 @@ export class AuthController {
     @Get('google/callback')
     @UseGuards(AuthGuard('google'))
     async googleCallback(@Req() req: Request, @Res() res: Response) {
-        console.log('[AuthController] googleCallback', { user: req.user });
+        this.logger.log(`[AuthController] googleCallback user: ${req.user}`);
         try {
             const user = req.user;
             const tokens = this.authService.generateToken(user['id'].toString(), user['email']);
@@ -162,18 +166,18 @@ export class AuthController {
                 maxAge: 60 * 60 * 1000,
             });
             // Redirige vers le frontend (à adapter selon ton besoin)
-            console.log('tokens', tokens);
-            console.log('[AuthController] googleCallback SUCCESS', { user });
+            this.logger.log(`tokens ${tokens}`);
+            this.logger.log(`[AuthController] googleCallback SUCCESS ${user}`);
             return res.redirect('/');
         } catch (error) {
-            console.error('[AuthController] googleCallback ERROR', error);
+            this.logger.error('[AuthController] googleCallback ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur lors de la connexion Google' });
         }
     }
 
     @Post('refresh')
     async refreshToken(@Req() req: Request, @Res() res: Response) {
-        console.log('[AuthController] refreshToken', { cookies: req.cookies });
+        this.logger.log(`[AuthController] refreshToken ${req.cookies}`);
         try {
             const refreshToken = req.cookies?.refreshToken;
             if (!refreshToken) return res.sendStatus(401);
@@ -195,26 +199,26 @@ export class AuthController {
                     maxAge: 60 * 60 * 1000, // 1 heure
                 });
 
-                console.log('tokens', accessToken);
-                console.log('[AuthController] refreshToken SUCCESS', { user });
+                this.logger.log(`tokens ${accessToken}`);
+                this.logger.log(`[AuthController] refreshToken SUCCESS ${user}`);
                 res.status(200).json({ message: "success" });
             });
         } catch (error) {
-            console.error('[AuthController] refreshToken ERROR', error);
+            this.logger.error('[AuthController] refreshToken ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur lors du refresh token' });
         }
     }
 
     @Post('logout')
     async logout(@Req() req: Request, @Res() res: Response) {
-        console.log('[AuthController] logout', { user: req.user });
+        this.logger.log(`[AuthController] logout user: ${req.user}`);
         try {
             res.clearCookie("refreshToken");
             res.clearCookie("accessToken");
-            console.log('[AuthController] logout SUCCESS');
+            this.logger.log('[AuthController] logout SUCCESS');
             res.status(200).json({ message: "Déconnexion réussie" });
         } catch (error) {
-            console.error('[AuthController] logout ERROR', error);
+            this.logger.error('[AuthController] logout ERROR', error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erreur lors de la déconnexion' });
         }
     }

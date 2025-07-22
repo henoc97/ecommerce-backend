@@ -9,8 +9,8 @@ import { ShopService } from '../../application/services/shop.service';
 import { VendorService } from '../../application/services/vendor.service';
 import { UpdateShopDto } from '../dtos/Shop.dto';
 import { UserRole } from '../../domain/enums/UserRole.enum';
-import { Roles } from '../../application/helper/roles.decorator';
-import { RolesGuard } from '../../application/helper/roles.guard';
+import { Roles } from '../../application/helpers/roles.decorator';
+import { RolesGuard } from '../../application/helpers/roles.guard';
 
 
 @ApiTags('Boutiques')

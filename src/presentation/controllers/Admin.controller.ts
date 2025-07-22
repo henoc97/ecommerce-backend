@@ -6,8 +6,8 @@ import { AuditLogService } from '../../application/services/auditlog.service';
 import { ReviewService } from '../../application/services/review.service';
 import { AuditLogAction } from 'src/domain/enums/AuditLogAction.enum';
 import { AuditLogEntity } from 'src/domain/entities/AuditLog.entity';
-import { Roles } from '../../application/helper/roles.decorator';
-import { RolesGuard } from '../../application/helper/roles.guard';
+import { Roles } from '../../application/helpers/roles.decorator';
+import { RolesGuard } from '../../application/helpers/roles.guard';
 import { UserRole } from 'src/domain/enums/UserRole.enum';
 
 
