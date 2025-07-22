@@ -80,7 +80,7 @@ export class AuthController {
     @ApiResponse({ status: 401, description: 'Mot de passe incorrect.' })
     @ApiResponse({ status: 500, description: 'Erreur serveur.' })
     @ApiBody({ type: LoginDto })
-    @Throttle({ login: { limit: 5, ttl: 60 } }) // applique la stratégie nommée 'login'
+    @Throttle({ login: { limit: 5, ttl: 60, blockDuration: 120 } }) // applique la stratégie nommée 'login'
     @Post('login')
     async login(@Body() loginDto: LoginDto, @Res() res: Response) {
         console.log('[AuthController] login', { email: loginDto.email });
@@ -219,7 +219,7 @@ export class AuthController {
         }
     }
 
-    @Throttle({ reset: { limit: 3, ttl: 60 } }) // applique la stratégie nommée 'reset'
+    @Throttle({ reset: { limit: 3, ttl: 60, blockDuration: 120 } }) // applique la stratégie nommée 'reset'
     @Post('reset-password')
     async resetPassword(@Body() dto: any, @Res() res: Response) {
         // ... logique de reset password à compléter ...

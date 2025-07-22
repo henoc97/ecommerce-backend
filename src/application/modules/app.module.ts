@@ -31,7 +31,25 @@ import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
-    ThrottlerModule.forRoot(),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          name: 'default',
+          limit: 10,
+          ttl: 60,
+        },
+        {
+          name: 'login',
+          limit: 5,
+          ttl: 60,
+        },
+        {
+          name: 'reset',
+          limit: 3,
+          ttl: 60,
+        },
+      ],
+    }),
     ScheduleModule.forRoot(),
     AuthModule,
     UserProfileModule,
