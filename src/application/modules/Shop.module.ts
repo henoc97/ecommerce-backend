@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ShopController } from 'src/presentation/controllers/Shop.controller';
+import { ShopController } from '../../presentation/controllers/Shop.controller';
 import { CoreModule } from './Core.module';
 
 @Module({

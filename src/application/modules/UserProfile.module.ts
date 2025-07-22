@@ -1,5 +1,5 @@
 
-import { UserProfileController } from 'src/presentation/controllers/UserProfile.controller';
+import { UserProfileController } from '../../presentation/controllers/UserProfile.controller';
 import { CoreModule } from './Core.module';
 import { Module } from '@nestjs/common';
 

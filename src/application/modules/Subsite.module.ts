@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CoreModule } from './Core.module';
-import { SubsiteController } from 'src/presentation/controllers/Subsite.controller';
+import { SubsiteController } from '../../presentation/controllers/Subsite.controller';
 
 @Module({
     imports: [CoreModule],

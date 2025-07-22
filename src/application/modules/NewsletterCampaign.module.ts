@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CoreModule } from './Core.module';
-import { NewsletterCampaignController } from 'src/presentation/controllers/NewsletterCampaign.controller';
+import { NewsletterCampaignController } from '../../presentation/controllers/NewsletterCampaign.controller';
 
 @Module({
     imports: [CoreModule],

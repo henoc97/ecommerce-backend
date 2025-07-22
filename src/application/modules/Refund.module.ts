@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { RefundController } from 'src/presentation/controllers/Refund.controller';
+import { RefundController } from '../../presentation/controllers/Refund.controller';
 import { CoreModule } from './Core.module';
 
 @Module({

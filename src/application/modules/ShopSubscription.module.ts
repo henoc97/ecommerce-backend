@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CoreModule } from './Core.module';
-import { ShopSubscriptionController } from 'src/presentation/controllers/ShopSubscription.controller';
+import { ShopSubscriptionController } from '../../presentation/controllers/ShopSubscription.controller';
 
 @Module({
     imports: [CoreModule],

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { NotificationController } from 'src/presentation/controllers/Notification.controller';
+import { NotificationController } from '../../presentation/controllers/Notification.controller';
 import { CoreModule } from './Core.module';
 
 @Module({
